@@ -5,7 +5,8 @@
  * userInput: chuỗi người dùng nhập vào
  * Trả về: chuỗi phản hồi AI (đã xử lý ở backend)
  */
-export async function callGroqAPI(userInput) {
+// KHÔNG dùng export
+async function callGroqAPI(userInput) {
     const res = await fetch('/api/ask-ai', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -15,4 +16,5 @@ export async function callGroqAPI(userInput) {
     if (!res.ok) throw new Error(data.error || "Lỗi gọi API proxy!");
     return data.reply || "Không có phản hồi từ AI.";
 }
+// Gán lên window để global
 window.callGroqAPI = callGroqAPI;
