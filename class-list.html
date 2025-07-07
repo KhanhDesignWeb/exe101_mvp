@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Join a Class</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-white text-gray-800">
+  <div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white border-r hidden md:flex flex-col items-center py-6">
+      <!-- Logo -->
+      <div class="mb-8">
+        <img src="assets/images/Logo1-Criticore.png" alt="Criticore Logo" class="h-12 mx-auto">
+      </div>
+
+      <!-- Navigation -->
+      <nav class="flex flex-col w-full space-y-1 text-sm px-4">
+        <a href="#" class="flex items-center gap-3 px-3 py-2 bg-gray-100 text-gray-900 rounded font-medium">
+          <!-- Classrooms Icon -->
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 6V4m0 16v-2m8-8h-2m-12 0H4m16.24 6.24l-1.42-1.42M6.24 6.24l-1.42-1.42m12.02 12.02l1.42-1.42M6.24 17.76l-1.42 1.42" />
+          </svg>
+          Classrooms
+        </a>
+        <a href="#" class="flex items-center gap-3 px-3 py-2 text-gray-600 hover:bg-gray-100 rounded">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M8 10h.01M12 10h.01M16 10h.01M9 16h6m2 4H7a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v12a2 2 0 01-2 2z" />
+          </svg>
+          Topics
+        </a>
+        <a href="#" class="flex items-center gap-3 px-3 py-2 text-gray-600 hover:bg-gray-100 rounded">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 8c-1.657 0-3 1.343-3 3v2h6v-2c0-1.657-1.343-3-3-3z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M5 20h14a2 2 0 002-2v-4H3v4a2 2 0 002 2z" />
+          </svg>
+          Leaderboard
+        </a>
+        <a href="#" class="flex items-center gap-3 px-3 py-2 text-gray-600 hover:bg-gray-100 rounded">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h18M3 12h18M3 17h18" />
+          </svg>
+          Resources
+        </a>
+        <a href="#" class="flex items-center gap-3 px-3 py-2 text-gray-600 hover:bg-gray-100 rounded">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 17v-6h6v6m2 4H7a2 2 0 01-2-2V7a2 2 0 012-2h4l2-2h4a2 2 0 012 2v12a2 2 0 01-2 2z" />
+          </svg>
+          Feedback
+        </a>
+        <a href="#" class="flex items-center gap-3 px-3 py-2 text-gray-600 hover:bg-gray-100 rounded">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M5.121 17.804A6.002 6.002 0 0112 15c1.657 0 3.157.672 4.243 1.76M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          Account
+        </a>
+        <a href="#" class="flex items-center gap-3 px-3 py-2 text-red-600 hover:bg-red-50 rounded">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H7a2 2 0 01-2-2V7a2 2 0 012-2h4a2 2 0 012 2v1" />
+          </svg>
+          Sign out
+        </a>
+      </nav>
+    </aside>
+
+    <!-- Main content -->
+    <main class="flex-1 p-6">
+      <div class="max-w-7xl mx-auto">
+        <div class="flex justify-between items-center mb-4">
+          <h1 class="text-2xl font-semibold text-blue-700">Join a Class</h1>
+        </div>
+
+        <p class="text-gray-600 mb-6">
+          Browse available classes and join discussions that interest you. Build your critical thinking skills through
+          structured dialogue.
+        </p>
+
+        <!-- Search and Filters -->
+        <div class="flex flex-wrap gap-4 mb-6">
+          <input type="text" placeholder="Search classes, subjects, or teachers..."
+            class="flex-1 min-w-[200px] border border-gray-300 rounded-md px-4 py-2 text-sm shadow-sm" />
+          <select id="semesterFilter" class="border border-gray-300 rounded-md px-2 py-2 text-sm">
+            <option value="All">All Semesters</option>
+            <option value="Semester 1 - 2025">Semester 1 - 2025</option>
+            <option value="Semester 2 - 2025">Semester 2 - 2025</option>
+          </select>
+          <div class="flex gap-2">
+            <button class="filter-btn px-3 py-2 rounded-md bg-gray-200 text-sm" data-status="All">All</button>
+            <button class="filter-btn px-3 py-2 rounded-md bg-gray-200 text-sm" data-status="In Progress">In
+              Progress</button>
+            <button class="filter-btn px-3 py-2 rounded-md bg-gray-200 text-sm" data-status="Not Started">Not
+              Started</button>
+            <button class="filter-btn px-3 py-2 rounded-md bg-gray-200 text-sm"
+              data-status="Completed">Completed</button>
+          </div>
+        </div>
+
+        <!-- Class Cards Container -->
+        <div id="classList" class="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3"></div>
+      </div>
+    </main>
+  </div>
+  <script src="assets/js/init-data.js"></script>
+  <script src="assets/js/class-list.js"></script>
+</body>
+
+</html>

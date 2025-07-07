@@ -1,0 +1,82 @@
+.create-room {
+    background: #fff;
+    padding: 18px 24px;
+    border-radius: 14px;
+    box-shadow: 0 2px 14px #395bce15, 0 6px 40px #e1ff4412;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 25px;
+    animation: fadeinUp 0.8s;
+}
+
+.create-room button,
+.ai-suggestion button,
+.random-question button {
+    background: linear-gradient(90deg, #395bce 60%, #23367a 100%);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 20px;
+    font-size: 15px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px #395bce23;
+    font-weight: 600;
+    transition: background 0.18s, transform 0.15s;
+}
+
+.create-room button:hover,
+.ai-suggestion button:hover,
+.random-question button:hover {
+    background: #e1ff44;
+    color: #25367a;
+    transform: translateY(-2px) scale(1.05);
+}
+
+.room-list {
+    margin-bottom: 30px;
+}
+
+.rooms {
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+}
+
+.room-card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 1px 10px #395bce11, 0 8px 24px #23367a0a;
+    padding: 18px 20px;
+    min-width: 240px;
+    max-width: 270px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: box-shadow 0.23s, transform 0.22s;
+    animation: fadeinUp 1.2s;
+}
+
+.room-card:hover {
+    box-shadow: 0 6px 36px #395bce44, 0 1.5px 10px #e1ff4440;
+    transform: scale(1.035) translateY(-6px) rotate(-1deg);
+    border: 1.5px solid #e1ff44;
+}
+
+.room-card button {
+    background: #e1ff44;
+    color: #25367a;
+    border: none;
+    border-radius: 7px;
+    padding: 7px 0;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.18s, color 0.18s, transform 0.12s;
+    box-shadow: 0 2px 10px #e1ff4422;
+}
+
+.room-card button:hover {
+    background: #395bce;
+    color: #fff;
+    transform: scale(1.05);
+}

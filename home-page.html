@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Debate AI Platform</title>
+    <link rel="stylesheet" href="assets/css/home-page.css" />
+    <link rel="stylesheet" href="assets/css/debate-room.css" />
+    <link rel="stylesheet" href="assets/css/ai-suggestion.css" />
+    <link rel="stylesheet" href="assets/css/random-question.css" />
+    <link rel="stylesheet" href="assets/css/profile.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo">
+            <img src="assets/images/Logo1-Criticore.png" alt="Debate AI Logo" class="logo-img">
+        </div>
+        <nav>
+            <ul>
+                <li class="nav-item active" data-tab="home"><i class="fa fa-home"></i> Trang chủ</li>
+                <li class="nav-item" data-tab="debate-room"><i class="fa fa-users"></i> Phòng tranh biện</li>
+                <li class="nav-item" data-tab="ai-suggestion"><i class="fa fa-lightbulb"></i> AI Suggestion</li>
+                <li class="nav-item" data-tab="random-question"><i class="fa fa-question"></i> Random câu hỏi</li>
+                <li class="nav-item" data-tab="vote"><i class="fa fa-star"></i> Vote 5 sao</li>
+                <li class="nav-item" data-tab="profile"><i class="fa fa-user"></i> Tài khoản</li>
+                <li class="nav-item" data-tab="logout"><i class="fa fa-arrow-right-from-bracket"></i> Đăng xuất</li>
+            </ul>
+        </nav>
+    </aside>
+
+    <div class="main">
+        <!-- HOME (Trang chủ) -->
+        <section id="home" class="main-section">
+            <header class="header">
+                <div class="header-title">Không gian tranh biện trực tuyến cho sinh viên</div>
+                <div class="header-actions">
+                    <select>
+                        <option>VI</option>
+                        <option>EN</option>
+                    </select>
+                    <span class="user">Sinh viên A</span>
+                </div>
+            </header>
+            <div style="margin:50px 0 0 20px;color:#395bce;font-size:20px;">Chào mừng bạn đến với nền tảng tranh biện &
+                AI hỗ trợ!</div>
+        </section>
+
+        <!-- PHÒNG TRANH BIỆN -->
+        <section id="debate-room" class="main-section" style="display:none;">
+            <!-- Nội dung phần debate-room sẽ đưa sang debate-room.html để dễ quản lý -->
+            <h2>Tạo/Tham gia phòng tranh biện</h2>
+            <select id="room-type">
+                <option value="individual">Cá nhân</option>
+                <option value="pair">Theo cặp</option>
+                <option value="group">Nhóm</option>
+            </select>
+            <input type="text" placeholder="Nhập tên phòng hoặc mã phòng" id="room-name" />
+            <button onclick="joinRoom()">Tạo/Tham gia</button>
+            <div class="room-list" style="margin-top:25px;">
+                <h3>Danh sách phòng đang mở</h3>
+                <div class="rooms">
+                    <div class="room-card">
+                        <div class="room-info">
+                            <b>Phòng: Chủ đề Trí tuệ nhân tạo</b>
+                            <div>Loại: Nhóm | Số người: 4/6</div>
+                        </div>
+                        <button>Vào phòng</button>
+                    </div>
+                    <div class="room-card">
+                        <div class="room-info">
+                            <b>Phòng: Mở rộng ý tưởng giáo dục</b>
+                            <div>Loại: Cặp | Số người: 2/2</div>
+                        </div>
+                        <button>Vào phòng</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- AI SUGGESTION -->
+        <section id="ai-suggestion" class="main-section" style="display:none;">
+            <!-- Nội dung phần AI Suggestion sẽ đưa sang ai-suggestion.html để dễ quản lý -->
+            <div class="ai-suggestion">
+                <h3>AI Gợi ý lập luận</h3>
+                <div id="ai-response">
+                    <div><b>Cấu trúc lập luận:</b></div>
+                    <ul>
+                        <li><b>Mở bài</b>: Giới thiệu vấn đề</li>
+                        <li><b>Lý lẽ</b>: Đưa ra luận điểm chính</li>
+                        <li><b>Dẫn chứng</b>: Thêm ví dụ, số liệu</li>
+                        <li><b>Kết luận</b>: Tóm tắt, kêu gọi</li>
+                    </ul>
+                    <div><b>Gợi ý AI:</b> "Bạn có thể trích dẫn số liệu từ World Bank hoặc Google Scholar để làm mạnh
+                        lập
+                        luận."</div>
+                </div>
+                <button onclick="aiSuggest()">Gợi ý mới</button>
+            </div>
+
+        </section>
+
+        <!-- RANDOM CÂU HỎI -->
+        <section id="random-question" class="main-section" style="display:none;">
+            <!-- Nội dung phần Random Question sẽ đưa sang random-question.html để dễ quản lý -->
+            <div class="random-question">
+                <h3>Random Câu hỏi tranh biện</h3>
+                <div id="question-content">
+                    "Trí tuệ nhân tạo có thể thay thế hoàn toàn giáo viên trong tương lai không?"
+                </div>
+                <button onclick="randomQuestion()">Câu hỏi khác</button>
+                <div class="teacher-input">
+                    <input type="text" id="teacher-question" placeholder="GV nhập câu hỏi mở (optional)">
+                    <button onclick="addTeacherQuestion()">Thêm</button>
+                </div>
+            </div>
+
+        </section>
+        <section id="profile" class="main-section" style="display:none;">
+            <div class="profile-section">
+                <h3>Thông tin tài khoản</h3>
+                <div class="profile-container">
+                    <div class="avatar-block">
+                        <img src="https://i.pravatar.cc/96" alt="Avatar" class="profile-avatar" id="user-avatar">
+                        <button class="avatar-upload-btn">Đổi ảnh</button>
+                    </div>
+                    <div class="profile-fields">
+                        <div class="profile-field">
+                            <label>Username:</label>
+                            <input type="text" id="username" value="soi_user">
+                        </div>
+                        <div class="profile-field">
+                            <label>Email:</label>
+                            <input type="email" id="email" value="soi@example.com">
+                        </div>
+                        <div class="profile-field">
+                            <label>Đổi mật khẩu:</label>
+                            <input type="password" id="new-password" placeholder="Nhập mật khẩu mới">
+                        </div>
+                        <button class="save-btn" onclick="savePassword()">Đổi mật khẩu</button>
+                        <button class="logout-btn" onclick="logoutAccount()"><i
+                                class="fa fa-arrow-right-from-bracket"></i> Đăng xuất</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- VOTE 5 SAO (giữ chung) -->
+        <section id="vote" class="main-section" style="display:none;">
+            <h3>Vote đáp án nhóm</h3>
+            <div class="star-vote">
+                <span onclick="voteStar(1)" id="star1" class="star">&#9733;</span>
+                <span onclick="voteStar(2)" id="star2" class="star">&#9733;</span>
+                <span onclick="voteStar(3)" id="star3" class="star">&#9733;</span>
+                <span onclick="voteStar(4)" id="star4" class="star">&#9733;</span>
+                <span onclick="voteStar(5)" id="star5" class="star">&#9733;</span>
+            </div>
+            <div id="vote-result">Bạn chưa vote</div>
+        </section>
+    </div>
+    <script src="assets/js/home-page.js"></script>
+    <script src="assets/js/debate-room.js"></script>
+    <script src="assets/js/ai-suggestion.js"></script>
+    <script src="assets/js/random-question.js"></script>
+    <script src="assets/js/profile.js"></script>
+</body>
+
+</html>

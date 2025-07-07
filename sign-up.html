@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Criticore - Signup</title>
+    <link rel="stylesheet" href="assets/css/auth.css" />
+    <link rel="icon" type="image/png" href="assets/images/Logo-Criticore.png" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <div class="left">
+        <img
+          src="https://images.unsplash.com/photo-1506744038136-46273834b3fb"
+          alt="Hot air balloons"
+        />
+      </div>
+      <div class="right">
+        <div class="form-box">
+          <div class="logo">
+            <img
+              src="assets/images/Logo1-Criticore.png"
+              alt="Criticore Logo"
+              class="logo-img"
+            />
+          </div>
+          <h1>Learn to Think Critically</h1>
+          <p class="subtitle">Join Criticore and unlock your full potential</p>
+
+          <!-- 👇 Form đăng ký -->
+          <form class="signup-form">
+            <input type="text" placeholder="First name" required />
+            <input type="text" placeholder="Last name" required />
+            <input type="email" placeholder="Email address" required />
+            <div class="password-wrapper">
+              <input
+                type="password"
+                id="password"
+                placeholder="Password"
+                required
+              />
+              <button type="button" id="toggle-password">
+                <span class="material-icons" id="eye-icon">visibility</span>
+              </button>
+            </div>
+            <div class="terms-check">
+              <input type="checkbox" id="agree" required />
+              <label for="agree">
+                I agree to the
+                <a href="#">Terms of use</a> and
+                <a href="#">Privacy Policy</a>
+              </label>
+            </div>
+
+            <button type="submit" class="submit-btn">Create an account</button>
+          </form>
+
+          <div class="divider"><span>OR</span></div>
+
+          <button class="social-btn">
+            <img
+              src="https://www.svgrepo.com/show/475656/google-color.svg"
+              alt="Google"
+              width="20"
+            />
+            Sign up with Google
+          </button>
+
+          <p class="terms">
+            By signing up, you agree to the
+            <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>,
+            including <a href="#">cookie use</a>.
+          </p>
+
+          <p class="login-text">
+            Already have an account?
+            <a href="sign-in.html" class="login-link">Log in</a>
+          </p>
+        </div>
+      </div>
+    </div>
+    <script src="assets/js/auth.js"></script>
+  </body>
+</html>
