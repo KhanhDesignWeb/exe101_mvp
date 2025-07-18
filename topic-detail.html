@@ -3,32 +3,124 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Q&A Chủ đề</title>
+    <title>Criticore - Topic Detail</title>
+    <link rel="icon" type="image/png" href="assets/images/Logo-Criticore.png" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+  .fullscreen-answer {
+    width: 100vw !important;
+    left: 0 !important;
+    transform: none !important;
+    bottom: 0 !important;
+    border-radius: 0 !important;
+    padding: 1.5rem !important;
+    height: 50vh;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    z-index: 999;
+  }
+
+  .fullscreen-answer textarea {
+    height: 100%;
+    font-size: 1.125rem;
+  }
+
+  .fullscreen-answer button {
+    margin-top: 1rem;
+    align-self: flex-end;
+  }
+</style>
+
 </head>
 
-<body class="bg-green-100 min-h-screen">
-    <!-- Q&A Topic Detail -->
-    <div class="max-w-2xl mx-auto p-4" id="qaWrapper">
-        <a href="javascript:history.back()" class="text-blue-600 mb-2 inline-block">&larr; Quay lại</a>
-        <div id="topicInfo" class="bg-white p-5 rounded shadow mb-6"></div>
-        <div id="answersList" class="mb-20"></div>
+<body class="bg-gray-50 min-h-screen text-gray-800">
+    <!-- Header Topic Info -->
+    <div class="max-w-6xl mx-auto px-4 py-6" id="topicInfo">
+        <!-- sẽ được JS fill vào -->
     </div>
 
-    <!-- Thanh trả lời dạng nổi giữa, nhỏ gọn -->
-    <div id="answerBar"
-        class="fixed left-1/2 bottom-6 transform -translate-x-1/2 bg-white border shadow-lg z-40 flex items-center px-3 py-2 gap-2 rounded-2xl"
-        style="width: 420px; max-width: 94vw;">
-        <textarea id="answerContent" placeholder="Nhập câu trả lời..." rows="1"
-            class="flex-1 resize-none border rounded-xl px-4 py-2 bg-gray-50 focus:bg-white focus:outline-blue-400 transition text-base"
-            style="min-height:36px; max-height:96px;"></textarea>
-        <button id="submitAnswer"
-            class="bg-blue-600 text-white px-4 py-2 rounded-xl font-bold hover:bg-blue-700 transition">
-            Gửi
-        </button>
+    <!-- Main Content -->
+    <div class="max-w-6xl mx-auto px-4">
+        <!-- Prompt -->
+        <div class="bg-white rounded-lg p-6 shadow-sm border mb-8" id="promptBlock">
+            <!-- JS sẽ fill vào -->
+        </div>
+
+        <!-- Student Responses -->
+        <h2 class="text-lg font-semibold mb-4">Student Responses:</h2>
+        <div id="answersList" class="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-32"></div>
     </div>
 
+<div id="answerBar"
+    class="fixed left-1/2 bottom-6 transform -translate-x-1/2 bg-white border shadow-lg z-40 flex items-center px-3 py-2 gap-2 rounded-2xl transition-all duration-300 ease-in-out"
+    style="width: 420px; max-width: 94vw;">
+    <textarea id="answerContent" placeholder="Nhập câu trả lời..." rows="1"
+        class="transition-all duration-300 ease-in-out w-full resize-none border rounded-xl px-4 py-3 bg-gray-50 focus:bg-white focus:outline-blue-400 text-base"
+        style="min-height:48px; max-height:80vh; overflow-y:auto;"></textarea>
+
+    <button id="submitAnswer"
+        class="bg-blue-600 text-white px-4 py-2 rounded-xl font-bold hover:bg-blue-700 transition">
+        Gửi
+    </button>
+</div>
+
+
+    <div id="answerModal" class="hidden fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl w-[95%] max-w-3xl max-h-[90vh] overflow-y-auto p-6 relative">
+
+            <!-- Nút đóng -->
+            <button onclick="closeAnswerDetail()"
+                class="absolute top-4 right-5 text-gray-500 hover:text-red-600 text-xl">×</button>
+
+            <!-- Header -->
+            <h2 class="text-xl font-bold mb-4">Student Response</h2>
+
+            <!-- Câu trả lời chính -->
+            <div class="bg-blue-50 rounded-lg p-5 mb-6">
+                <div class="flex items-start gap-4 mb-2">
+                    <img id="answerAvatar" src="https://via.placeholder.com/40" alt="Avatar"
+                        class="w-10 h-10 rounded-full object-cover" />
+                    <div>
+                        <div class="font-semibold text-gray-900" id="answerAuthor">Alice Johnson</div>
+                        <div class="text-xs text-gray-500" id="answerTime">1 day ago</div>
+                    </div>
+                </div>
+                <div class="text-gray-800 text-sm leading-relaxed" id="answerText">
+                    Câu trả lời sẽ hiển thị ở đây
+                </div>
+                <div class="flex items-center text-sm text-gray-600 mt-4 gap-6">
+                    <div id="likeCount">♡ 4</div>
+                    <div id="replyCount">2 replies</div>
+                </div>
+            </div>
+
+            <!-- Danh sách phản hồi -->
+            <h3 class="text-sm font-semibold text-gray-700 mb-3">Replies:</h3>
+            <div id="replyList" class="space-y-4 mb-6">
+                <!-- Mỗi phản hồi sẽ render tại đây -->
+            </div>
+
+            <!-- Ô nhập phản hồi -->
+            <div class="flex items-start gap-3 border-t pt-4">
+                <div class="w-10 h-10 rounded-full bg-gray-200 shrink-0"></div>
+                <div class="flex-1">
+                    <textarea id="replyInput" rows="2"
+                        class="w-full border rounded-xl px-4 py-2 text-sm resize-none bg-gray-50 focus:bg-white focus:outline-blue-500 transition"
+                        placeholder="Reply to this response..."></textarea>
+                </div>
+                <button onclick="sendReply()"
+                    class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold px-4 py-2 rounded-xl text-sm flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M2 21l21-9L2 3v7l15 2-15 2v7z" />
+                    </svg>
+                    Reply
+                </button>
+            </div>
+
+        </div>
+    </div>
 
     <!-- Floating Button -->
     <button id="openChat"
@@ -40,22 +132,28 @@
         </svg>
     </button>
 
-    <!-- Chatbot Popup (bottom-32) -->
+    <!-- Chatbot Popup (mở rộng) -->
     <div id="chatPopup"
-        class="hidden fixed bottom-24 right-6 w-[340px] bg-gray-900 text-white rounded-3xl shadow-2xl z-50 flex flex-col"
-        style="min-height: 450px;">
-        <div class="flex items-center justify-between px-5 py-4 border-b border-gray-700">
-            <div class="text-lg font-bold text-blue-400">Criticore AI</div>
+        class="hidden fixed bottom-24 right-6 w-[480px] h-[600px] bg-gray-900 text-white rounded-3xl shadow-2xl z-50 flex flex-col">
+        <!-- Header -->
+        <div class="flex items-center justify-between px-6 py-5 border-b border-gray-700">
+            <div class="text-xl font-bold text-blue-400">AI Chatbot</div>
             <button id="closeChat" class="text-gray-400 hover:text-red-400">
                 <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M6 18L18 6M6 6l12 12" />
                 </svg>
             </button>
         </div>
-        <div id="messages" class="flex-1 p-5 overflow-y-auto" style="max-height:260px;"></div>
-        <div class="px-5 py-4 border-t border-gray-700 flex gap-2 items-end bg-gray-900">
+
+        <!-- Messages -->
+        <div id="messages" class="flex-1 px-6 py-5 overflow-y-auto" style="max-height: calc(100% - 160px);">
+            <!-- Tin nhắn sẽ append vào đây -->
+        </div>
+
+        <!-- Input -->
+        <div class="px-6 py-5 border-t border-gray-700 flex gap-3 items-end">
             <textarea id="userInput" rows="1"
-                class="flex-1 resize-none !overflow-hidden rounded-2xl bg-gray-800 text-white px-5 py-3 outline-none border-2 border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-400 text-base shadow-sm transition"
+                class="flex-1 resize-none rounded-2xl bg-gray-800 text-white px-5 py-4 outline-none border-2 border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-400 text-base shadow-sm transition"
                 placeholder="Viết điều gì đó..."></textarea>
             <button id="sendBtn"
                 class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-2xl text-base shadow-sm transition">
@@ -63,8 +161,9 @@
             </button>
         </div>
     </div>
-    <script src="/assets/js/API-AI.js"></script>
-    <script src="/assets/js/topic-detail.js"></script>
+
+
+    <script src="assets/js/topic-detail.js"></script>
 </body>
 
 </html>
