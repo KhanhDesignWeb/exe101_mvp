@@ -5,7 +5,7 @@
  * userInput: chuỗi người dùng nhập vào
  * Trả về: chuỗi phản hồi AI (đã xử lý ở backend)
  */
-export async function callGroqAPI(userInput) {
+async function callGroqAPI(userInput) {
     const res = await fetch('/api/ask-ai', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
