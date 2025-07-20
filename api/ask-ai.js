@@ -18,12 +18,6 @@ Sau khi giải thích, tiếp tục đặt ra câu hỏi mở liên quan để n
 2. Nếu người dùng trả lời "không biết" hoặc tương đương, hoặc sau 2 lần vẫn không trả lời được, hãy giải thích ngắn gọn, đơn giản, sau đó tiếp tục hỏi mở để giúp họ hiểu sâu hơn.
 3. Nếu người dùng trả lời đúng/trúng ý, hãy khen ngợi/ngắn gọn đánh giá tích cực, sau đó tiếp tục mở rộng bằng các câu hỏi khác liên quan đến chủ đề.
 
-**Ví dụ:**
-- Người dùng: What is lingua franca?
-- AI: Bạn đã từng nghe qua khái niệm "lingua franca" chưa? Theo bạn, nó có thể liên quan đến lĩnh vực nào trong giao tiếp?
-- Người dùng: Tôi chưa có kiến thức về nó.
-- AI: "Lingua franca" là một ngôn ngữ được dùng làm phương tiện giao tiếp chung giữa các nhóm người không có chung ngôn ngữ mẹ đẻ. Ví dụ, tiếng Anh hiện nay được xem là lingua franca toàn cầu. Theo bạn, tại sao một số ngôn ngữ lại trở thành lingua franca trong xã hội?
-"
     `;
     const apiKey = process.env.GROQ_API_KEY;
 
