@@ -25,7 +25,7 @@ export default async function handler(req, res) {
             'Authorization': 'Bearer ' + apiKey
         },
         body: JSON.stringify({
-            model: "deepseek-r1-distill-llama-70b",
+            model: "whisper-large-v3",
             messages: [
                 { role: "system", content: systemPrompt },
                 { role: "user", content: userInput }
