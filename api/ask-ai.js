@@ -24,7 +24,7 @@ Continue only by asking open-ended questions or briefly explaining and then aski
             'Authorization': 'Bearer ' + apiKey
         },
         body: JSON.stringify({
-            model: "gpt-3.5-turbo",
+            model: "gpt-4",
             messages: [
                 { role: "system", content: systemPrompt },
                 { role: "user", content: userInput }
