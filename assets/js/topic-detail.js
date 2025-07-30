@@ -23,9 +23,8 @@ document.getElementById("topicInfo").innerHTML = `
   <a href="javascript:history.back()" class="text-blue-600 text-sm">&larr; Back to class list</a>
   <h1 class="text-3xl font-bold mt-2 mb-2">${topic.title}</h1>
   <div class="flex items-center gap-2 text-sm text-gray-600">
-    <span class="bg-gray-200 px-2 py-0.5 rounded-full text-xs font-semibold">${
-      topic.role || "Teacher"
-    }</span>
+    <span class="bg-gray-200 px-2 py-0.5 rounded-full text-xs font-semibold">${topic.role || "Teacher"
+  }</span>
     <span>${topic.created_by}</span>
     <span>&bull;</span>
     <span>${topic.created_at}</span>
@@ -53,8 +52,7 @@ function renderAnswers() {
     <div onclick="openAnswerDetail(${index})"
          class="bg-white p-4 rounded-xl shadow hover:shadow-xl transition border cursor-pointer transform hover:scale-[1.02]">
       <div class="flex items-center gap-3 mb-3">
-        <img src="${
-          a.picture
+        <img src="${a.picture
         }" alt="avatar" class="w-9 h-9 rounded-full object-cover"/>
         <div>
           <div class="font-semibold">${a.created_by}</div>
@@ -83,9 +81,8 @@ function openAnswerDetail(index) {
     ans.created_by || "Lỗi hiển thị";
   document.getElementById("answerText").innerText = ans.content;
   document.getElementById("likeCount").innerText = `❤️ ${ans.likes || 0}`;
-  document.getElementById("replyCount").innerText = `${
-    ans.replies?.length || 0
-  } replies`;
+  document.getElementById("replyCount").innerText = `${ans.replies?.length || 0
+    } replies`;
 
   renderReplies();
 }
@@ -217,7 +214,7 @@ async function sendMessage() {
   messages.scrollTop = messages.scrollHeight;
 
   try {
-    const aiReply = await callGroqAPI(input.value);
+    const aiReply = await callOpenAIAPI(input.value);
     document.getElementById("loading").remove();
     messages.innerHTML += `
         <div class="mb-2 text-left">
@@ -263,16 +260,16 @@ userInput.addEventListener("keydown", function (e) {
     e.preventDefault();
   }
 });
-  const textarea = document.getElementById("answerContent");
-  const answerBar = document.getElementById("answerBar");
+const textarea = document.getElementById("answerContent");
+const answerBar = document.getElementById("answerBar");
 
-  textarea.addEventListener("focus", () => {
-    answerBar.classList.add("fullscreen-answer");
-  });
+textarea.addEventListener("focus", () => {
+  answerBar.classList.add("fullscreen-answer");
+});
 
-  textarea.addEventListener("blur", () => {
-    // Delay để tránh mất khi click nút Gửi
-    setTimeout(() => {
-      answerBar.classList.remove("fullscreen-answer");
-    }, 200);
-  });
+textarea.addEventListener("blur", () => {
+  // Delay để tránh mất khi click nút Gửi
+  setTimeout(() => {
+    answerBar.classList.remove("fullscreen-answer");
+  }, 200);
+});

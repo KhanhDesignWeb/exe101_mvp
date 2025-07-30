@@ -11,16 +11,16 @@ export default async function handler(req, res) {
     Không trả lời câu hỏi trực tiếp. Nếu người học không biết hoặc không hiểu, bạn sẽ giải thích khái niệm một cách ngắn gọn và dễ hiểu, nhưng sau đó tiếp tục đặt một câu hỏi mở để người học tự khám phá.
 `;
 
-    const apiKey = process.env.GROQ_API_KEY;
+    const apiKey = process.env.OPENAI_API_KEY;
 
-    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'Authorization': 'Bearer ' + apiKey
         },
         body: JSON.stringify({
-            model: "moonshotai/kimi-k2-instruct",
+            model: "gpt-3.5-turbo",
             messages: [
                 { role: "system", content: systemPrompt },
                 { role: "user", content: userInput }
@@ -35,7 +35,7 @@ export default async function handler(req, res) {
 
     const data = await response.json();
     if (!response.ok) {
-        return res.status(response.status).json({ error: data.error?.message || "Lỗi gọi API Groq!" });
+        return res.status(response.status).json({ error: data.error?.message || "Lỗi gọi API OpenAI!" });
     }
     return res.json({ reply: data.choices?.[0]?.message?.content?.trim() || "" });
 }
