@@ -273,3 +273,12 @@ textarea.addEventListener("blur", () => {
     answerBar.classList.remove("fullscreen-answer");
   }, 200);
 });
+
+// Lắng nghe sự kiện khi người dùng nhấn nút "Xóa lịch sử chat"
+document.getElementById("clearChatHistory").addEventListener("click", function () {
+  // Xóa lịch sử chat khỏi localStorage
+  localStorage.removeItem('conversationHistory');
+
+  // Thông báo cho người dùng rằng lịch sử đã được xóa
+  alert("Lịch sử chat đã được xóa.");
+});
