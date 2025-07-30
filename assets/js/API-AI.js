@@ -15,6 +15,4 @@ async function callOpenAIAPI(userInput) {
     if (!res.ok) throw new Error(data.error || "Lỗi gọi API proxy!");
     return data.reply || "Không có phản hồi từ AI.";
 }
-
-// Đảm bảo hàm này có thể được gọi từ các file khác
 window.callOpenAIAPI = callOpenAIAPI;

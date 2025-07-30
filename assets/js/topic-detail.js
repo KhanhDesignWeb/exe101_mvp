@@ -1,19 +1,16 @@
 // ================= Q&A Topic Detail ================
-
 let classes = JSON.parse(localStorage.getItem("classes") || "[]"); // lấy thông tin lớp học từ localStorage
 const googleUser = JSON.parse(localStorage.getItem("user") || "{}"); // lấy thông tin người dùng từ localStorage
 const params = new URLSearchParams(window.location.search);
 const classId = params.get("class_id");
 const topicId = params.get("topic_id");
 
-// Tìm lớp học và chủ đề theo class_id và topic_id
 const cls = classes.find((c) => c.class_id === classId);
 if (!cls) {
   document.body.innerHTML =
     '<div class="text-red-600 text-center text-xl mt-20">Không tìm thấy lớp học!</div>';
   throw "Class not found";
 }
-
 const topic = (cls.topics || []).find((t) => t.topic_id === topicId);
 if (!topic) {
   document.body.innerHTML =
@@ -21,42 +18,27 @@ if (!topic) {
   throw "Topic not found";
 }
 
-// ================= Lưu và hiển thị lịch sử chat =================
+// Hiển thị header và prompt
+document.getElementById("topicInfo").innerHTML = `
+  <a href="javascript:history.back()" class="text-blue-600 text-sm">&larr; Back to class list</a>
+  <h1 class="text-3xl font-bold mt-2 mb-2">${topic.title}</h1>
+  <div class="flex items-center gap-2 text-sm text-gray-600">
+    <span class="bg-gray-200 px-2 py-0.5 rounded-full text-xs font-semibold">${topic.role || "Teacher"
+  }</span>
+    <span>${topic.created_by}</span>
+    <span>&bull;</span>
+    <span>${topic.created_at}</span>
+  </div>
+`;
+document.getElementById("promptBlock").innerHTML = `
+  <p class="text-gray-800 mb-4">${topic.description}</p>
+  <div class="flex items-center gap-6 text-sm text-gray-500">
+    <div>❤️ ${topic.likes || 0}</div>
+    <div>💬 ${topic.replies || (topic.answers || []).length} replies</div>
+  </div>
+`;
 
-// Lấy lịch sử chat từ localStorage, nếu không có thì khởi tạo mảng trống
-let aiChatHistory = JSON.parse(localStorage.getItem('aiChatHistory') || '[]');
-
-// Hàm hiển thị lại lịch sử chat
-function renderChatHistory() {
-  const messages = document.getElementById("messages");
-  messages.innerHTML = "";  // Xóa nội dung cũ
-
-  aiChatHistory.forEach(m => {
-    messages.innerHTML += m.role === 'user'
-      ? `<div class="mb-1 flex justify-end">
-                   <div class="bg-blue-500 text-white px-4 py-2 rounded-lg max-w-xs break-words">${escapeHtml(m.content)}</div>
-               </div>`
-      : `<div class="mb-2 text-left">
-                   <span class="bg-gray-800 rounded-lg px-3 py-2 inline-block text-white break-words max-w-[80%] whitespace-pre-line">${marked.parse(m.content)}</span>
-               </div>`;
-  });
-  messages.scrollTop = messages.scrollHeight;
-}
-
-// Hiển thị lịch sử chat khi mở chatbot
-document.getElementById("openChat").onclick = () => {
-  toggleChat(true);
-  renderChatHistory();  // Hiển thị lại lịch sử chat
-};
-
-// Hàm mở/đóng chatbot
-function toggleChat(show) {
-  document.getElementById("chatPopup").classList.toggle("hidden", !show);
-  if (show) setTimeout(() => document.getElementById("userInput").focus(), 100);
-}
-
-// ================= Render câu trả lời ================
-
+// Hàm render câu trả lời
 function renderAnswers() {
   const box = document.getElementById("answersList");
   if (!topic.answers || !topic.answers.length) {
@@ -67,15 +49,19 @@ function renderAnswers() {
   box.innerHTML = topic.answers
     .map(
       (a, index) => `
-    <div onclick="openAnswerDetail(${index})" class="bg-white p-4 rounded-xl shadow hover:shadow-xl transition border cursor-pointer transform hover:scale-[1.02]">
+    <div onclick="openAnswerDetail(${index})"
+         class="bg-white p-4 rounded-xl shadow hover:shadow-xl transition border cursor-pointer transform hover:scale-[1.02]">
       <div class="flex items-center gap-3 mb-3">
-        <img src="${a.picture}" alt="avatar" class="w-9 h-9 rounded-full object-cover"/>
+        <img src="${a.picture
+        }" alt="avatar" class="w-9 h-9 rounded-full object-cover"/>
         <div>
           <div class="font-semibold">${a.created_by}</div>
           <div class="text-xs text-gray-500">${a.created_at}</div>
         </div>
       </div>
-      <div class="text-sm text-gray-700 max-h-32 overflow-y-auto whitespace-pre-line">${a.content}</div>
+      <div class="text-sm text-gray-700 max-h-32 overflow-y-auto whitespace-pre-line">
+        ${a.content}
+      </div>
       <div class="mt-3 text-sm text-gray-500">❤️ ${a.likes || 0}</div>
     </div>
   `
@@ -84,28 +70,29 @@ function renderAnswers() {
 }
 renderAnswers();
 
-// ================= Câu trả lời chi tiết ================
-
+// =================    Câu trả lời chi tiết ================
+// xem chi tiết câu trả lời
 function openAnswerDetail(index) {
   currentAnswerIndex = index;
   const ans = topic.answers[index];
   document.getElementById("answerModal").classList.remove("hidden");
   document.getElementById("answerAvatar").src = ans.picture || "https://via.placeholder.com/40";
-  document.getElementById("answerAuthor").innerText = ans.created_by || "Lỗi hiển thị";
+  document.getElementById("answerAuthor").innerText =
+    ans.created_by || "Lỗi hiển thị";
   document.getElementById("answerText").innerText = ans.content;
   document.getElementById("likeCount").innerText = `❤️ ${ans.likes || 0}`;
-  document.getElementById("replyCount").innerText = `${ans.replies?.length || 0} replies`;
+  document.getElementById("replyCount").innerText = `${ans.replies?.length || 0
+    } replies`;
 
   renderReplies();
 }
 
-// Đóng chi tiết câu trả lời
+// đóng chi tiết câu trả lời
 function closeAnswerDetail() {
   document.getElementById("answerModal").classList.add("hidden");
   currentAnswerIndex = null;
 }
 
-// Gửi phản hồi
 function sendReply() {
   const input = document.getElementById("replyInput");
   const replyText = input.value.trim();
@@ -118,7 +105,7 @@ function sendReply() {
     by: googleUser.name || "Bạn",
     text: replyText,
     at: new Date().toLocaleString(),
-    picture: googleUser.picture || "https://via.placeholder.com/40", // Thêm ảnh người dùng
+    picture: googleUser.picture || "https://via.placeholder.com/40", // <== thêm dòng này
   });
 
   // Lưu lại
@@ -127,8 +114,6 @@ function sendReply() {
   input.value = "";
   renderReplies();
 }
-
-// Hiển thị phản hồi
 function renderReplies() {
   const list = document.getElementById("replyList");
   const answer = topic.answers[currentAnswerIndex];
@@ -143,7 +128,8 @@ function renderReplies() {
     .map(
       (r) => `
   <div class="flex items-start gap-3">
-    <img src="${r.picture || "https://via.placeholder.com/40"}" alt="avatar" class="w-9 h-9 rounded-full object-cover shrink-0" />
+<img src="${r.picture || "https://via.placeholder.com/40"}" alt="avatar"
+     class="w-9 h-9 rounded-full object-cover shrink-0" />
     <div class="flex-1 bg-gray-100 rounded-lg px-4 py-3">
       <div class="flex justify-between items-center mb-1">
         <div class="font-medium text-sm text-gray-900">${r.by}</div>
@@ -158,10 +144,10 @@ function renderReplies() {
     .join("");
 }
 
-// Gửi câu trả lời mới
+// Sự kiện gửi trả lời
 document.getElementById("submitAnswer").onclick = sendAnswer;
 
-// Gửi câu trả lời mới từ textarea
+// Khi người dùng gửi trả lời
 function sendAnswer() {
   const ta = document.getElementById("answerContent");
   const content = ta.value.trim();
@@ -202,8 +188,7 @@ answerContent.addEventListener("keydown", function (e) {
   }
 });
 
-// ================= AI Chatbot Popup ================
-
+// =============== AI Chatbot Popup ================
 document.getElementById("openChat").onclick = () => toggleChat(true);
 document.getElementById("closeChat").onclick = () => toggleChat(false);
 document.getElementById("sendBtn").onclick = () => sendMessage();
@@ -213,7 +198,6 @@ function toggleChat(show) {
   if (show) setTimeout(() => document.getElementById("userInput").focus(), 100);
 }
 
-// Gửi tin nhắn AI
 async function sendMessage() {
   const input = document.getElementById("userInput");
   const messages = document.getElementById("messages");
@@ -239,14 +223,11 @@ async function sendMessage() {
         </span>
         </div>`;
     messages.scrollTop = messages.scrollHeight;
-
-    // Lưu lịch sử chat với AI
-    aiChatHistory.push({ role: 'assistant', content: aiReply });
-    localStorage.setItem('aiChatHistory', JSON.stringify(aiChatHistory));
-
   } catch (err) {
     document.getElementById("loading").remove();
-    messages.innerHTML += `<div class="mb-2 text-left"><span class="bg-red-700 rounded-lg px-3 py-2 inline-block text-white">Lỗi: ${escapeHtml(err.message)}</span></div>`;
+    messages.innerHTML += `<div class="mb-2 text-left"><span class="bg-red-700 rounded-lg px-3 py-2 inline-block text-white">Lỗi: ${escapeHtml(
+      err.message
+    )}</span></div>`;
     messages.scrollTop = messages.scrollHeight;
   }
 
@@ -278,4 +259,17 @@ userInput.addEventListener("keydown", function (e) {
     sendMessage();
     e.preventDefault();
   }
+});
+const textarea = document.getElementById("answerContent");
+const answerBar = document.getElementById("answerBar");
+
+textarea.addEventListener("focus", () => {
+  answerBar.classList.add("fullscreen-answer");
+});
+
+textarea.addEventListener("blur", () => {
+  // Delay để tránh mất khi click nút Gửi
+  setTimeout(() => {
+    answerBar.classList.remove("fullscreen-answer");
+  }, 200);
 });
