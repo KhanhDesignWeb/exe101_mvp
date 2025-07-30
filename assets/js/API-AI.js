@@ -6,13 +6,20 @@
  * Trả về: chuỗi phản hồi AI (đã xử lý ở backend)
  */
 async function callOpenAIAPI(userInput) {
+    const history = JSON.parse(localStorage.getItem('conversationHistory') || '[]'); // Lấy lịch sử cuộc trò chuyện từ localStorage
+
     const res = await fetch('/api/ask-ai', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userInput })
+        body: JSON.stringify({ userInput, history }) // Gửi lịch sử cùng với yêu cầu
     });
+
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || "Lỗi gọi API proxy!");
+
+    // Lưu lịch sử mới vào localStorage
+    localStorage.setItem('conversationHistory', JSON.stringify(data.history));
+
     return data.reply || "Không có phản hồi từ AI.";
 }
 window.callOpenAIAPI = callOpenAIAPI;

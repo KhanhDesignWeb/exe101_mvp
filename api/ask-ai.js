@@ -3,6 +3,7 @@ export default async function handler(req, res) {
     if (req.method !== "POST") return res.status(405).json({ error: "Method Not Allowed" });
 
     const { userInput } = req.body;
+    const conversationHistory = req.body.history || [];
 
     // System Prompt to guide AI behavior
     const systemPrompt = `
@@ -17,6 +18,9 @@ Continue only by asking open-ended questions or briefly explaining and then aski
 
     const apiKey = process.env.OPENAI_API_KEY;
 
+    // Add the new user input to the conversation history
+    conversationHistory.push({ role: "user", content: userInput });
+
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -27,7 +31,7 @@ Continue only by asking open-ended questions or briefly explaining and then aski
             model: "gpt-4",
             messages: [
                 { role: "system", content: systemPrompt },
-                { role: "user", content: userInput }
+                ...conversationHistory
             ],
             temperature: 0.7,
             max_tokens: 512,
@@ -41,5 +45,12 @@ Continue only by asking open-ended questions or briefly explaining and then aski
     if (!response.ok) {
         return res.status(response.status).json({ error: data.error?.message || "Lỗi gọi API OpenAI!" });
     }
-    return res.json({ reply: data.choices?.[0]?.message?.content?.trim() || "" });
+
+    const aiReply = data.choices?.[0]?.message?.content?.trim() || "";
+
+    // Add the AI reply to the conversation history
+    conversationHistory.push({ role: "assistant", content: aiReply });
+
+    // Send back the reply along with the updated conversation history
+    return res.json({ reply: aiReply, history: conversationHistory });
 }
