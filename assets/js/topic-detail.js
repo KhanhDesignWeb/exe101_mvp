@@ -282,3 +282,36 @@ document.getElementById("clearChatHistory").addEventListener("click", function (
   // Thông báo cho người dùng rằng lịch sử đã được xóa
   alert("Lịch sử chat đã được xóa.");
 });
+
+// ======= Ngăn copy/paste toàn trang, chỉ cho dán từ AI =======
+document.addEventListener('copy', e => {
+  if (!e.target.closest('#chatPopup')) e.preventDefault();
+});
+document.addEventListener('cut', e => {
+  if (!e.target.closest('#chatPopup')) e.preventDefault();
+});
+document.addEventListener('paste', e => {
+  if (!e.target.closest('#chatPopup') && e.target.id !== "answerContent") {
+    e.preventDefault();
+  }
+});
+// Đánh dấu copy từ AI bằng custom MIME
+document.getElementById("messages").addEventListener('copy', function (e) {
+  let selection = window.getSelection();
+  let text = selection ? selection.toString() : "";
+  if (text) {
+    e.preventDefault();
+    e.clipboardData.setData('text/plain', text);
+    e.clipboardData.setData('text/x-criticore-ai', 'yes');
+  }
+});
+// Chỉ cho dán vào textarea trả lời nếu là từ AI
+document.getElementById("answerContent").addEventListener('paste', function (e) {
+  let clipboard = e.clipboardData || window.clipboardData;
+  if (!clipboard) return;
+  let isAI = clipboard.getData('text/x-criticore-ai') === 'yes';
+  if (!isAI) {
+    e.preventDefault();
+    alert("Chỉ được dán nội dung đã copy từ AI chatbot!");
+  }
+});
