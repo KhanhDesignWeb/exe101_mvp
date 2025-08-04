@@ -4,6 +4,7 @@ const googleUser = JSON.parse(localStorage.getItem("user") || "{}"); // lấy th
 const params = new URLSearchParams(window.location.search);
 const classId = params.get("class_id");
 const topicId = params.get("topic_id");
+let lastAIReply = "";
 
 const cls = classes.find((c) => c.class_id === classId);
 if (!cls) {
@@ -216,6 +217,7 @@ async function sendMessage() {
   try {
     const aiReply = await callOpenAIAPI(input.value);
     document.getElementById("loading").remove();
+    lastAIReply = aiReply; // <-- THÊM DÒNG NÀY
     messages.innerHTML += `
         <div class="mb-2 text-left">
         <span class="bg-gray-800 rounded-lg px-3 py-2 inline-block text-white break-words max-w-[80%] whitespace-pre-line">
@@ -311,11 +313,13 @@ document.getElementById("answerContent").addEventListener('paste', function (e) 
     showToast("Chỉ được dán nội dung đã copy từ AI chatbot!", 3000);
     return;
   }
-
+  // Chuẩn hóa văn bản
   let pastedNorm = normalizeText(pasted);
   let aiNorm = normalizeText(lastAIReply);
+  // Tính similarity
   let sim = diceCoefficient(pastedNorm, aiNorm);
 
+  // Nếu độ tương đồng lớn hơn 0.8 (80%) thì cảnh báo
   if (lastAIReply && sim > 0.8) {
     setTimeout(() => {
       showToast("⚠️ Câu trả lời của bạn quá giống gợi ý AI (" + Math.round(sim * 100) + "%)! Hãy tự diễn đạt lại.", 4000);
@@ -333,4 +337,35 @@ function showToast(message, time = 3500) {
     toast.classList.add("hidden");
     toast.classList.remove("opacity-100");
   }, time);
+}
+
+function normalizeText(str) {
+  return str
+    .toLowerCase()
+    .replace(/[\.\,\!\?\:\;\-\_\"\“\”\'\(\)\[\]\{\}]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function diceCoefficient(a, b) {
+  // Tách thành từng cặp ký tự liên tiếp (bigram)
+  function bigrams(str) {
+    let s = ' ' + str + ' ';
+    let arr = [];
+    for (let i = 0; i < s.length - 1; i++) {
+      arr.push(s.slice(i, i + 2));
+    }
+    return arr;
+  }
+  let bgA = bigrams(a), bgB = bigrams(b);
+  let matches = 0;
+  let bgs = bgB.slice();
+  for (let i = 0; i < bgA.length; i++) {
+    let idx = bgs.indexOf(bgA[i]);
+    if (idx !== -1) {
+      matches++;
+      bgs.splice(idx, 1);
+    }
+  }
+  return (2 * matches) / (bgA.length + bgB.length);
 }
