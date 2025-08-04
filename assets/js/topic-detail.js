@@ -303,9 +303,34 @@ document.getElementById("messages").addEventListener('copy', function (e) {
 document.getElementById("answerContent").addEventListener('paste', function (e) {
   let clipboard = e.clipboardData || window.clipboardData;
   if (!clipboard) return;
+  let pasted = clipboard.getData('text/plain');
   let isAI = clipboard.getData('text/x-criticore-ai') === 'yes';
+
   if (!isAI) {
     e.preventDefault();
-    alert("Chỉ được dán nội dung đã copy từ AI chatbot!");
+    showToast("Chỉ được dán nội dung đã copy từ AI chatbot!", 3000);
+    return;
+  }
+
+  let pastedNorm = normalizeText(pasted);
+  let aiNorm = normalizeText(lastAIReply);
+  let sim = diceCoefficient(pastedNorm, aiNorm);
+
+  if (lastAIReply && sim > 0.8) {
+    setTimeout(() => {
+      showToast("⚠️ Câu trả lời của bạn quá giống gợi ý AI (" + Math.round(sim * 100) + "%)! Hãy tự diễn đạt lại.", 4000);
+    }, 100);
   }
 });
+
+
+function showToast(message, time = 3500) {
+  const toast = document.getElementById("toast");
+  toast.innerText = message;
+  toast.classList.remove("hidden");
+  toast.classList.add("opacity-100");
+  setTimeout(() => {
+    toast.classList.add("hidden");
+    toast.classList.remove("opacity-100");
+  }, time);
+}
