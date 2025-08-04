@@ -284,12 +284,6 @@ document.getElementById("clearChatHistory").addEventListener("click", function (
 });
 
 // ======= Ngăn copy/paste toàn trang, chỉ cho dán từ AI =======
-document.addEventListener('copy', e => {
-  if (!e.target.closest('#chatPopup')) e.preventDefault();
-});
-document.addEventListener('cut', e => {
-  if (!e.target.closest('#chatPopup')) e.preventDefault();
-});
 document.addEventListener('paste', e => {
   if (!e.target.closest('#chatPopup') && e.target.id !== "answerContent") {
     e.preventDefault();
