@@ -301,29 +301,45 @@ document.getElementById("messages").addEventListener('copy', function (e) {
     e.clipboardData.setData('text/x-criticore-ai', 'yes');
   }
 });
-// Chỉ cho dán vào textarea trả lời nếu là từ AI
+// Khi dán vào textarea, kiểm tra nếu là từ AI
 document.getElementById("answerContent").addEventListener('paste', function (e) {
   let clipboard = e.clipboardData || window.clipboardData;
   if (!clipboard) return;
   let pasted = clipboard.getData('text/plain');
-  let isAI = clipboard.getData('text/x-criticore-ai') === 'yes';
+  let isAI = clipboard.getData('text/x-criticore-ai') === 'yes'; // Kiểm tra nếu là từ AI
 
+  // Nếu không phải là nội dung từ AI
   if (!isAI) {
     e.preventDefault();
-    showToast("Chỉ được dán nội dung đã copy từ AI chatbot!", 3000);
+    showToast("Chỉ được dán nội dung đã copy từ AI chatbot!", 3000); // Thông báo lỗi
     return;
   }
-  // Chuẩn hóa văn bản
-  let pastedNorm = normalizeText(pasted);
-  let aiNorm = normalizeText(lastAIReply);
-  // Tính similarity
-  let sim = diceCoefficient(pastedNorm, aiNorm);
 
-  // Nếu độ tương đồng lớn hơn 0.8 (80%) thì cảnh báo
-  if (lastAIReply && sim > 0.8) {
+  // Nếu là nội dung từ AI, kiểm tra độ tương đồng
+  let pastedNorm = normalizeText(pasted);  // Chuẩn hóa văn bản dán
+  let aiNorm = normalizeText(lastAIReply);  // Chuẩn hóa văn bản AI
+  let sim = diceCoefficient(pastedNorm, aiNorm);  // Tính độ tương đồng
+
+  // Nếu độ tương đồng lớn hơn 80%, cảnh báo
+  if (sim > 0.8) {
     setTimeout(() => {
       showToast("⚠️ Câu trả lời của bạn quá giống gợi ý AI (" + Math.round(sim * 100) + "%)! Hãy tự diễn đạt lại.", 4000);
     }, 100);
+  }
+});
+
+// Khi người dùng sửa nội dung trong textarea, kiểm tra giống AI
+document.getElementById("answerContent").addEventListener('input', function (e) {
+  let inputContent = e.target.value.trim();
+
+  // Kiểm tra nếu nội dung giống gợi ý AI
+  let normalizedInput = normalizeText(inputContent); // Chuẩn hóa nội dung
+  let normalizedAI = normalizeText(lastAIReply); // Chuẩn hóa nội dung AI
+  let sim = diceCoefficient(normalizedInput, normalizedAI); // Tính độ tương đồng
+
+  // Nếu độ tương đồng lớn hơn 80%, cảnh báo
+  if (sim > 0.8) {
+    showToast("⚠️ Câu trả lời của bạn quá giống gợi ý AI (" + Math.round(sim * 100) + "%)! Hãy tự diễn đạt lại.", 4000);
   }
 });
 
