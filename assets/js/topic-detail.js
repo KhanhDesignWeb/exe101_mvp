@@ -180,7 +180,8 @@ function sendAnswer() {
   topic.answers = topic.answers || [];
   topic.answers.unshift(newAnswer);
   localStorage.setItem("classes", JSON.stringify(classes));
-
+  // Hiển thị thông báo thành công
+  showToast("✅ Câu trả lời đã được gửi thành công!", 4000, "success");
   // Reset textarea và re-render
   ta.value = "";
   ta.style.height = "auto";
@@ -395,11 +396,22 @@ function diceCoefficient(a, b) {
 }
 
 // Hàm showToast để hiển thị thông báo
-function showToast(message, time = 3500) {
+function showToast(message, time = 3500, type = "warning") {
   const toast = document.getElementById("toast");
   toast.innerText = message;
+
+  // Thay đổi màu sắc của toast tùy theo loại (warning, success, error)
+  if (type === "success") {
+    toast.style.backgroundColor = "#10b981"; // Màu xanh cho thành công
+  } else if (type === "error") {
+    toast.style.backgroundColor = "#ef4444"; // Màu đỏ cho lỗi
+  } else {
+    toast.style.backgroundColor = "#f59e0b"; // Màu vàng cho cảnh báo
+  }
+
   toast.classList.remove("hidden");
   toast.classList.add("opacity-100");
+
   setTimeout(() => {
     toast.classList.add("hidden");
     toast.classList.remove("opacity-100");
