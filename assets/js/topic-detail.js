@@ -301,12 +301,13 @@ document.getElementById("messages").addEventListener('copy', function (e) {
     e.clipboardData.setData('text/x-criticore-ai', 'yes');
   }
 });
-// Khi dán vào textarea, kiểm tra nếu là từ AI
+
+// Hàm kiểm tra khi người dùng dán nội dung vào
 document.getElementById("answerContent").addEventListener('paste', function (e) {
   let clipboard = e.clipboardData || window.clipboardData;
   if (!clipboard) return;
   let pasted = clipboard.getData('text/plain');
-  let isAI = clipboard.getData('text/x-criticore-ai') === 'yes'; // Kiểm tra nếu là từ AI
+  let isAI = clipboard.getData('text/x-criticore-ai') === 'yes';
 
   // Nếu không phải là nội dung từ AI
   if (!isAI) {
@@ -337,34 +338,27 @@ document.getElementById("answerContent").addEventListener('input', function (e) 
   let normalizedAI = normalizeText(lastAIReply); // Chuẩn hóa nội dung AI
   let sim = diceCoefficient(normalizedInput, normalizedAI); // Tính độ tương đồng
 
-  // Nếu độ tương đồng lớn hơn 80%, cảnh báo
+  // Nếu độ tương đồng lớn hơn 80%, cảnh báo và không cho gửi
   if (sim > 0.8) {
     showToast("⚠️ Câu trả lời của bạn quá giống gợi ý AI (" + Math.round(sim * 100) + "%)! Hãy tự diễn đạt lại.", 4000);
+    document.getElementById("submitAnswer").disabled = true; // Không cho gửi câu trả lời
+  } else {
+    document.getElementById("submitAnswer").disabled = false; // Cho phép gửi câu trả lời nếu độ tương đồng nhỏ hơn 80%
   }
 });
 
-
-function showToast(message, time = 3500) {
-  const toast = document.getElementById("toast");
-  toast.innerText = message;
-  toast.classList.remove("hidden");
-  toast.classList.add("opacity-100");
-  setTimeout(() => {
-    toast.classList.add("hidden");
-    toast.classList.remove("opacity-100");
-  }, time);
-}
-
+// Hàm chuẩn hóa văn bản (xóa dấu câu, khoảng trắng thừa, chuyển về chữ thường)
 function normalizeText(str) {
   return str
     .toLowerCase()
-    .replace(/[\.\,\!\?\:\;\-\_\"\“\”\'\(\)\[\]\{\}]/g, '')
-    .replace(/\s+/g, ' ')
+    .replace(/[\.\,\!\?\:\;\-\_\"\“\”\'\(\)\[\]\{\}]/g, '') // Loại bỏ dấu câu
+    .replace(/\s+/g, ' ') // Thu gọn khoảng trắng
     .trim();
 }
 
+// Tính độ tương đồng giữa hai chuỗi (Sử dụng thuật toán Sorensen-Dice Coefficient)
 function diceCoefficient(a, b) {
-  // Tách thành từng cặp ký tự liên tiếp (bigram)
+  // Tách thành các bigrams (cặp ký tự liên tiếp)
   function bigrams(str) {
     let s = ' ' + str + ' ';
     let arr = [];
@@ -384,4 +378,16 @@ function diceCoefficient(a, b) {
     }
   }
   return (2 * matches) / (bgA.length + bgB.length);
+}
+
+// Hàm showToast để hiển thị thông báo
+function showToast(message, time = 3500) {
+  const toast = document.getElementById("toast");
+  toast.innerText = message;
+  toast.classList.remove("hidden");
+  toast.classList.add("opacity-100");
+  setTimeout(() => {
+    toast.classList.add("hidden");
+    toast.classList.remove("opacity-100");
+  }, time);
 }
