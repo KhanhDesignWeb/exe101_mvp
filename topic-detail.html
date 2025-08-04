@@ -31,6 +31,25 @@
             margin-top: 1rem;
             align-self: flex-end;
         }
+
+        #toast {
+            position: fixed;
+            top: 10px;
+            /* Đặt lên phía trên */
+            right: 10px;
+            /* Đặt ở góc phải */
+            transform: translateX(0%);
+            background-color: #f59e0b;
+            /* Màu vàng */
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 1000;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
     </style>
 
 </head>

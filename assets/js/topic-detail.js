@@ -152,7 +152,19 @@ document.getElementById("submitAnswer").onclick = sendAnswer;
 function sendAnswer() {
   const ta = document.getElementById("answerContent");
   const content = ta.value.trim();
+
   if (!content) return alert("Nhập nội dung trả lời");
+
+  // Chuẩn hóa nội dung và gợi ý AI
+  let normalizedInput = normalizeText(content);
+  let normalizedAI = normalizeText(lastAIReply);
+  let sim = diceCoefficient(normalizedInput, normalizedAI); // Tính độ tương đồng
+
+  // Nếu độ tương đồng lớn hơn 80%, cảnh báo và không gửi
+  if (sim > 0.8) {
+    showToast("⚠️ Câu trả lời của bạn quá giống gợi ý AI (" + Math.round(sim * 100) + "%)! Hãy tự diễn đạt lại.", 4000);
+    return; // Chặn không cho gửi
+  }
 
   // Build object answer mới
   const newAnswer = {
@@ -174,6 +186,7 @@ function sendAnswer() {
   ta.style.height = "auto";
   renderAnswers();
 }
+
 
 // Tự động giãn textarea trả lời
 const answerContent = document.getElementById("answerContent");
@@ -325,6 +338,7 @@ document.getElementById("answerContent").addEventListener('paste', function (e) 
   if (sim > 0.8) {
     setTimeout(() => {
       showToast("⚠️ Câu trả lời của bạn quá giống gợi ý AI (" + Math.round(sim * 100) + "%)! Hãy tự diễn đạt lại.", 4000);
+      document.getElementById("submitAnswer").disabled = true;
     }, 100);
   }
 });
