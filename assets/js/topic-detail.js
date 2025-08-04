@@ -161,7 +161,7 @@ function sendAnswer() {
   let sim = diceCoefficient(normalizedInput, normalizedAI); // Tính độ tương đồng
 
   // Nếu độ tương đồng lớn hơn 80%, cảnh báo và không gửi
-  if (sim > 0.8) {
+  if (sim > 0.3) {
     showToast("⚠️ Câu trả lời của bạn quá giống gợi ý AI (" + Math.round(sim * 100) + "%)! Hãy tự diễn đạt lại.", 4000);
     return; // Chặn không cho gửi
   }
@@ -336,7 +336,7 @@ document.getElementById("answerContent").addEventListener('paste', function (e) 
   let sim = diceCoefficient(pastedNorm, aiNorm);  // Tính độ tương đồng
 
   // Nếu độ tương đồng lớn hơn 80%, cảnh báo
-  if (sim > 0.8) {
+  if (sim > 0.3) {
     setTimeout(() => {
       showToast("⚠️ Câu trả lời của bạn quá giống gợi ý AI (" + Math.round(sim * 100) + "%)! Hãy tự diễn đạt lại.", 4000);
       document.getElementById("submitAnswer").disabled = true;
@@ -354,7 +354,7 @@ document.getElementById("answerContent").addEventListener('input', function (e) 
   let sim = diceCoefficient(normalizedInput, normalizedAI); // Tính độ tương đồng
 
   // Nếu độ tương đồng lớn hơn 80%, cảnh báo và không cho gửi
-  if (sim > 0.8) {
+  if (sim > 0.3) {
     showToast("⚠️ Câu trả lời của bạn quá giống gợi ý AI (" + Math.round(sim * 100) + "%)! Hãy tự diễn đạt lại.", 4000);
     document.getElementById("submitAnswer").disabled = true; // Không cho gửi câu trả lời
   } else {
