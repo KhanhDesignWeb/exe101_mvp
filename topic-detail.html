@@ -49,6 +49,24 @@
             opacity: 0;
             transition: opacity 0.3s ease-in-out;
         }
+
+        .star {
+            font-size: 1.5rem;
+            color: #d1d5db;
+            /* Màu xám cho sao chưa chọn */
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .star.selected {
+            color: #f59e0b;
+            /* Màu vàng cho sao đã chọn */
+        }
+
+        .star:hover {
+            color: #f59e0b;
+            /* Màu vàng khi hover */
+        }
     </style>
 
 </head>
@@ -109,7 +127,15 @@
                     Câu trả lời sẽ hiển thị ở đây
                 </div>
                 <div class="flex items-center text-sm text-gray-600 mt-4 gap-6">
-                    <div id="likeCount">♡ 4</div>
+                    <!-- Thay thế phần thả tim -->
+                    <div id="likeCount">
+                        <span class="star" onclick="rateAnswer(1)">★</span>
+                        <span class="star" onclick="rateAnswer(2)">★</span>
+                        <span class="star" onclick="rateAnswer(3)">★</span>
+                        <span class="star" onclick="rateAnswer(4)">★</span>
+                        <span class="star" onclick="rateAnswer(5)">★</span>
+                    </div>
+
                     <div id="replyCount">2 replies</div>
                 </div>
             </div>

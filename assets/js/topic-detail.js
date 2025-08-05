@@ -39,7 +39,7 @@ document.getElementById("promptBlock").innerHTML = `
   </div>
 `;
 
-// Hàm render câu trả lời
+// Cập nhật lại renderAnswers() để hiển thị sao
 function renderAnswers() {
   const box = document.getElementById("answersList");
   if (!topic.answers || !topic.answers.length) {
@@ -53,8 +53,7 @@ function renderAnswers() {
     <div onclick="openAnswerDetail(${index})"
          class="bg-white p-4 rounded-xl shadow hover:shadow-xl transition border cursor-pointer transform hover:scale-[1.02]">
       <div class="flex items-center gap-3 mb-3">
-        <img src="${a.picture
-        }" alt="avatar" class="w-9 h-9 rounded-full object-cover"/>
+        <img src="${a.picture}" alt="avatar" class="w-9 h-9 rounded-full object-cover"/>
         <div>
           <div class="font-semibold">${a.created_by}</div>
           <div class="text-xs text-gray-500">${a.created_at}</div>
@@ -63,13 +62,45 @@ function renderAnswers() {
       <div class="text-sm text-gray-700 max-h-32 overflow-y-auto whitespace-pre-line">
         ${a.content}
       </div>
-      <div class="mt-3 text-sm text-gray-500">❤️ ${a.likes || 0}</div>
-    </div>
-  `
+      <div class="mt-3 text-sm text-gray-500">
+        <div id="likeCount">
+          ${[1, 2, 3, 4, 5].map(
+        (star) =>
+          `<span class="star ${star <= (a.rating || 0) ? 'selected' : ''}" onclick="rateAnswer(${star})">★</span>`
+      ).join('')}
+        </div>
+      </div>
+    </div>`
     )
     .join("");
 }
 renderAnswers();
+
+// Hàm xử lý khi người dùng chọn sao
+function rateAnswer(rating) {
+  const answer = topic.answers[currentAnswerIndex];
+
+  // Cập nhật giá trị sao được chọn
+  answer.rating = rating;
+
+  // Lưu lại đánh giá trong localStorage
+  localStorage.setItem("classes", JSON.stringify(classes));
+
+  // Cập nhật giao diện sao cho phù hợp
+  renderStars(answer.rating);
+}
+
+// Hàm hiển thị các sao đã chọn
+function renderStars(rating) {
+  const stars = document.querySelectorAll('#likeCount .star');
+  stars.forEach((star, index) => {
+    if (index < rating) {
+      star.classList.add('selected');
+    } else {
+      star.classList.remove('selected');
+    }
+  });
+}
 
 // =================    Câu trả lời chi tiết ================
 // xem chi tiết câu trả lời
