@@ -1,21 +1,21 @@
-   
-    let classes = JSON.parse(localStorage.getItem('classes'));
-    let currentStatus = "All";
-    let currentSemester = "All";
+let classes = JSON.parse(localStorage.getItem("classes"));
+let currentStatus = "All";
+let currentSemester = "All";
 
-    function renderClasses() {
-      const container = document.getElementById("classList");
-      container.innerHTML = "";
+function renderClasses() {
+  const container = document.getElementById("classList");
+  container.innerHTML = "";
 
-      let filtered = classes.filter((cls) => {
-        const matchStatus = currentStatus === "All" || cls.status === currentStatus;
-        const matchSemester = currentSemester === "All" || cls.semester === currentSemester;
-        return matchStatus && matchSemester;
-      });
+  let filtered = classes.filter((cls) => {
+    const matchStatus = currentStatus === "All" || cls.status === currentStatus;
+    const matchSemester =
+      currentSemester === "All" || cls.semester === currentSemester;
+    return matchStatus && matchSemester;
+  });
 
-      filtered.forEach((cls) => {
-        const card = document.createElement("div");
-        card.innerHTML = `
+  filtered.forEach((cls) => {
+    const card = document.createElement("div");
+    card.innerHTML = `
            <div class="relative bg-gradient-to-r from-white to-blue-100 border border-blue-200 rounded-lg shadow p-5 h-full flex flex-col justify-between transition hover:shadow-lg">
       <div class="absolute top-3 right-3 bg-blue-600 text-white text-xs px-2 py-1 rounded-full">${cls.status}</div>
 
@@ -53,26 +53,95 @@
       </div>
           </div>
         `;
-        container.appendChild(card);
-      });
-    }
+    container.appendChild(card);
+  });
+}
 
-    function goToClass(classId) {
-      window.location.href = `class-detail.html?id=${classId}`;
-    }
+function goToClass(classId) {
+  window.location.href = `class-detail.html?id=${classId}`;
+}
 
-    document.querySelectorAll(".filter-btn").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        currentStatus = btn.getAttribute("data-status");
-        document.querySelectorAll(".filter-btn").forEach((b) => b.classList.remove("bg-blue-100", "text-blue-700"));
-        btn.classList.add("bg-blue-100", "text-blue-700");
-        renderClasses();
-      });
-    });
-
-    document.getElementById("semesterFilter").addEventListener("change", (e) => {
-      currentSemester = e.target.value;
-      renderClasses();
-    });
-
+document.querySelectorAll(".filter-btn").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    currentStatus = btn.getAttribute("data-status");
+    document
+      .querySelectorAll(".filter-btn")
+      .forEach((b) => b.classList.remove("bg-blue-100", "text-blue-700"));
+    btn.classList.add("bg-blue-100", "text-blue-700");
     renderClasses();
+  });
+});
+
+document.getElementById("semesterFilter").addEventListener("change", (e) => {
+  currentSemester = e.target.value;
+  renderClasses();
+});
+
+renderClasses();
+//--------------------------------------------------------
+function openCreateClassModal() {
+  document.getElementById("createClassModal").classList.remove("hidden");
+  document.getElementById("createClassModal").classList.add("flex");
+}
+
+function closeCreateClassModal() {
+  document.getElementById("createClassModal").classList.add("hidden");
+}
+
+function createClass() {
+  const classId = document.getElementById('newClassId').value.trim();
+  const subjectCode = document.getElementById('newSubjectCode').value.trim();
+  const semester = document.getElementById('newSemester').value.trim();
+  const name = document.getElementById('newClassName').value.trim();
+  const teacher = document.getElementById('newTeacherName').value.trim();
+
+  const checkboxes = document.querySelectorAll('.member-checkbox:checked');
+  const selectedIds = Array.from(checkboxes).map(cb => cb.value);
+  const students = JSON.parse(localStorage.getItem('students')) || [];
+  const selectedMembers = students.filter(u => selectedIds.includes(u.id));
+
+  if (!classId || !subjectCode || !semester || !name || !teacher || selectedMembers.length === 0) {
+    return alert('Please fill in all fields and select at least one member.');
+  }
+
+  const newClass = {
+    class_id: classId,
+    subject_code: subjectCode,
+    semester: semester,
+    name,
+    teacher,
+    status: "Not Started",
+    members: selectedMembers.length,
+    slots: 10,
+    topics: [],
+    memberList: selectedMembers
+  };
+
+  classes.push(newClass);
+  localStorage.setItem('classes', JSON.stringify(classes));
+  closeCreateClassModal();
+  renderClasses();
+}
+
+
+
+function renderMemberCheckboxes() {
+  const students = JSON.parse(localStorage.getItem('students'));
+  const container = document.getElementById('memberCheckboxes');
+  container.innerHTML = '';
+
+  students.forEach(student => {
+    const label = document.createElement('label');
+    label.className = "flex items-center gap-2";
+    label.innerHTML = `
+      <input type="checkbox" value="${student.id}" class="member-checkbox" />
+      <span>${student.name}</span>
+    `;
+    container.appendChild(label);
+  });
+}
+function openCreateClassModal() {
+  document.getElementById('createClassModal').classList.remove('hidden');
+  document.getElementById('createClassModal').classList.add('flex');
+  renderMemberCheckboxes();
+}

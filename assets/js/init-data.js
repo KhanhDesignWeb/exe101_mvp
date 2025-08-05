@@ -36,3 +36,12 @@
       ];
       localStorage.setItem('classes', JSON.stringify(window.classes));
     }
+if (!localStorage.getItem('students')) {
+  const students = [
+    { id: 'u1', name: 'Dinh Cuong' },
+    { id: 'u2', name: 'Hue Tu' },
+    { id: 'u3', name: 'Dieu Cuc' },
+    { id: 'u4', name: 'Chau Dung' }
+  ];
+  localStorage.setItem('students', JSON.stringify(students));
+}

@@ -79,6 +79,10 @@
       <div class="max-w-7xl mx-auto">
         <div class="flex justify-between items-center mb-4">
           <h1 class="text-2xl font-semibold text-blue-700">Join a Class</h1>
+          <button onclick="openCreateClassModal()"
+            class="bg-blue-600 text-white px-4 py-2 rounded-md text-sm hover:bg-blue-700 transition">
+            + Create Class
+          </button>
         </div>
 
         <p class="text-gray-600 mb-6">
@@ -111,6 +115,34 @@
       </div>
     </main>
   </div>
+
+  <!-- Create Class Modal -->
+ <div id="createClassModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+  <div class="bg-white rounded-lg p-6 w-full max-w-md">
+    <h2 class="text-lg font-semibold mb-4">Create a New Class</h2>
+
+    <input id="newClassId" type="text" placeholder="Class ID (e.g. SE1801)" class="w-full border px-3 py-2 mb-3 rounded-md" />
+    <input id="newSubjectCode" type="text" placeholder="Subject Code (e.g. PRN212)" class="w-full border px-3 py-2 mb-3 rounded-md" />
+    <input id="newSemester" type="text" placeholder="Semester (e.g. Semester 1 - 2025)" class="w-full border px-3 py-2 mb-3 rounded-md" />
+    
+    <input id="newClassName" type="text" placeholder="Class Name" class="w-full border px-3 py-2 mb-3 rounded-md" />
+    <input id="newTeacherName" type="text" placeholder="Teacher" class="w-full border px-3 py-2 mb-3 rounded-md" />
+
+    <div class="mb-3">
+      <p class="font-medium mb-1">Select Members:</p>
+      <div id="memberCheckboxes" class="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto border p-2 rounded">
+        <!-- Danh sách thành viên sẽ được render bằng JS -->
+      </div>
+    </div>
+
+    <div class="flex justify-end gap-2">
+      <button onclick="closeCreateClassModal()" class="px-4 py-2 bg-gray-300 rounded-md">Cancel</button>
+      <button onclick="createClass()" class="px-4 py-2 bg-blue-600 text-white rounded-md">Create</button>
+    </div>
+  </div>
+</div>
+
+  
   <script src="assets/js/init-data.js"></script>
   <script src="assets/js/class-list.js"></script>
 </body>
