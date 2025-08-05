@@ -162,8 +162,23 @@
 
     <!-- Members Section -->
     <div id="membersSection" class="bg-white p-4 rounded shadow mb-6 hidden">
-      <h3 class="text-lg font-semibold mb-2">Class Members (60)</h3>
+      <div class="flex items-center justify-between mb-2">
+        <h3 class="text-lg font-semibold">
+          Class Members (<span id="memberCount">0</span>)
+        </h3>
+        <button id="addMemberBtn"
+          class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded text-sm flex items-center space-x-1"
+          title="Add member">
+          <span class="text-white text-lg">＋</span>
+          <span>Add Member</span>
+        </button>
+      </div>
       <p class="text-gray-500 text-sm mb-4">Students and instructors in this class</p>
+
+      <div id="memberListContainer" class="space-y-4 mb-4">
+        <!-- Các thành viên sẽ render tại đây -->
+      </div>
+
       <div class="space-y-4">
         <div class="p-4 bg-blue-50 rounded-lg flex items-center justify-between">
           <div>
@@ -175,7 +190,9 @@
             <div class="text-gray-500 text-sm">Instructor</div>
           </div>
         </div>
-        <div class="text-gray-500 text-sm">+ 59 students</div>
+        <div class="text-gray-500 text-sm">
+          + <span id="studentCount">0</span> students
+        </div>
       </div>
     </div>
 
@@ -203,9 +220,25 @@
     </div>
 
   </main>
+
+  <!-- Add Member Modal -->
+  <div id="addMemberModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
+      <h3 class="text-lg font-semibold mb-4">Chọn học viên để thêm vào lớp</h3>
+      <div id="availableStudentsList" class="space-y-2 max-h-64 overflow-y-auto">
+        <!-- Danh sách học viên sẽ được render vào đây -->
+      </div>
+      <div class="mt-6 flex justify-end space-x-2">
+        <button id="cancelAddMember" class="px-4 py-2 text-sm text-gray-600 hover:underline">Hủy</button>
+        <button id="confirmAddMember" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm">
+          Thêm vào lớp
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script src="assets/js/API-AI.js">  </script>
   <script src="assets/js/class-detail.js"></script>
-
 </body>
 
 </html>

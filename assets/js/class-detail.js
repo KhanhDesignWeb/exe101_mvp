@@ -42,6 +42,124 @@ function renderTopics() {
     )
     .join("");
 }
+// Cập nhật thông tin số lượng thành viên và học viên
+function updateMemberSection() {
+  const memberCountEl = document.getElementById("memberCount");
+  const studentCountEl = document.getElementById("studentCount");
+
+  if (!cls.memberList || cls.memberList.length === 0) {
+    memberCountEl.textContent = 0;
+    studentCountEl.textContent = 0;
+    return;
+  }
+
+  const totalMembers = cls.memberList.length;
+
+  // Giả sử giáo viên là người có tên trùng với cls.teacher
+  const studentCount = cls.memberList.filter(
+    (m) => m.name !== cls.teacher
+  ).length;
+
+  memberCountEl.textContent = totalMembers;
+  studentCountEl.textContent = studentCount;
+};
+
+function renderMemberList() {
+  const container = document.getElementById("memberListContainer");
+  container.innerHTML = "";
+
+  if (!cls.memberList) cls.memberList = [];
+
+  cls.memberList.forEach((member, index) => {
+    const isTeacher = member.name === cls.teacher;
+
+    const div = document.createElement("div");
+    div.className =
+      "p-4 bg-blue-50 rounded-lg flex items-center justify-between";
+
+    div.innerHTML = `
+      <div>
+        <div class="flex items-center space-x-2">
+          <span class="bg-gray-200 text-xs w-7 h-7 flex items-center justify-center rounded-full">
+            ${member.name
+              .split(" ")
+              .map((w) => w[0])
+              .join("")
+              .toUpperCase()}
+          </span>
+          <span class="font-medium">${member.name}</span>
+          <span class="text-gray-500 text-sm">${
+            isTeacher ? "Teacher" : "Student"
+          }</span>
+        </div>
+        <div class="text-gray-500 text-sm">${
+          isTeacher ? "Instructor" : ""
+        }</div>
+      </div>
+      ${
+        !isTeacher
+          ? `<button class="text-red-600 text-sm hover:underline" onclick="removeMemberById('${member.id}')">❌ Remove</button>`
+          : ""
+      }
+    `;
+
+    container.appendChild(div);
+  });
+
+  updateMemberSection(); // cập nhật số lượng hiển thị
+}
+const addMemberModal = document.getElementById("addMemberModal");
+const availableStudentsList = document.getElementById("availableStudentsList");
+const cancelAddMember = document.getElementById("cancelAddMember");
+const confirmAddMember = document.getElementById("confirmAddMember");
+
+// Hiển thị modal khi bấm nút "Add Member"
+document.getElementById("addMemberBtn").addEventListener("click", () => {
+  const students = JSON.parse(localStorage.getItem("students") || "[]");
+  const currentIds = cls.memberList.map((m) => m.id);
+  const availableToAdd = students.filter((s) => !currentIds.includes(s.id));
+
+  if (availableToAdd.length === 0) {
+    alert("Không còn học viên nào để thêm.");
+    return;
+  }
+
+  availableStudentsList.innerHTML = availableToAdd
+    .map(
+      (s, i) => `
+    <label class="flex items-center space-x-2">
+      <input type="checkbox" value="${s.id}" class="studentCheckbox" />
+      <span>${s.name}</span>
+    </label>`
+    )
+    .join("");
+
+  addMemberModal.classList.remove("hidden");
+});
+
+// Hủy thêm
+cancelAddMember.addEventListener("click", () => {
+  addMemberModal.classList.add("hidden");
+});
+
+// Xác nhận thêm thành viên
+confirmAddMember.addEventListener("click", () => {
+  const checkedBoxes = document.querySelectorAll(".studentCheckbox:checked");
+  const selectedIds = Array.from(checkedBoxes).map((cb) => cb.value);
+
+  if (selectedIds.length === 0) {
+    alert("Chưa chọn học viên nào.");
+    return;
+  }
+
+  const students = JSON.parse(localStorage.getItem("students") || "[]");
+  const toAdd = students.filter((s) => selectedIds.includes(s.id));
+
+  cls.memberList.push(...toAdd);
+  localStorage.setItem("classes", JSON.stringify(classes));
+  renderMemberList();
+  addMemberModal.classList.add("hidden");
+});
 
 // Tab switching
 document.getElementById("discussionsTab").addEventListener("click", () => {
@@ -135,6 +253,7 @@ window.goToTopic = function (classId, topicId) {
 };
 
 renderTopics();
+renderMemberList();
 
 document.getElementById("addTopicBtn").onclick = () => {
   const title = document.getElementById("topicTitle").value.trim();
@@ -156,4 +275,13 @@ document.getElementById("addTopicBtn").onclick = () => {
   renderTopics();
   document.getElementById("topicTitle").value = "";
   document.getElementById("topicDesc").value = "";
+};
+
+// Xóa thành viên khỏi lớp
+window.removeMemberById = function(id) {
+  if (!confirm("Bạn có chắc muốn xóa thành viên này khỏi lớp không?")) return;
+ console.log("Removing member with ID:", id);
+  cls.memberList = cls.memberList.filter(member => member.id !== id);
+  localStorage.setItem("classes", JSON.stringify(classes));
+  renderMemberList();
 };
