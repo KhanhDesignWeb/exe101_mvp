@@ -102,29 +102,36 @@ function rateAnswer(rating) {
   renderStars(answer.rating);
 }
 
-// Hàm hiển thị các sao đã chọn
+// Hàm hiển thị sao đã chọn và sao hover
 function renderStars(rating) {
   const stars = document.querySelectorAll('#likeCount .star');
   stars.forEach((star, index) => {
     if (index < rating) {
-      star.classList.add('selected');
+      star.classList.add('selected');  // Tô màu vàng cho tất cả các sao từ sao 1 đến sao rating
     } else {
-      star.classList.remove('selected');
+      star.classList.remove('selected');  // Xóa màu vàng cho các sao sau sao rating
     }
   });
 }
 
+
 // Hàm hiển thị tên sao khi hover
 function showRatingLabel(rating) {
   const label = document.getElementById("ratingLabel");
-  label.innerText = starLabels[rating];
+  label.innerText = starLabels[rating];  // Cập nhật tên sao
   label.classList.remove("hidden");
+
+  // Render lại tất cả các sao từ 1 đến sao hiện tại được hover
+  renderStars(rating);
 }
 
 // Hàm ẩn tên sao khi không hover
 function hideRatingLabel() {
   const label = document.getElementById("ratingLabel");
   label.classList.add("hidden");
+
+  // Render lại sao để giữ sao đã được chọn
+  renderStars(currentAnswerIndex);  // Giữ sao đã chọn trước đó
 }
 
 // =================    Câu trả lời chi tiết ================
