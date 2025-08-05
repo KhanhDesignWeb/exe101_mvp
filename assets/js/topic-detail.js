@@ -6,6 +6,15 @@ const classId = params.get("class_id");
 const topicId = params.get("topic_id");
 let lastAIReply = "";
 
+// Tên đánh giá tương ứng với mỗi sao
+const starLabels = {
+  1: "Rất tệ",
+  2: "Tệ",
+  3: "Bình thường",
+  4: "Tốt",
+  5: "Rất tốt"
+};
+
 const cls = classes.find((c) => c.class_id === classId);
 if (!cls) {
   document.body.innerHTML =
@@ -39,7 +48,7 @@ document.getElementById("promptBlock").innerHTML = `
   </div>
 `;
 
-// Cập nhật lại renderAnswers() để hiển thị sao
+// Cập nhật lại renderAnswers() để hiển thị sao khi trả lời được hiển thị
 function renderAnswers() {
   const box = document.getElementById("answersList");
   if (!topic.answers || !topic.answers.length) {
@@ -66,7 +75,9 @@ function renderAnswers() {
         <div id="likeCount">
           ${[1, 2, 3, 4, 5].map(
         (star) =>
-          `<span class="star ${star <= (a.rating || 0) ? 'selected' : ''}" onclick="rateAnswer(${star})">★</span>`
+          `<span class="star ${star <= (a.rating || 0) ? 'selected' : ''}" onclick="rateAnswer(${star})" onmouseover="showRatingLabel(${star})" onmouseout="hideRatingLabel()">
+                ★
+              </span>`
       ).join('')}
         </div>
       </div>
@@ -74,6 +85,7 @@ function renderAnswers() {
     )
     .join("");
 }
+
 renderAnswers();
 
 // Hàm xử lý khi người dùng chọn sao
@@ -102,22 +114,43 @@ function renderStars(rating) {
   });
 }
 
+// Hàm hiển thị tên sao khi hover
+function showRatingLabel(rating) {
+  const label = document.getElementById("ratingLabel");
+  label.innerText = starLabels[rating];
+  label.classList.remove("hidden");
+}
+
+// Hàm ẩn tên sao khi không hover
+function hideRatingLabel() {
+  const label = document.getElementById("ratingLabel");
+  label.classList.add("hidden");
+}
+
 // =================    Câu trả lời chi tiết ================
 // xem chi tiết câu trả lời
 function openAnswerDetail(index) {
   currentAnswerIndex = index;
   const ans = topic.answers[index];
-  document.getElementById("answerModal").classList.remove("hidden");
-  document.getElementById("answerAvatar").src = ans.picture || "https://via.placeholder.com/40";
-  document.getElementById("answerAuthor").innerText =
-    ans.created_by || "Lỗi hiển thị";
-  document.getElementById("answerText").innerText = ans.content;
-  document.getElementById("likeCount").innerText = `❤️ ${ans.likes || 0}`;
-  document.getElementById("replyCount").innerText = `${ans.replies?.length || 0
-    } replies`;
 
+  // Mở modal chi tiết câu trả lời
+  document.getElementById("answerModal").classList.remove("hidden");
+
+  // Cập nhật thông tin câu trả lời
+  document.getElementById("answerAvatar").src = ans.picture || "https://via.placeholder.com/40";
+  document.getElementById("answerAuthor").innerText = ans.created_by || "Lỗi hiển thị";
+  document.getElementById("answerText").innerText = ans.content;
+
+  // Hiển thị đánh giá sao
+  renderStars(ans.rating || 0); // Gọi hàm renderStars để hiển thị sao đã chọn
+
+  // Cập nhật thông tin số lượng câu trả lời
+  document.getElementById("replyCount").innerText = `${ans.replies?.length || 0} replies`;
+
+  // Hiển thị các phản hồi
   renderReplies();
 }
+
 
 // đóng chi tiết câu trả lời
 function closeAnswerDetail() {

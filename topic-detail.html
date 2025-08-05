@@ -67,6 +67,12 @@
             color: #f59e0b;
             /* Màu vàng khi hover */
         }
+
+        /* Hiển thị nhãn đánh giá */
+        #ratingLabel {
+            font-size: 1rem;
+            font-weight: bold;
+        }
     </style>
 
 </head>
@@ -127,14 +133,22 @@
                     Câu trả lời sẽ hiển thị ở đây
                 </div>
                 <div class="flex items-center text-sm text-gray-600 mt-4 gap-6">
-                    <!-- Thay thế phần thả tim -->
+                    <!-- Thay thế phần thả tim với sao có tên -->
                     <div id="likeCount">
-                        <span class="star" onclick="rateAnswer(1)">★</span>
-                        <span class="star" onclick="rateAnswer(2)">★</span>
-                        <span class="star" onclick="rateAnswer(3)">★</span>
-                        <span class="star" onclick="rateAnswer(4)">★</span>
-                        <span class="star" onclick="rateAnswer(5)">★</span>
+                        <span class="star" onclick="rateAnswer(1)" onmouseover="showRatingLabel(1)"
+                            onmouseout="hideRatingLabel()">★</span>
+                        <span class="star" onclick="rateAnswer(2)" onmouseover="showRatingLabel(2)"
+                            onmouseout="hideRatingLabel()">★</span>
+                        <span class="star" onclick="rateAnswer(3)" onmouseover="showRatingLabel(3)"
+                            onmouseout="hideRatingLabel()">★</span>
+                        <span class="star" onclick="rateAnswer(4)" onmouseover="showRatingLabel(4)"
+                            onmouseout="hideRatingLabel()">★</span>
+                        <span class="star" onclick="rateAnswer(5)" onmouseover="showRatingLabel(5)"
+                            onmouseout="hideRatingLabel()">★</span>
                     </div>
+
+                    <!-- Hiển thị tên đánh giá -->
+                    <div id="ratingLabel" class="text-gray-500 mt-2 hidden"></div>
 
                     <div id="replyCount">2 replies</div>
                 </div>
