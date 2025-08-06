@@ -75,11 +75,13 @@ function renderAnswers() {
         <div id="likeCount">
         ${[1, 2, 3, 4, 5].map(
         (star) =>
-          `<span class="star ${star <= (a.rating || 0) ? 'selected' : ''}" onclick="rateAnswer(${star}, ${index})" onmouseover="showRatingLabel(${star})" onmouseout="hideRatingLabel()">
-            ★
-          </span>`
+          `<span class="star ${star <= (a.rating || 0) ? 'selected' : ''}" onclick="rateAnswer(${star}, ${index}); event.stopPropagation();" onmouseover="showRatingLabel(${star}, ${index})" onmouseout="hideRatingLabel(${index})">
+        ★
+      </span>`
       ).join('')}
-     </div>
+        <span id="ratingLabel${index}" class="text-gray-500 ml-2 hidden"></span>
+    </div>
+
       </div>
     </div>`
     )
@@ -97,28 +99,23 @@ function rateAnswer(rating, index = null) {
     answer.rating = rating;
     localStorage.setItem("classes", JSON.stringify(classes));
     renderAnswers();
-    attachStarHoverHandlersToAll();
-
-    // Nếu modal đang mở và đúng answer đó thì cũng cập nhật luôn modal (giữ modal không bị re-render)
+    // Nếu modal đang mở đúng answer này thì cập nhật sao luôn cho modal
     if (
       document.getElementById("answerModal") &&
       !document.getElementById("answerModal").classList.contains("hidden") &&
       typeof currentAnswerIndex === "number" &&
       currentAnswerIndex === index
     ) {
-      renderStars(answer.rating); // Gọi lại để update số sao & hover/label modal
+      renderStars(answer.rating);
     }
   } else if (typeof currentAnswerIndex === "number") {
     answer = topic.answers[currentAnswerIndex];
     answer.rating = rating;
     localStorage.setItem("classes", JSON.stringify(classes));
-    // Chỉ update lại cả hai chỗ, không render lại modal
-    renderStars(answer.rating); // Update số sao & hover/label modal
+    renderStars(answer.rating);
     renderAnswers();
-    attachStarHoverHandlersToAll();
   }
 }
-
 
 
 
@@ -153,52 +150,55 @@ function attachStarHoverHandlersToAll() {
 
 // Hàm hiển thị các sao đã chọn
 function renderStars(rating = 0) {
-  const stars = document.querySelectorAll('#likeCount .star');
+  const stars = document.querySelectorAll('#answerModal #likeCount .star');
   stars.forEach((star, index) => {
     if (index < rating) {
       star.classList.add('selected');
     } else {
       star.classList.remove('selected');
     }
-    // Hover: sáng sao và hiển thị label
     star.onmouseover = function () {
       stars.forEach((s, i) => {
         if (i <= index) s.classList.add('selected');
         else s.classList.remove('selected');
       });
-      if (document.getElementById("ratingLabel"))
-        showRatingLabel(index + 1);
+      showRatingLabel(index + 1, null);
     };
     star.onmouseout = function () {
       stars.forEach((s, i) => {
         if (i < rating) s.classList.add('selected');
         else s.classList.remove('selected');
       });
-      if (document.getElementById("ratingLabel"))
-        hideRatingLabel();
+      hideRatingLabel(null);
     };
-    // Thêm sự kiện click để đánh giá
     star.onclick = function (e) {
-      e.stopPropagation(); // Ngăn click này mở lại modal
-      rateAnswer(index + 1, null); // Modal: chỉ truyền số sao, index=null
+      e.stopPropagation();
+      rateAnswer(index + 1, null);
     };
   });
 }
 
-
-
-
 // Hàm hiển thị tên sao khi hover
-function showRatingLabel(rating) {
-  const label = document.getElementById("ratingLabel");
-  if (!label) return; // Không có thì bỏ qua!
+function showRatingLabel(rating, index = null) {
+  let label;
+  if (index !== null && document.getElementById(`ratingLabel${index}`)) {
+    label = document.getElementById(`ratingLabel${index}`);
+  } else {
+    label = document.getElementById("ratingLabel");
+  }
+  if (!label) return;
   label.innerText = starLabels[rating] || "";
   label.classList.remove("hidden");
 }
 
 // Hàm ẩn tên sao khi không hover
-function hideRatingLabel() {
-  const label = document.getElementById("ratingLabel");
+function hideRatingLabel(index = null) {
+  let label;
+  if (index !== null && document.getElementById(`ratingLabel${index}`)) {
+    label = document.getElementById(`ratingLabel${index}`);
+  } else {
+    label = document.getElementById("ratingLabel");
+  }
   if (!label) return;
   label.classList.add("hidden");
 }
