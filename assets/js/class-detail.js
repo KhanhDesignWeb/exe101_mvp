@@ -28,11 +28,15 @@ function renderTopics() {
   }
   topicsList.innerHTML = cls.topics
     .map(
-      (t) => `
+      (t, idx) => `
        <div class="p-4 border border-gray-300 rounded-lg shadow-sm hover:shadow-md transition duration-200 bg-white"        
          onclick="goToTopic('${cls.class_id}','${t.topic_id}')">
             <div class="text-gray-900 font-semibold text-base">${t.title}</div>
             <div class="text-gray-500 text-sm">by ${t.created_by}</div>
+            <div class="text-gray-500 text-sm">
+              <b>Thời gian kết thúc:</b> <span id="topic-end-${idx}">${t.end_time ? new Date(t.end_time).toLocaleString() : "Không đặt"}</span>
+              <span class="ml-2 text-red-600" id="countdown-${idx}"></span>
+            </div>
             <div class="text-gray-500 text-sm flex justify-end space-x-4">
                 <span>${t.answers ? t.answers.length : 0} replies</span>
                 <span>${t.created_at}</span>
@@ -41,7 +45,16 @@ function renderTopics() {
     `
     )
     .join("");
+
+  // Bắt đầu đếm ngược sau khi render xong
+  cls.topics.forEach((t, idx) => {
+    if (t.end_time) {
+      startCountdown(t.end_time, `countdown-${idx}`);
+    }
+  });
 }
+
+
 // Cập nhật thông tin số lượng thành viên và học viên
 function updateMemberSection() {
   const memberCountEl = document.getElementById("memberCount");
@@ -82,24 +95,21 @@ function renderMemberList() {
         <div class="flex items-center space-x-2">
           <span class="bg-gray-200 text-xs w-7 h-7 flex items-center justify-center rounded-full">
             ${member.name
-              .split(" ")
-              .map((w) => w[0])
-              .join("")
-              .toUpperCase()}
+        .split(" ")
+        .map((w) => w[0])
+        .join("")
+        .toUpperCase()}
           </span>
           <span class="font-medium">${member.name}</span>
-          <span class="text-gray-500 text-sm">${
-            isTeacher ? "Teacher" : "Student"
-          }</span>
+          <span class="text-gray-500 text-sm">${isTeacher ? "Teacher" : "Student"
+      }</span>
         </div>
-        <div class="text-gray-500 text-sm">${
-          isTeacher ? "Instructor" : ""
-        }</div>
+        <div class="text-gray-500 text-sm">${isTeacher ? "Instructor" : ""
+      }</div>
       </div>
-      ${
-        !isTeacher
-          ? `<button class="text-red-600 text-sm hover:underline" onclick="removeMemberById('${member.id}')">❌ Remove</button>`
-          : ""
+      ${!isTeacher
+        ? `<button class="text-red-600 text-sm hover:underline" onclick="removeMemberById('${member.id}')">❌ Remove</button>`
+        : ""
       }
     `;
 
@@ -301,27 +311,40 @@ renderTopics();
 renderMemberList();
 renderGroups();
 
+// Thêm chủ đề mới
 document.getElementById("addTopicBtn").onclick = () => {
   const title = document.getElementById("topicTitle").value.trim();
   const desc = document.getElementById("topicDesc").value.trim();
+  const endTime = document.getElementById("topicEndTime").value;
+
   if (!title) {
     alert("Nhập tiêu đề.");
     return;
   }
+  if (!endTime) {
+    alert("Vui lòng chọn thời gian kết thúc cho chủ đề!");
+    document.getElementById("topicEndTime").focus();
+    return;
+  }
+
   cls.topics = cls.topics || [];
   cls.topics.unshift({
     topic_id: "T" + (cls.topics.length + 1),
     title,
     description: desc,
+    end_time: endTime, // Lưu thời gian kết thúc
     created_by: "Nguyen Van A",
     created_at: new Date().toLocaleString(),
     answers: [],
   });
+
   localStorage.setItem("classes", JSON.stringify(classes));
   renderTopics();
   document.getElementById("topicTitle").value = "";
   document.getElementById("topicDesc").value = "";
+  document.getElementById("topicEndTime").value = "";
 };
+
 
 // Xóa thành viên khỏi lớp
 window.removeMemberById = function (id) {
@@ -361,19 +384,17 @@ function renderGroups() {
         <h4 class="font-semibold">Group ${index + 1}</h4>
         <button onclick="deleteGroup(${index})" class="text-red-500 text-sm hover:underline">🗑 Delete</button>
       </div>
-      <ul class="ml-4 text-sm text-gray-700">${
-        membersHtml || "<li><em>No members</em></li>"
+      <ul class="ml-4 text-sm text-gray-700">${membersHtml || "<li><em>No members</em></li>"
       }</ul>
-      ${
-        availableToAdd.length > 0
-          ? `
+      ${availableToAdd.length > 0
+        ? `
         <select id="addMemberSelect_${index}" class="mt-2 border p-1 rounded text-sm">
           <option value="">+ Add Member</option>
           ${availableToAdd
-            .map((m) => `<option value="${m.id}">${m.name}</option>`)
-            .join("")}
+          .map((m) => `<option value="${m.id}">${m.name}</option>`)
+          .join("")}
         </select>`
-          : ""
+        : ""
       }
     `;
 
@@ -407,3 +428,60 @@ window.deleteGroup = function (index) {
   localStorage.setItem("classes", JSON.stringify(classes));
   renderGroups();
 };
+
+function startCountdown(endTimeStr, countdownElemId, createdAtStr) {
+  const endTime = new Date(endTimeStr).getTime();
+  let startTime;
+  // Nếu có trường created_at dạng ISO thì dùng, không thì lấy lúc page load
+  if (createdAtStr) {
+    // Có thể là local string, ISO, hoặc timestamp. Cố gắng parse.
+    let t = Date.parse(createdAtStr);
+    if (isNaN(t)) {
+      // Nếu không phải ISO, thử parse lại (trường hợp do toLocaleString)
+      t = new Date(createdAtStr).getTime();
+    }
+    startTime = t;
+  } else {
+    // Nếu không truyền vào thì lấy khi page load
+    startTime = Date.now();
+  }
+  const total = endTime - startTime;
+
+  function updateCountdown() {
+    const now = Date.now();
+    const diff = endTime - now;
+
+    const el = document.getElementById(countdownElemId);
+    if (!el) return;
+
+    el.classList.remove("countdown-green", "countdown-yellow", "countdown-red", "countdown-expired");
+
+    if (diff <= 0) {
+      el.textContent = "Đã hết thời gian!";
+      el.classList.add("countdown-expired");
+      return;
+    }
+
+    const percent = Math.max(0, Math.min(1, diff / total));
+    // console.log(percent)
+    // Xanh >66%, Vàng 33-66%, Đỏ <33%
+    if (percent > 0.66) {
+      el.classList.add("countdown-green");
+    } else if (percent > 0.33) {
+      el.classList.add("countdown-yellow");
+    } else {
+      el.classList.add("countdown-red");
+    }
+
+    const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+    const m = Math.floor((diff / (1000 * 60)) % 60);
+    const s = Math.floor((diff / 1000) % 60);
+
+    el.textContent = `Còn lại: ${d > 0 ? d + ' ngày ' : ''}${h}h ${m}m ${s}s`;
+
+    setTimeout(updateCountdown, 1000);
+  }
+  updateCountdown();
+}
+
