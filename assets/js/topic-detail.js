@@ -37,7 +37,7 @@ document.getElementById("topicInfo").innerHTML = `
   }</span>
     <span>${topic.created_by}</span>
     <span>&bull;</span>
-    <span>${topic.created_at}</span>
+    <span>${topic.created_at ? new Date(topic.created_at).toLocaleString() : ""}</span>
   </div>
 `;
 document.getElementById("promptBlock").innerHTML = `

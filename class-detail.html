@@ -9,21 +9,6 @@
   <script src="https://cdn.tailwindcss.com"></script>
 
   <style>
-    .countdown-green {
-      color: #16a34a;
-      font-weight: 500;
-    }
-
-    .countdown-yellow {
-      color: #f59e42;
-      font-weight: 600;
-    }
-
-    .countdown-red {
-      color: #dc2626;
-      font-weight: 700;
-    }
-
     .countdown-expired {
       color: #dc2626;
       font-weight: bold;
@@ -38,6 +23,22 @@
       100% {
         opacity: 0.5;
       }
+    }
+
+    .topic-delete-btn {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      width: 2rem;
+      height: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      z-index: 10;
+      background: transparent;
+      border: none;
+      cursor: pointer;
     }
   </style>
 

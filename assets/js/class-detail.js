@@ -1,5 +1,5 @@
 let classes = JSON.parse(localStorage.getItem("classes")) || [];
-
+let countdownTimers = [];
 const params = new URLSearchParams(window.location.search);
 const classId = params.get("id");
 
@@ -21,6 +21,9 @@ document.getElementById("status").innerText = cls.status;
 
 
 function renderTopics() {
+  // Xóa hết timer cũ trước khi render lại
+  countdownTimers.forEach(id => clearTimeout(id));
+  countdownTimers = [];
   const topicsList = document.getElementById("topicsList");
   if (!cls.topics || cls.topics.length === 0) {
     topicsList.innerHTML =
@@ -30,27 +33,30 @@ function renderTopics() {
   topicsList.innerHTML = cls.topics
     .map(
       (t, idx) => `
-       <div class="p-4 border border-gray-300 rounded-lg shadow-sm hover:shadow-md transition duration-200 bg-white relative">
-            <button class="absolute top-2 right-2 text-red-500 hover:text-red-700 font-bold text-lg" title="Xóa chủ đề" onclick="event.stopPropagation(); deleteTopic(${idx});">×</button>
-            <div class="text-gray-900 font-semibold text-base">${t.title}</div>
-            <div class="text-gray-500 text-sm">by ${t.created_by}</div>
-            <div class="text-gray-500 text-sm">
-              <b>Thời gian kết thúc:</b> <span id="topic-end-${idx}">${t.end_time ? new Date(t.end_time).toLocaleString() : "Không đặt"}</span>
-              <span class="ml-2 text-red-600" id="countdown-${idx}"></span>
-            </div>
-            <div class="text-gray-500 text-sm flex justify-end space-x-4">
-                <span>${t.answers ? t.answers.length : 0} replies</span>
-                <span>${t.created_at ? new Date(t.created_at).toLocaleString() : ""}</span>
-            </div>
-        </div>
-    `
+     <div class="p-4 border border-gray-300 rounded-lg shadow-sm hover:shadow-md transition duration-200 bg-white relative"
+          onclick="goToTopic('${cls.class_id}','${t.topic_id}')">
+          <button class="topic-delete-btn text-red-500 hover:text-red-700 font-bold text-lg"
+                  title="Xóa chủ đề"
+                  onclick="event.stopPropagation(); deleteTopic(${idx}); return false;">×</button>
+          <div class="text-gray-900 font-semibold text-base">${t.title}</div>
+          <div class="text-gray-500 text-sm">by ${t.created_by}</div>
+          <div class="text-gray-500 text-sm">
+            <b>Thời gian kết thúc:</b> <span id="topic-end-${idx}">${t.end_time ? new Date(t.end_time).toLocaleString() : "Không đặt"}</span>
+            <span class="ml-2 text-red-600" id="countdown-${idx}"></span>
+          </div>
+          <div class="text-gray-500 text-sm flex justify-end space-x-4">
+              <span>${t.answers ? t.answers.length : 0} replies</span>
+              <span>${t.created_at ? new Date(t.created_at).toLocaleString() : ""}</span>
+          </div>
+      </div>
+  `
     )
     .join("");
 
   // Countdown
   cls.topics.forEach((t, idx) => {
     if (t.end_time && t.created_at) {
-      startCountdown(t.end_time, `countdown-${idx}`, t.created_at);
+      startCountdown(t.end_time, `countdown-${idx}`, t.created_at, idx);
     }
   });
 }
@@ -330,19 +336,20 @@ renderGroups();
 document.getElementById("addTopicBtn").onclick = () => {
   const title = document.getElementById("topicTitle").value.trim();
   const desc = document.getElementById("topicDesc").value.trim();
-  const endTime = document.getElementById("topicEndTime").value;
+  const endTimeInput = document.getElementById("topicEndTime").value; // local time
+  const endTimeISO = new Date(endTimeInput).toISOString();           // luôn ISO UTC
 
   if (!title) {
     alert("Nhập tiêu đề.");
     return;
   }
-  if (!endTime) {
+  if (!endTimeISO) {
     alert("Vui lòng chọn thời gian kết thúc cho chủ đề!");
     document.getElementById("topicEndTime").focus();
     return;
   }
   // Kiểm tra không cho phép ngày quá khứ
-  if (new Date(endTime) <= new Date()) {
+  if (new Date(endTimeISO) <= new Date()) {
     alert("Thời gian kết thúc phải lớn hơn thời gian hiện tại!");
     document.getElementById("topicEndTime").focus();
     return;
@@ -353,7 +360,7 @@ document.getElementById("addTopicBtn").onclick = () => {
     topic_id: "T" + (cls.topics.length + 1),
     title,
     description: desc,
-    end_time: endTime,
+    end_time: endTimeISO,
     created_by: "Nguyen Van A",
     created_at: new Date().toISOString(),
     answers: [],
@@ -451,20 +458,14 @@ window.deleteGroup = function (index) {
   renderGroups();
 };
 
-function startCountdown(endTimeStr, countdownElemId, createdAtStr) {
-  const endTime = new Date(endTimeStr).getTime();
+function startCountdown(endTimeStr, countdownElemId, createdAtStr, idx) {
+  const endTime = Date.parse(endTimeStr);
   let startTime;
-  // Nếu có trường created_at dạng ISO thì dùng, không thì lấy lúc page load
   if (createdAtStr) {
-    // Có thể là local string, ISO, hoặc timestamp. Cố gắng parse.
     let t = Date.parse(createdAtStr);
-    if (isNaN(t)) {
-      // Nếu không phải ISO, thử parse lại (trường hợp do toLocaleString)
-      t = new Date(createdAtStr).getTime();
-    }
+    if (isNaN(t)) t = new Date(createdAtStr).getTime();
     startTime = t;
   } else {
-    // Nếu không truyền vào thì lấy khi page load
     startTime = Date.now();
   }
   const total = endTime - startTime;
@@ -472,38 +473,25 @@ function startCountdown(endTimeStr, countdownElemId, createdAtStr) {
   function updateCountdown() {
     const now = Date.now();
     const diff = endTime - now;
-
     const el = document.getElementById(countdownElemId);
     if (!el) return;
-
     el.classList.remove("countdown-green", "countdown-yellow", "countdown-red", "countdown-expired");
-
     if (diff <= 0) {
       el.textContent = "Đã hết thời gian!";
       el.classList.add("countdown-expired");
       return;
     }
-
-    const percent = Math.max(0, Math.min(1, diff / total));
-    // console.log(percent)
-    // Xanh >66%, Vàng 33-66%, Đỏ <33%
-    if (percent > 0.66) {
-      el.classList.add("countdown-green");
-    } else if (percent > 0.33) {
-      el.classList.add("countdown-yellow");
-    } else {
-      el.classList.add("countdown-red");
-    }
-
     const d = Math.floor(diff / (1000 * 60 * 60 * 24));
     const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
     const m = Math.floor((diff / (1000 * 60)) % 60);
     const s = Math.floor((diff / 1000) % 60);
 
     el.textContent = `Còn lại: ${d > 0 ? d + ' ngày ' : ''}${h}h ${m}m ${s}s`;
-
-    setTimeout(updateCountdown, 1000);
+    // Lưu id timer vào mảng countdownTimers theo index
+    countdownTimers[idx] = setTimeout(updateCountdown, 1000);
   }
   updateCountdown();
 }
+
+
 
