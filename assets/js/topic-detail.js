@@ -73,13 +73,13 @@ function renderAnswers() {
       </div>
       <div class="mt-3 text-sm text-gray-500">
         <div id="likeCount">
-          ${[1, 2, 3, 4, 5].map(
+        ${[1, 2, 3, 4, 5].map(
         (star) =>
-          `<span class="star ${star <= (a.rating || 0) ? 'selected' : ''}" onclick="rateAnswer(${star})" onmouseover="showRatingLabel(${star})" onmouseout="hideRatingLabel()">
-                ★
-              </span>`
+          `<span class="star ${star <= (a.rating || 0) ? 'selected' : ''}" onclick="rateAnswer(${star}, ${index})" onmouseover="showRatingLabel(${star})" onmouseout="hideRatingLabel()">
+            ★
+          </span>`
       ).join('')}
-        </div>
+     </div>
       </div>
     </div>`
     )
@@ -92,29 +92,37 @@ attachStarHoverHandlersToAll();
 // Hàm xử lý khi người dùng chọn sao
 function rateAnswer(rating, index = null) {
   let answer;
+  // Nếu truyền index (bấm ở danh sách), thì cập nhật đúng answer
   if (index !== null) {
     answer = topic.answers[index];
+    answer.rating = rating;
+    // Lưu lại đánh giá trong localStorage
+    localStorage.setItem("classes", JSON.stringify(classes));
+    // Render lại danh sách và hover
+    renderAnswers();
+    attachStarHoverHandlersToAll();
+    // Nếu modal đang mở đúng index này thì cập nhật luôn modal
+    if (
+      document.getElementById("answerModal") &&
+      !document.getElementById("answerModal").classList.contains("hidden") &&
+      typeof currentAnswerIndex === "number" &&
+      currentAnswerIndex === index
+    ) {
+      renderStars(answer.rating);
+    }
   } else if (typeof currentAnswerIndex === "number") {
+    // Nếu không truyền index (bấm ở modal), thì cập nhật answer theo currentAnswerIndex
     answer = topic.answers[currentAnswerIndex];
-  }
-
-  if (!answer) return;
-
-  // Cập nhật giá trị sao được chọn
-  answer.rating = rating;
-
-  // Lưu lại đánh giá trong localStorage
-  localStorage.setItem("classes", JSON.stringify(classes));
-
-  // Cập nhật giao diện sao cho phù hợp
-  renderAnswers();
-  attachStarHoverHandlersToAll(); // Gán lại hover cho danh sách
-
-  // Nếu đang mở modal, cập nhật lại modal
-  if (document.getElementById("answerModal") && !document.getElementById("answerModal").classList.contains("hidden") && typeof currentAnswerIndex === "number") {
+    answer.rating = rating;
+    localStorage.setItem("classes", JSON.stringify(classes));
+    // Cập nhật luôn modal
     renderStars(answer.rating);
+    // Cập nhật lại giao diện danh sách bên ngoài luôn (vì dữ liệu đã thay đổi)
+    renderAnswers();
+    attachStarHoverHandlersToAll();
   }
 }
+
 
 
 // Hàm gán hiệu ứng hover cho tất cả sao trên danh sách
@@ -161,22 +169,24 @@ function renderStars(rating = 0) {
         if (i <= index) s.classList.add('selected');
         else s.classList.remove('selected');
       });
-      // Kiểm tra tồn tại ratingLabel trước khi show
       if (document.getElementById("ratingLabel"))
         showRatingLabel(index + 1);
     };
-    // Mouseout: trở về trạng thái đã chọn, ẩn label
     star.onmouseout = function () {
       stars.forEach((s, i) => {
         if (i < rating) s.classList.add('selected');
         else s.classList.remove('selected');
       });
-      // Kiểm tra tồn tại ratingLabel trước khi hide
       if (document.getElementById("ratingLabel"))
         hideRatingLabel();
     };
+    // Thêm sự kiện click để đánh giá
+    star.onclick = function () {
+      rateAnswer(index + 1, null); // Modal: chỉ truyền số sao, index=null
+    };
   });
 }
+
 
 
 // Hàm hiển thị tên sao khi hover
