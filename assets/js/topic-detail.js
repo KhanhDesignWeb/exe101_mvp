@@ -87,7 +87,7 @@ function renderAnswers() {
 }
 
 renderAnswers();
-
+attachStarHoverHandlersToAll();
 // Hàm xử lý khi người dùng chọn sao
 function rateAnswer(rating) {
   const answer = topic.answers[currentAnswerIndex];
@@ -102,8 +102,33 @@ function rateAnswer(rating) {
   renderStars(answer.rating);
 }
 
+// Hàm gán hiệu ứng hover cho tất cả sao trên danh sách
+function attachStarHoverHandlersToAll() {
+  document.querySelectorAll('#answersList .star').forEach((star) => {
+    const parent = star.parentElement; // div#likeCount
+    const allStars = Array.from(parent.querySelectorAll('.star'));
+    const idx = allStars.indexOf(star);
+
+    // Lấy số sao đã chọn (dựa vào số .selected của parent)
+    let rating = allStars.filter(s => s.classList.contains('selected')).length;
+
+    star.onmouseover = function () {
+      allStars.forEach((s, i) => {
+        if (i <= idx) s.classList.add('selected');
+        else s.classList.remove('selected');
+      });
+    };
+    star.onmouseout = function () {
+      allStars.forEach((s, i) => {
+        if (i < rating) s.classList.add('selected');
+        else s.classList.remove('selected');
+      });
+    };
+  });
+}
+
 // Hàm hiển thị các sao đã chọn
-function renderStars(rating) {
+function renderStars(rating = 0) {
   const stars = document.querySelectorAll('#likeCount .star');
   stars.forEach((star, index) => {
     if (index < rating) {
@@ -111,6 +136,20 @@ function renderStars(rating) {
     } else {
       star.classList.remove('selected');
     }
+    // Hover
+    star.onmouseover = function () {
+      stars.forEach((s, i) => {
+        if (i <= index) s.classList.add('selected');
+        else s.classList.remove('selected');
+      });
+    };
+    // Mouseout
+    star.onmouseout = function () {
+      stars.forEach((s, i) => {
+        if (i < rating) s.classList.add('selected');
+        else s.classList.remove('selected');
+      });
+    };
   });
 }
 
