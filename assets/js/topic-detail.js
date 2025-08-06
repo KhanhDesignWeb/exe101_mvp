@@ -92,36 +92,33 @@ attachStarHoverHandlersToAll();
 // Hàm xử lý khi người dùng chọn sao
 function rateAnswer(rating, index = null) {
   let answer;
-  // Nếu truyền index (bấm ở danh sách), thì cập nhật đúng answer
   if (index !== null) {
     answer = topic.answers[index];
     answer.rating = rating;
-    // Lưu lại đánh giá trong localStorage
     localStorage.setItem("classes", JSON.stringify(classes));
-    // Render lại danh sách và hover
     renderAnswers();
     attachStarHoverHandlersToAll();
-    // Nếu modal đang mở đúng index này thì cập nhật luôn modal
+
+    // Nếu modal đang mở và đúng answer đó thì cũng cập nhật luôn modal (giữ modal không bị re-render)
     if (
       document.getElementById("answerModal") &&
       !document.getElementById("answerModal").classList.contains("hidden") &&
       typeof currentAnswerIndex === "number" &&
       currentAnswerIndex === index
     ) {
-      renderStars(answer.rating);
+      renderStars(answer.rating); // Gọi lại để update số sao & hover/label modal
     }
   } else if (typeof currentAnswerIndex === "number") {
-    // Nếu không truyền index (bấm ở modal), thì cập nhật answer theo currentAnswerIndex
     answer = topic.answers[currentAnswerIndex];
     answer.rating = rating;
     localStorage.setItem("classes", JSON.stringify(classes));
-    // Cập nhật luôn modal
-    renderStars(answer.rating);
-    // Cập nhật lại giao diện danh sách bên ngoài luôn (vì dữ liệu đã thay đổi)
+    // Chỉ update lại cả hai chỗ, không render lại modal
+    renderStars(answer.rating); // Update số sao & hover/label modal
     renderAnswers();
     attachStarHoverHandlersToAll();
   }
 }
+
 
 
 
@@ -181,11 +178,13 @@ function renderStars(rating = 0) {
         hideRatingLabel();
     };
     // Thêm sự kiện click để đánh giá
-    star.onclick = function () {
+    star.onclick = function (e) {
+      e.stopPropagation(); // Ngăn click này mở lại modal
       rateAnswer(index + 1, null); // Modal: chỉ truyền số sao, index=null
     };
   });
 }
+
 
 
 
