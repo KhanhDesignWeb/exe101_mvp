@@ -109,7 +109,6 @@ function attachStarHoverHandlersToAll() {
     const allStars = Array.from(parent.querySelectorAll('.star'));
     const idx = allStars.indexOf(star);
 
-    // Lấy số sao đã chọn (dựa vào số .selected của parent)
     let rating = allStars.filter(s => s.classList.contains('selected')).length;
 
     star.onmouseover = function () {
@@ -117,15 +116,20 @@ function attachStarHoverHandlersToAll() {
         if (i <= idx) s.classList.add('selected');
         else s.classList.remove('selected');
       });
+      // Hiển thị label
+      showRatingLabel(idx + 1);
     };
     star.onmouseout = function () {
       allStars.forEach((s, i) => {
         if (i < rating) s.classList.add('selected');
         else s.classList.remove('selected');
       });
+      // Ẩn label
+      hideRatingLabel();
     };
   });
 }
+
 
 // Hàm hiển thị các sao đã chọn
 function renderStars(rating = 0) {
@@ -136,19 +140,21 @@ function renderStars(rating = 0) {
     } else {
       star.classList.remove('selected');
     }
-    // Hover
+    // Hover: sáng sao và hiển thị label
     star.onmouseover = function () {
       stars.forEach((s, i) => {
         if (i <= index) s.classList.add('selected');
         else s.classList.remove('selected');
       });
+      showRatingLabel(index + 1);
     };
-    // Mouseout
+    // Mouseout: trở về trạng thái đã chọn, ẩn label
     star.onmouseout = function () {
       stars.forEach((s, i) => {
         if (i < rating) s.classList.add('selected');
         else s.classList.remove('selected');
       });
+      hideRatingLabel();
     };
   });
 }
