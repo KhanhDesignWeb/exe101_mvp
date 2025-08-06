@@ -88,9 +88,17 @@ function renderAnswers() {
 
 renderAnswers();
 attachStarHoverHandlersToAll();
+
 // Hàm xử lý khi người dùng chọn sao
-function rateAnswer(rating) {
-  const answer = topic.answers[currentAnswerIndex];
+function rateAnswer(rating, index = null) {
+  let answer;
+  if (index !== null) {
+    answer = topic.answers[index];
+  } else if (typeof currentAnswerIndex === "number") {
+    answer = topic.answers[currentAnswerIndex];
+  }
+
+  if (!answer) return;
 
   // Cập nhật giá trị sao được chọn
   answer.rating = rating;
@@ -99,13 +107,20 @@ function rateAnswer(rating) {
   localStorage.setItem("classes", JSON.stringify(classes));
 
   // Cập nhật giao diện sao cho phù hợp
-  renderStars(answer.rating);
+  renderAnswers();
+  attachStarHoverHandlersToAll(); // Gán lại hover cho danh sách
+
+  // Nếu đang mở modal, cập nhật lại modal
+  if (document.getElementById("answerModal") && !document.getElementById("answerModal").classList.contains("hidden") && typeof currentAnswerIndex === "number") {
+    renderStars(answer.rating);
+  }
 }
+
 
 // Hàm gán hiệu ứng hover cho tất cả sao trên danh sách
 function attachStarHoverHandlersToAll() {
   document.querySelectorAll('#answersList .star').forEach((star) => {
-    const parent = star.parentElement; // div#likeCount
+    const parent = star.parentElement;
     const allStars = Array.from(parent.querySelectorAll('.star'));
     const idx = allStars.indexOf(star);
 
@@ -116,19 +131,19 @@ function attachStarHoverHandlersToAll() {
         if (i <= idx) s.classList.add('selected');
         else s.classList.remove('selected');
       });
-      // Hiển thị label
-      showRatingLabel(idx + 1);
+      // Đừng gọi showRatingLabel nếu không có label ngoài danh sách!
+      // Nếu muốn label ở từng card, bạn phải render label riêng cho từng câu trả lời.
     };
     star.onmouseout = function () {
       allStars.forEach((s, i) => {
         if (i < rating) s.classList.add('selected');
         else s.classList.remove('selected');
       });
-      // Ẩn label
-      hideRatingLabel();
+      // Không gọi hideRatingLabel ở ngoài danh sách
     };
   });
 }
+
 
 
 // Hàm hiển thị các sao đã chọn
@@ -146,7 +161,9 @@ function renderStars(rating = 0) {
         if (i <= index) s.classList.add('selected');
         else s.classList.remove('selected');
       });
-      showRatingLabel(index + 1);
+      // Kiểm tra tồn tại ratingLabel trước khi show
+      if (document.getElementById("ratingLabel"))
+        showRatingLabel(index + 1);
     };
     // Mouseout: trở về trạng thái đã chọn, ẩn label
     star.onmouseout = function () {
@@ -154,7 +171,9 @@ function renderStars(rating = 0) {
         if (i < rating) s.classList.add('selected');
         else s.classList.remove('selected');
       });
-      hideRatingLabel();
+      // Kiểm tra tồn tại ratingLabel trước khi hide
+      if (document.getElementById("ratingLabel"))
+        hideRatingLabel();
     };
   });
 }
@@ -163,16 +182,17 @@ function renderStars(rating = 0) {
 // Hàm hiển thị tên sao khi hover
 function showRatingLabel(rating) {
   const label = document.getElementById("ratingLabel");
-  label.innerText = starLabels[rating];
+  if (!label) return; // Không có thì bỏ qua!
+  label.innerText = starLabels[rating] || "";
   label.classList.remove("hidden");
 }
 
 // Hàm ẩn tên sao khi không hover
 function hideRatingLabel() {
   const label = document.getElementById("ratingLabel");
+  if (!label) return;
   label.classList.add("hidden");
 }
-
 // =================    Câu trả lời chi tiết ================
 // xem chi tiết câu trả lời
 function openAnswerDetail(index) {
