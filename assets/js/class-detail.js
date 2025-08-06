@@ -19,6 +19,7 @@ document.getElementById("subjectCode").innerText = cls.subject_code;
 document.getElementById("semester").innerText = cls.semester;
 document.getElementById("status").innerText = cls.status;
 
+
 function renderTopics() {
   const topicsList = document.getElementById("topicsList");
   if (!cls.topics || cls.topics.length === 0) {
@@ -29,8 +30,8 @@ function renderTopics() {
   topicsList.innerHTML = cls.topics
     .map(
       (t, idx) => `
-       <div class="p-4 border border-gray-300 rounded-lg shadow-sm hover:shadow-md transition duration-200 bg-white"        
-         onclick="goToTopic('${cls.class_id}','${t.topic_id}')">
+       <div class="p-4 border border-gray-300 rounded-lg shadow-sm hover:shadow-md transition duration-200 bg-white relative">
+            <button class="absolute top-2 right-2 text-red-500 hover:text-red-700 font-bold text-lg" title="Xóa chủ đề" onclick="event.stopPropagation(); deleteTopic(${idx});">×</button>
             <div class="text-gray-900 font-semibold text-base">${t.title}</div>
             <div class="text-gray-500 text-sm">by ${t.created_by}</div>
             <div class="text-gray-500 text-sm">
@@ -39,20 +40,34 @@ function renderTopics() {
             </div>
             <div class="text-gray-500 text-sm flex justify-end space-x-4">
                 <span>${t.answers ? t.answers.length : 0} replies</span>
-                <span>${t.created_at}</span>
+                <span>${t.created_at ? new Date(t.created_at).toLocaleString() : ""}</span>
             </div>
         </div>
     `
     )
     .join("");
 
-  // Bắt đầu đếm ngược sau khi render xong
+  // Countdown
   cls.topics.forEach((t, idx) => {
-    if (t.end_time) {
-      startCountdown(t.end_time, `countdown-${idx}`);
+    if (t.end_time && t.created_at) {
+      startCountdown(t.end_time, `countdown-${idx}`, t.created_at);
     }
   });
 }
+
+window.deleteTopic = function (idx) {
+  if (!confirm("Bạn có chắc muốn xóa chủ đề này không?")) return;
+  cls.topics.splice(idx, 1);
+  localStorage.setItem("classes", JSON.stringify(classes));
+  renderTopics();
+};
+
+
+//Đặt min cho input datetime-local
+const now = new Date();
+const tzoffset = now.getTimezoneOffset() * 60000; // bù múi giờ
+const localISOTime = (new Date(now - tzoffset)).toISOString().slice(0, 16);
+document.getElementById('topicEndTime').setAttribute('min', localISOTime);
 
 
 // Cập nhật thông tin số lượng thành viên và học viên
@@ -326,15 +341,21 @@ document.getElementById("addTopicBtn").onclick = () => {
     document.getElementById("topicEndTime").focus();
     return;
   }
+  // Kiểm tra không cho phép ngày quá khứ
+  if (new Date(endTime) <= new Date()) {
+    alert("Thời gian kết thúc phải lớn hơn thời gian hiện tại!");
+    document.getElementById("topicEndTime").focus();
+    return;
+  }
 
   cls.topics = cls.topics || [];
   cls.topics.unshift({
     topic_id: "T" + (cls.topics.length + 1),
     title,
     description: desc,
-    end_time: endTime, // Lưu thời gian kết thúc
+    end_time: endTime,
     created_by: "Nguyen Van A",
-    created_at: new Date().toLocaleString(),
+    created_at: new Date().toISOString(),
     answers: [],
   });
 
@@ -344,6 +365,7 @@ document.getElementById("addTopicBtn").onclick = () => {
   document.getElementById("topicDesc").value = "";
   document.getElementById("topicEndTime").value = "";
 };
+
 
 
 // Xóa thành viên khỏi lớp
