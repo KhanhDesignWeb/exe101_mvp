@@ -62,7 +62,7 @@ function updateMemberSection() {
 
   memberCountEl.textContent = totalMembers;
   studentCountEl.textContent = studentCount;
-};
+}
 
 function renderMemberList() {
   const container = document.getElementById("memberListContainer");
@@ -162,10 +162,12 @@ confirmAddMember.addEventListener("click", () => {
 });
 
 // Tab switching
+
 document.getElementById("discussionsTab").addEventListener("click", () => {
   document.getElementById("discussionsSection").classList.remove("hidden");
   document.getElementById("membersSection").classList.add("hidden");
   document.getElementById("resourcesSection").classList.add("hidden");
+  document.getElementById("groupsSection").classList.add("hidden");
 
   // Active tab
   document
@@ -189,12 +191,19 @@ document.getElementById("discussionsTab").addEventListener("click", () => {
   document
     .getElementById("resourcesTab")
     .classList.add("bg-gray-200", "text-gray-600");
+  document
+    .getElementById("groupsTab")
+    .classList.remove("bg-white", "border", "text-gray-900");
+  document
+    .getElementById("groupsTab")
+    .classList.add("bg-gray-200", "text-gray-600");
 });
 
 document.getElementById("membersTab").addEventListener("click", () => {
   document.getElementById("discussionsSection").classList.add("hidden");
   document.getElementById("membersSection").classList.remove("hidden");
   document.getElementById("resourcesSection").classList.add("hidden");
+  document.getElementById("groupsSection").classList.add("hidden");
 
   document
     .getElementById("membersTab")
@@ -215,6 +224,12 @@ document.getElementById("membersTab").addEventListener("click", () => {
     .classList.remove("bg-white", "border", "text-gray-900");
   document
     .getElementById("resourcesTab")
+    .classList.add("bg-gray-200", "text-gray-600");
+  document
+    .getElementById("groupsTab")
+    .classList.remove("bg-white", "border", "text-gray-900");
+  document
+    .getElementById("groupsTab")
     .classList.add("bg-gray-200", "text-gray-600");
 });
 
@@ -222,6 +237,7 @@ document.getElementById("resourcesTab").addEventListener("click", () => {
   document.getElementById("discussionsSection").classList.add("hidden");
   document.getElementById("membersSection").classList.add("hidden");
   document.getElementById("resourcesSection").classList.remove("hidden");
+  document.getElementById("groupsSection").classList.add("hidden");
 
   document
     .getElementById("resourcesTab")
@@ -243,6 +259,35 @@ document.getElementById("resourcesTab").addEventListener("click", () => {
   document
     .getElementById("membersTab")
     .classList.add("bg-gray-200", "text-gray-600");
+  document
+    .getElementById("groupsTab")
+    .classList.remove("bg-white", "border", "text-gray-900");
+  document
+    .getElementById("groupsTab")
+    .classList.add("bg-gray-200", "text-gray-600");
+});
+
+document.getElementById("groupsTab").addEventListener("click", () => {
+  document.getElementById("discussionsSection").classList.add("hidden");
+  document.getElementById("membersSection").classList.add("hidden");
+  document.getElementById("resourcesSection").classList.add("hidden");
+  document.getElementById("groupsSection").classList.remove("hidden");
+
+  // Active tab
+  document
+    .getElementById("groupsTab")
+    .classList.add("bg-white", "border", "text-gray-900");
+  document
+    .getElementById("groupsTab")
+    .classList.remove("bg-gray-200", "text-gray-600");
+
+  // Inactive tabs
+  ["discussionsTab", "membersTab", "resourcesTab"].forEach((id) => {
+    document
+      .getElementById(id)
+      .classList.remove("bg-white", "border", "text-gray-900");
+    document.getElementById(id).classList.add("bg-gray-200", "text-gray-600");
+  });
 });
 
 // Đặt mặc định là Discussions sau khi gán xong sự kiện
@@ -254,6 +299,7 @@ window.goToTopic = function (classId, topicId) {
 
 renderTopics();
 renderMemberList();
+renderGroups();
 
 document.getElementById("addTopicBtn").onclick = () => {
   const title = document.getElementById("topicTitle").value.trim();
@@ -278,10 +324,86 @@ document.getElementById("addTopicBtn").onclick = () => {
 };
 
 // Xóa thành viên khỏi lớp
-window.removeMemberById = function(id) {
+window.removeMemberById = function (id) {
   if (!confirm("Bạn có chắc muốn xóa thành viên này khỏi lớp không?")) return;
- console.log("Removing member with ID:", id);
-  cls.memberList = cls.memberList.filter(member => member.id !== id);
+  console.log("Removing member with ID:", id);
+  cls.memberList = cls.memberList.filter((member) => member.id !== id);
   localStorage.setItem("classes", JSON.stringify(classes));
   renderMemberList();
+};
+
+// ==== GROUP MANAGEMENT ====
+function renderGroups() {
+  if (!cls.groups) cls.groups = [];
+  const groupList = document.getElementById("groupList");
+  const groupCountEl = document.getElementById("groupCount");
+
+  groupCountEl.textContent = cls.groups.length;
+  groupList.innerHTML = "";
+
+  cls.groups.forEach((group, index) => {
+    const groupDiv = document.createElement("div");
+    groupDiv.className = "border border-gray-300 p-4 rounded";
+
+    const membersHtml = group.members
+      .map((id) => {
+        const m = cls.memberList.find((mem) => mem.id === id);
+        return m ? `<li>${m.name}</li>` : "";
+      })
+      .join("");
+
+    const availableToAdd = cls.memberList.filter(
+      (m) => !group.members.includes(m.id)
+    );
+
+    groupDiv.innerHTML = `
+      <div class="flex justify-between items-center mb-2">
+        <h4 class="font-semibold">Group ${index + 1}</h4>
+        <button onclick="deleteGroup(${index})" class="text-red-500 text-sm hover:underline">🗑 Delete</button>
+      </div>
+      <ul class="ml-4 text-sm text-gray-700">${
+        membersHtml || "<li><em>No members</em></li>"
+      }</ul>
+      ${
+        availableToAdd.length > 0
+          ? `
+        <select id="addMemberSelect_${index}" class="mt-2 border p-1 rounded text-sm">
+          <option value="">+ Add Member</option>
+          ${availableToAdd
+            .map((m) => `<option value="${m.id}">${m.name}</option>`)
+            .join("")}
+        </select>`
+          : ""
+      }
+    `;
+
+    if (availableToAdd.length > 0) {
+      groupDiv
+        .querySelector(`#addMemberSelect_${index}`)
+        .addEventListener("change", (e) => {
+          const selectedId = e.target.value;
+          if (!selectedId) return;
+
+          cls.groups[index].members.push(selectedId);
+          localStorage.setItem("classes", JSON.stringify(classes));
+          renderGroups();
+        });
+    }
+
+    groupList.appendChild(groupDiv);
+  });
+}
+
+document.getElementById("createGroupBtn").addEventListener("click", () => {
+  if (!cls.groups) cls.groups = [];
+  cls.groups.push({ members: [] });
+  localStorage.setItem("classes", JSON.stringify(classes));
+  renderGroups();
+});
+
+window.deleteGroup = function (index) {
+  if (!confirm("Bạn có chắc muốn xoá nhóm này không?")) return;
+  cls.groups.splice(index, 1);
+  localStorage.setItem("classes", JSON.stringify(classes));
+  renderGroups();
 };
