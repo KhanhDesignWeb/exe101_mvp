@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Criticore - Group Detail</title>
+    <link rel="icon" type="image/png" href="assets/images/Logo-Criticore.png" />
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-50 min-h-screen">
+    <div class="max-w-5xl w-full mx-auto mt-4 bg-white rounded-xl shadow p-8 relative">
+
+        <div class="mb-6">
+            <a href="class-detail.html?id=" id="backToClass"
+                class="inline-flex items-center text-blue-500 hover:underline text-sm mb-2">
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+                Quay lại lớp học
+            </a>
+            <h1 class="text-3xl font-bold text-blue-700 mt-2" id="groupName">Group 1</h1>
+        </div>
+
+        <!-- Thành viên group -->
+        <div class="mb-6">
+            <h2 class="text-lg font-semibold mb-2">Thành viên nhóm</h2>
+            <div id="groupMembers" class="flex flex-wrap gap-4"></div>
+        </div>
+
+        <!-- Quản lý nhiệm vụ -->
+        <div>
+            <div class="flex justify-between items-center mb-2">
+                <h2 class="text-lg font-semibold">Danh sách nhiệm vụ</h2>
+                <button id="openTaskModal"
+                    class="bg-blue-600 text-white px-3 py-1.5 rounded hover:bg-blue-700 text-sm">+ Thêm nhiệm
+                    vụ</button>
+            </div>
+            <div id="tasksList" class="space-y-4"></div>
+        </div>
+    </div>
+
+    <!-- Modal tạo/chỉnh sửa Task -->
+    <div id="taskModal" class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
+            <button id="closeTaskModal"
+                class="absolute right-4 top-2 text-2xl text-gray-500 hover:text-red-500 font-bold">&times;</button>
+            <h3 class="text-lg font-semibold mb-4" id="taskModalTitle">Tạo nhiệm vụ</h3>
+            <div class="space-y-3">
+                <input id="taskTitle" type="text" placeholder="Tiêu đề nhiệm vụ..."
+                    class="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500" />
+                <textarea id="taskDesc" placeholder="Mô tả..."
+                    class="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500 h-20"></textarea>
+                <input id="taskDeadline" type="datetime-local" class="w-full border p-2 rounded" min="">
+                <select id="assignTo" class="w-full border p-2 rounded">
+                    <option value="">-- Giao cho thành viên --</option>
+                </select>
+            </div>
+            <div class="flex justify-end gap-2 mt-4">
+                <button id="saveTaskBtn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Lưu</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/group-detail.js"></script>
+</body>
+
+</html>

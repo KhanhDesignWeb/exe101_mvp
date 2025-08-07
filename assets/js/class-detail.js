@@ -411,7 +411,7 @@ function renderGroups() {
     groupDiv.innerHTML = `
       <div class="flex justify-between items-center mb-2">
         <h4 class="font-semibold">Group ${index + 1}</h4>
-        <button onclick="deleteGroup(${index})" class="text-red-500 text-sm hover:underline">🗑 Delete</button>
+        <button onclick="deleteGroup(${index})" class="text-red-500 hover:text-red-700 font-bold text-lg" title="Xóa nhóm">×</button>
       </div>
       <ul class="ml-4 text-sm text-gray-700">${membersHtml || "<li><em>No members</em></li>"
       }</ul>
@@ -439,9 +439,13 @@ function renderGroups() {
           renderGroups();
         });
     }
-
+    // Thêm sự kiện click để chuyển sang group-detail
+    groupDiv.addEventListener("click", () => {
+      window.location.href = `group-detail.html?class_id=${cls.class_id}&group_index=${index}`;
+    });
     groupList.appendChild(groupDiv);
   });
+
 }
 
 document.getElementById("createGroupBtn").addEventListener("click", () => {
@@ -590,4 +594,4 @@ function renderRankModal(page = 1) {
     ${paginationHTML}
     <div class="text-xs text-gray-400 text-right mt-2">* Top 1, 2, 3 được làm nổi bật</div>
   `;
-}
+} 
