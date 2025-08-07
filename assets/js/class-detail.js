@@ -493,5 +493,101 @@ function startCountdown(endTimeStr, countdownElemId, createdAtStr, idx) {
   updateCountdown();
 }
 
+// ======= RANKING FEATURE =======
 
+// Hiển thị popup bảng xếp hạng khi bấm nút
+document.getElementById("rankButton").addEventListener("click", () => {
+  renderRankModal();
+  document.getElementById("rankModal").classList.remove("hidden");
+});
 
+// Ẩn popup khi bấm nút đóng
+document.getElementById("closeRankModal").addEventListener("click", () => {
+  document.getElementById("rankModal").classList.add("hidden");
+});
+
+// Hàm render nội dung bảng xếp hạng vào modal
+function renderRankModal(page = 1) {
+  const container = document.getElementById("rankModalContent");
+  container.innerHTML = ""; // Xóa nội dung cũ
+
+  const rankedMembers = [...cls.memberList].sort((a, b) => (b.rating || 0) - (a.rating || 0));
+  if (rankedMembers.length === 0) {
+    container.innerHTML = `<div class="text-gray-500 text-center py-4">Chưa có thành viên nào.</div>`;
+    return;
+  }
+
+  // Cài đặt phân trang
+  const itemsPerPage = 8;
+  const totalPages = Math.ceil(rankedMembers.length / itemsPerPage);
+  const startIndex = (page - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentMembers = rankedMembers.slice(startIndex, endIndex);
+
+  // SVG crown icon cho top 1
+  const crown = `<svg class="rank-crown" width="24" height="20" viewBox="0 0 24 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M2 18H22L20.5 11L15 14L12 8L9 14L3.5 11L2 18Z" fill="#FFD700" stroke="#DAA520" stroke-width="1.5"/>
+  </svg>`;
+
+  // Tạo HTML cho bảng xếp hạng
+  const tableHTML = `
+    <div class="overflow-x-auto">
+      <table class="rank-table w-full text-left">
+        <thead>
+          <tr class="bg-gray-100">
+            <th class="py-3 px-4 w-12 text-center font-semibold text-gray-700 border-b border-gray-200">Hạng</th>
+            <th class="py-3 px-4 font-semibold text-gray-700 border-b border-gray-200">Thành viên</th>
+            <th class="py-3 px-4 text-center font-semibold text-gray-700 border-b border-gray-200">Số sao</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${currentMembers.map((m, i) => {
+    const globalIndex = startIndex + i + 1;
+    return `
+              <tr class="${globalIndex === 1 ? 'top-1' : globalIndex === 2 ? 'top-2' : globalIndex === 3 ? 'top-3' : ''}">
+                <td class="py-3 px-4 text-center font-medium text-gray-800 border-b border-gray-200">${globalIndex}</td>
+                <td class="py-3 px-4 flex items-center gap-3 border-b border-gray-200">
+                  ${globalIndex === 1 ? crown : ''}
+                  <span class="font-medium ${globalIndex <= 3 ? 'text-gray-900' : 'text-gray-700'}">${m.name}</span>
+                </td>
+                <td class="py-3 px-4 text-center font-medium border-b border-gray-200">
+                  ${m.rating || 0}
+                  <span class="rank-star">★</span>
+                </td>
+              </tr>
+            `;
+  }).join("")}
+        </tbody>
+      </table>
+    </div>
+  `;
+
+  // Tạo HTML cho phân trang
+  const paginationHTML = `
+    <div class="flex justify-between items-center mt-4">
+      <div class="text-sm text-gray-500">
+        Hiển thị ${startIndex + 1}-${Math.min(endIndex, rankedMembers.length)} trong ${rankedMembers.length} thành viên
+      </div>
+      <div class="flex gap-2">
+        <button class="pagination-btn px-3 py-1.5 rounded-md text-sm ${page === 1 ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700'}" 
+                ${page === 1 ? 'disabled' : ''} 
+                onclick="renderRankModal(${page - 1})">Trước</button>
+        <div class="flex gap-1">
+          ${Array.from({ length: totalPages }, (_, i) => `
+            <button class="pagination-btn px-3 py-1.5 rounded-md text-sm ${page === i + 1 ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}" 
+                    onclick="renderRankModal(${i + 1})">${i + 1}</button>
+          `).join("")}
+        </div>
+        <button class="pagination-btn px-3 py-1.5 rounded-md text-sm ${page === totalPages ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700'}" 
+                ${page === totalPages ? 'disabled' : ''} 
+                onclick="renderRankModal(${page + 1})">Sau</button>
+      </div>
+    </div>
+  `;
+
+  container.innerHTML = `
+    ${tableHTML}
+    ${paginationHTML}
+    <div class="text-xs text-gray-400 text-right mt-2">* Top 1, 2, 3 được làm nổi bật</div>
+  `;
+}
