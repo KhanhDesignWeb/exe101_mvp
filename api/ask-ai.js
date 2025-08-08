@@ -98,7 +98,7 @@ async function classifyCognitiveEngagement(userInput) {
                 'Authorization': `Bearer ${apiKey}`
             },
             body: JSON.stringify({
-                model: "gpt-3.5-turbo",  // Có thể sử dụng GPT-3.5 hoặc GPT-4 tùy nhu cầu
+                model: "gpt-4",  // Có thể sử dụng GPT-3.5 hoặc GPT-4 tùy nhu cầu
                 prompt: prompt,
                 temperature: 0.7,
                 max_tokens: 10
