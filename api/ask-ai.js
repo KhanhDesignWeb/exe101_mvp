@@ -63,7 +63,8 @@ export default async function handler(req, res) {
 
     // Phân loại Cognitive Engagement với mô hình phân loại cảm xúc (Hugging Face hoặc OpenAI)
     const engagementLevel = await classifyCognitiveEngagement(aiReply);
-
+    // Log kết quả phân loại Cognitive Engagement
+    console.log("Cognitive Engagement Level:", engagementLevel);  // In mức độ Cognitive Engagement ra console
     // Gửi lại phản hồi và mức độ Cognitive Engagement
     return res.json({
         reply: aiReply,
