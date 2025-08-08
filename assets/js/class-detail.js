@@ -395,7 +395,7 @@ function renderGroups() {
 
   cls.groups.forEach((group, index) => {
     const groupDiv = document.createElement("div");
-    groupDiv.className = "border border-gray-300 p-4 rounded";
+    groupDiv.className = "border border-gray-300 p-4 rounded cursor-pointer hover:shadow transition";
 
     const membersHtml = group.members
       .map((id) => {
@@ -411,42 +411,57 @@ function renderGroups() {
     groupDiv.innerHTML = `
       <div class="flex justify-between items-center mb-2">
         <h4 class="font-semibold">Group ${index + 1}</h4>
-        <button onclick="deleteGroup(${index})" class="text-red-500 hover:text-red-700 font-bold text-lg" title="Xóa nhóm">×</button>
+        <!-- CHẶN NỔI BỌT Ở NÚT XÓA -->
+        <button onclick="event.stopPropagation(); deleteGroup(${index})"
+                class="text-red-500 hover:text-red-700 font-bold text-lg"
+                title="Xóa nhóm">×</button>
       </div>
-      <ul class="ml-4 text-sm text-gray-700">${membersHtml || "<li><em>No members</em></li>"
-      }</ul>
+
+      <ul class="ml-4 text-sm text-gray-700">
+        ${membersHtml || "<li><em>No members</em></li>"}
+      </ul>
+
       ${availableToAdd.length > 0
         ? `
-        <select id="addMemberSelect_${index}" class="mt-2 border p-1 rounded text-sm">
+        <!-- CHẶN NỔI BỌT Ở SELECT -->
+        <select id="addMemberSelect_${index}"
+                class="mt-2 border p-1 rounded text-sm"
+                onclick="event.stopPropagation()"
+                onmousedown="event.stopPropagation()"
+                onchange="event.stopPropagation()">
           <option value="">+ Add Member</option>
-          ${availableToAdd
-          .map((m) => `<option value="${m.id}">${m.name}</option>`)
-          .join("")}
-        </select>`
+          ${availableToAdd.map((m) => `<option value="${m.id}">${m.name}</option>`).join("")}
+        </select>
+        `
         : ""
       }
     `;
 
+    // Gán change handler cho select (NHỚ stopPropagation trong handler)
     if (availableToAdd.length > 0) {
-      groupDiv
-        .querySelector(`#addMemberSelect_${index}`)
-        .addEventListener("change", (e) => {
-          const selectedId = e.target.value;
-          if (!selectedId) return;
+      const sel = groupDiv.querySelector(`#addMemberSelect_${index}`);
+      sel.addEventListener("change", (e) => {
+        e.stopPropagation(); // quan trọng!
+        const selectedId = e.target.value;
+        if (!selectedId) return;
 
-          cls.groups[index].members.push(selectedId);
-          localStorage.setItem("classes", JSON.stringify(classes));
-          renderGroups();
-        });
+        cls.groups[index].members.push(selectedId);
+        localStorage.setItem("classes", JSON.stringify(classes));
+        renderGroups();
+      });
     }
-    // Thêm sự kiện click để chuyển sang group-detail
-    groupDiv.addEventListener("click", () => {
+
+    // Chỉ điều hướng khi click vào khoảng trống của thẻ group (không phải button/select)
+    groupDiv.addEventListener("click", (e) => {
+      // Nếu click vào phần tử tương tác thì bỏ qua
+      if (e.target.closest("button, select, option, input, label, a")) return;
       window.location.href = `group-detail.html?class_id=${cls.class_id}&group_index=${index}`;
     });
+
     groupList.appendChild(groupDiv);
   });
-
 }
+
 
 document.getElementById("createGroupBtn").addEventListener("click", () => {
   if (!cls.groups) cls.groups = [];
