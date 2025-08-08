@@ -28,7 +28,7 @@ export default async function handler(req, res) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + apiKey
+                'Authorization': `Bearer ${apiKey}`
             },
             body: JSON.stringify({
                 model: "gpt-3.5-turbo",
@@ -45,7 +45,7 @@ export default async function handler(req, res) {
         });
 
         // Check if the response is a valid JSON
-        const data = await response.json(); // This will throw an error if the response is not valid JSON
+        const data = await response.json();
 
         if (!response.ok) {
             // If API call fails, return a detailed error
@@ -64,7 +64,6 @@ export default async function handler(req, res) {
     // Phân loại Cognitive Engagement cho input của người dùng
     const engagementLevel = await classifyCognitiveEngagement(userInput);
 
-
     // Gửi lại phản hồi và mức độ Cognitive Engagement
     return res.json({
         reply: aiReply,
@@ -74,41 +73,44 @@ export default async function handler(req, res) {
 }
 
 // Hàm phân loại Cognitive Engagement (Positive, Neutral, Negative)
-// Hàm phân loại Cognitive Engagement (Positive, Neutral, Negative)
 async function classifyCognitiveEngagement(userInput) {
     const apiKey = process.env.OPENAI_API_KEY;
 
-    const prompt = `
-        Please classify the following user input as one of the following: "Positive", "Neutral", or "Negative". 
-        - "Positive" indicates the input shows active engagement, critical thinking, or enthusiasm. Example: "This is an interesting topic! I have some ideas about it."
-        - "Neutral" indicates the input is somewhat engaged but lacks deep analysis or emotion. Example: "I think that's okay, but I don't have much to add."
-        - "Negative" indicates the input shows confusion, frustration, lack of engagement, or disinterest. Example: "I don't know what you mean, I'm confused." OR "I can't understand this, it's too complex."
-
-        Here is the user input: "${userInput}"
-        Please respond with only one of the labels: Positive, Neutral, Negative.
-`;
+    const systemPrompt = `
+    Bạn là một bộ phân loại đánh giá mức độ tham gia nhận thức của đầu vào người dùng. Hãy phân loại đầu vào thành "Positive", "Neutral", hoặc "Negative" dựa trên các tiêu chí sau:
+    - "Positive": Đầu vào thể hiện sự tham gia tích cực, tư duy phản biện, hoặc sự hào hứng. Ví dụ: "This is an interesting topic! I have some ideas about it."
+    - "Neutral": Đầu vào có phần tham gia nhưng thiếu phân tích sâu hoặc cảm xúc. Ví dụ: "I think that's okay, but I don't have much to add."
+    - "Negative": Đầu vào thể hiện sự bối rối, thất vọng, thiếu tham gia, hoặc không quan tâm. Ví dụ: "I don't know what you mean, I'm confused." hoặc "I can't understand this, it's too complex."
+    Chỉ trả về một trong các nhãn sau: Positive, Neutral, Negative.
+    `;
 
     try {
-        // Gửi yêu cầu tới OpenAI để phân loại
-        const response = await fetch('https://api.openai.com/v1/completions', {
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${apiKey}`
             },
             body: JSON.stringify({
-                model: "gpt-4",  // Có thể sử dụng GPT-3.5 hoặc GPT-4 tùy nhu cầu
-                prompt: prompt,
-                temperature: 0.7,
+                model: "gpt-3.5-turbo", // Hoặc "gpt-4" nếu bạn có quyền truy cập
+                messages: [
+                    { role: "system", content: systemPrompt },
+                    { role: "user", content: userInput }
+                ],
+                temperature: 0.5, // Giảm temperature để tăng độ chính xác của phân loại
                 max_tokens: 10
             })
         });
 
         const data = await response.json();
-        return data.choices[0].text.trim();  // Trả về "Positive", "Neutral", hoặc "Negative"
+        if (!response.ok) {
+            console.error("Lỗi API OpenAI:", data.error?.message);
+            return "Neutral"; // Giá trị dự phòng
+        }
+
+        return data.choices[0].message.content.trim();
     } catch (error) {
-        // Catching errors if classification fails
-        console.error("Error classifying user input:", error);
-        return "Neutral";  // Default fallback value
+        console.error("Lỗi khi phân loại đầu vào người dùng:", error);
+        return "Neutral"; // Giá trị dự phòng mặc định
     }
 }
