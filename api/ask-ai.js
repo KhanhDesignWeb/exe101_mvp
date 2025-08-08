@@ -22,32 +22,41 @@ export default async function handler(req, res) {
     // Add the new user input to the conversation history
     conversationHistory.push({ role: "user", content: userInput });
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + apiKey
-        },
-        body: JSON.stringify({
-            model: "gpt-3.5-turbo",
-            messages: [
-                { role: "system", content: systemPrompt },
-                ...conversationHistory
-            ],
-            temperature: 0.7,
-            max_tokens: 512,
-            top_p: 1,
-            stream: false,
-            stop: null
-        })
-    });
+    let aiReply;
+    try {
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + apiKey
+            },
+            body: JSON.stringify({
+                model: "gpt-3.5-turbo",
+                messages: [
+                    { role: "system", content: systemPrompt },
+                    ...conversationHistory
+                ],
+                temperature: 0.7,
+                max_tokens: 512,
+                top_p: 1,
+                stream: false,
+                stop: null
+            })
+        });
 
-    const data = await response.json();
-    if (!response.ok) {
-        return res.status(response.status).json({ error: data.error?.message || "Lỗi gọi API OpenAI!" });
+        // Check if the response is a valid JSON
+        const data = await response.json(); // This will throw an error if the response is not valid JSON
+
+        if (!response.ok) {
+            // If API call fails, return a detailed error
+            return res.status(response.status).json({ error: data.error?.message || "Lỗi gọi API OpenAI!" });
+        }
+
+        aiReply = data.choices?.[0]?.message?.content?.trim() || "";
+    } catch (error) {
+        // Catching errors when the response is not a valid JSON or other issues
+        return res.status(500).json({ error: "Failed to parse response or call API: " + error.message });
     }
-
-    const aiReply = data.choices?.[0]?.message?.content?.trim() || "";
 
     // Add the AI reply to the conversation history
     conversationHistory.push({ role: "assistant", content: aiReply });
@@ -77,21 +86,27 @@ async function classifyCognitiveEngagement(aiReply) {
     Please respond with only one of the labels: Positive, Neutral, Negative.
     `;
 
-    // Gửi yêu cầu tới OpenAI để phân loại
-    const response = await fetch('https://api.openai.com/v1/completions', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${apiKey}`
-        },
-        body: JSON.stringify({
-            model: "gpt-3.5-turbo",  // Có thể sử dụng GPT-3.5 hoặc GPT-4 tùy nhu cầu
-            prompt: prompt,
-            temperature: 0.7,
-            max_tokens: 10
-        })
-    });
+    try {
+        // Gửi yêu cầu tới OpenAI để phân loại
+        const response = await fetch('https://api.openai.com/v1/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`
+            },
+            body: JSON.stringify({
+                model: "gpt-3.5-turbo",  // Có thể sử dụng GPT-3.5 hoặc GPT-4 tùy nhu cầu
+                prompt: prompt,
+                temperature: 0.7,
+                max_tokens: 10
+            })
+        });
 
-    const data = await response.json();
-    return data.choices[0].text.trim();  // Trả về "Positive", "Neutral", hoặc "Negative"
+        const data = await response.json();
+        return data.choices[0].text.trim();  // Trả về "Positive", "Neutral", hoặc "Negative"
+    } catch (error) {
+        // Catching errors if classification fails
+        console.error("Error classifying cognitive engagement:", error);
+        return "Neutral";  // Default fallback value
+    }
 }
