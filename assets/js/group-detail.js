@@ -39,6 +39,7 @@ function saveToLocal() {
 }
 
 // Hiển thị danh sách nhiệm vụ
+// Hiển thị danh sách nhiệm vụ
 function renderTasks() {
     // Dừng hết interval cũ
     countdownTimers.forEach(timer => clearInterval(timer));
@@ -61,6 +62,10 @@ function renderTasks() {
         // Nếu trễ deadline và đã hoàn thành => disable checkbox
         const checkboxDisabled = (isLate && task.completed) ? "disabled" : "";
 
+        // Kiểm tra điều kiện để có thể chỉnh sửa
+        const canEdit = !(isLate && !task.completed || task.completed);  // Ẩn nút Sửa khi trễ deadline và chưa hoàn thành, hoặc đã hoàn thành
+
+
         return `
       <div class="bg-gray-50 p-4 rounded shadow flex justify-between items-center border border-gray-200">
         <div>
@@ -73,8 +78,8 @@ function renderTasks() {
           <div class="text-xs text-gray-500">Giao cho: <span class="text-gray-800 font-semibold">${assignedName}</span></div>
         </div>
         <div class="flex flex-col gap-1 items-end">
-          <button onclick="editTask(${idx})" class="text-blue-500 text-xs hover:underline">Sửa</button>
-          <button onclick="deleteTask(${idx})" class="text-red-500 text-xs hover:underline">Xóa</button>
+          <button onclick="editTask(${idx})" class="text-blue-500 text-xs hover:underline" ${canEdit ? "" : "hidden"}>Sửa</button>
+          <button onclick="deleteTask(${idx})" class="text-red-500 text-xs hover:underline" ${canDelete ? "" : "disabled"}>Xóa</button>
           <label class="flex items-center gap-1 mt-1 cursor-pointer">
             <input type="checkbox" ${task.completed ? "checked" : ""} onchange="toggleDone(${idx})" ${checkboxDisabled}/>
             <span class="text-xs">Hoàn thành</span>
@@ -89,15 +94,43 @@ function renderTasks() {
     });
 }
 
-
 renderTasks();
 
+// Hàm xóa nhiệm vụ
 window.deleteTask = function (idx) {
-    if (!confirm("Xóa nhiệm vụ này?")) return;
-    group.tasks.splice(idx, 1);
-    saveToLocal();
-    renderTasks();
+    const task = group.tasks[idx];
+    const isLate = task.deadline && new Date(task.deadline) < new Date();
+    const isCompleted = task.completed;
+
+    // Kiểm tra nếu nhiệm vụ đã hoàn thành hoặc trễ deadline mà chưa hoàn thành
+    if (isCompleted) {
+        alert("Không thể xóa nhiệm vụ đã hoàn thành.");
+        return;
+    }
+
+    if (isLate && !isCompleted) {
+        alert("Không thể xóa nhiệm vụ đã trễ deadline.");
+        return;
+    }
+
+    // Xóa nhiệm vụ nếu điều kiện cho phép
+    if (confirm("Bạn có chắc muốn xóa nhiệm vụ này?")) {
+        group.tasks.splice(idx, 1);
+        saveToLocal();
+        renderTasks();
+    }
 };
+
+// Kiểm tra có thể xóa nhiệm vụ hay không
+function canDelete(idx) {
+    const task = group.tasks[idx];
+    const isLate = task.deadline && new Date(task.deadline) < new Date();
+    const isCompleted = task.completed;
+
+    // Nếu đã hoàn thành hoặc trễ deadline mà chưa hoàn thành, không cho xóa
+    return !(isCompleted || (isLate && !isCompleted));
+}
+
 
 window.toggleDone = function (idx) {
     const task = group.tasks[idx];
@@ -226,3 +259,199 @@ function setupTaskCountdown(idx, task) {
     countdownTimers[idx] = setInterval(updateCountdown, 1000);
 }
 
+
+// Mở/đóng modal
+function openStatsModal() {
+    document.getElementById('statsModal').classList.remove('hidden');
+}
+function closeStatsModal() {
+    document.getElementById('statsModal').classList.add('hidden');
+}
+
+// Gắn nút
+const statsBtn = document.getElementById('btnStats');
+if (statsBtn) statsBtn.addEventListener('click', showGroupStats);
+
+
+// Hiển thị thống kê nhóm
+function showGroupStats() {
+    const body = document.getElementById('statsBody');
+    body.innerHTML = ''; // reset
+
+    // Empty state: không có thành viên
+    if (!group.members || group.members.length === 0) {
+        body.innerHTML = `
+      <div class="p-4 rounded-lg bg-yellow-50 border border-yellow-200 text-yellow-800">
+        Nhóm <b>chưa có thành viên</b>. Hãy thêm thành viên để bắt đầu giao nhiệm vụ và thống kê.
+      </div>`;
+        openStatsModal();
+        return;
+    }
+
+    // Gom dữ liệu thống kê
+    const stats = {};
+    group.members.forEach(mid => {
+        const mem = cls.memberList.find(m => m.id === mid);
+        stats[mid] = { name: mem ? mem.name : 'Không rõ', total: 0, done: 0, doing: 0, late: 0, lateDone: 0 };
+    });
+
+    const now = new Date();
+    const tasks = group.tasks || [];
+
+    tasks.forEach(t => {
+        if (!t.assign_to || !stats[t.assign_to]) return;
+
+        const s = stats[t.assign_to];
+        s.total++;
+
+        const hasDeadline = !!t.deadline;
+        const deadline = hasDeadline ? new Date(t.deadline) : null;
+        const isOver = hasDeadline && deadline < now;
+
+        if (t.completed) {
+            // ✅ Không double-count: hoặc done, hoặc lateDone
+            if (isOver) {
+                s.lateDone++;        // Hoàn thành sau deadline
+            } else {
+                s.done++;            // Hoàn thành đúng hạn
+            }
+        } else {
+            if (isOver) {
+                s.late++;            // Trễ deadline (chưa hoàn thành)
+            } else {
+                s.doing++;           // Đang làm
+            }
+        }
+    });
+
+
+    // Empty state: có thành viên nhưng không có task
+    const totalTasks = tasks.length;
+    if (totalTasks === 0) {
+        body.innerHTML = `
+      <div class="p-4 rounded-lg bg-blue-50 border border-blue-200 text-blue-800 mb-4">
+        <b>Chưa có task nào</b> để thống kê. Hãy tạo nhiệm vụ cho các thành viên.
+      </div>
+      ${renderStatsTable(stats)}
+    `;
+        openStatsModal();
+        return;
+    }
+
+    // Có task → render bảng + tổng quan
+    const totals = Object.values(stats).reduce((acc, s) => {
+        acc.total += s.total; acc.done += s.done; acc.doing += s.doing; acc.late += s.late; acc.lateDone += s.lateDone;
+        return acc;
+    }, { total: 0, done: 0, doing: 0, late: 0, lateDone: 0 });
+
+    const pct = (num, den) => den ? Math.round((num / den) * 100) : 0;
+
+    body.innerHTML = `
+    <div class="grid sm:grid-cols-5 gap-3 mb-4">
+      <div class="p-3 rounded-lg bg-gray-50 border">
+        <div class="text-xs text-gray-500">Tổng task</div>
+        <div class="text-xl font-semibold">${totals.total}</div>
+      </div>
+      <div class="p-3 rounded-lg bg-green-50 border border-green-200">
+        <div class="text-xs text-green-700">Hoàn thành</div>
+        <div class="text-xl font-semibold text-green-700">${totals.done}</div>
+        <div class="text-xs text-green-700">${pct(totals.done, totals.total)}%</div>
+      </div>
+      <div class="p-3 rounded-lg bg-amber-50 border border-amber-200">
+        <div class="text-xs text-amber-700">Đang làm</div>
+        <div class="text-xl font-semibold text-amber-700">${totals.doing}</div>
+        <div class="text-xs text-amber-700">${pct(totals.doing, totals.total)}%</div>
+      </div>
+      <div class="p-3 rounded-lg bg-red-50 border border-red-200">
+        <div class="text-xs text-red-700">Trễ deadline</div>
+        <div class="text-xl font-semibold text-red-700">${totals.late}</div>
+        <div class="text-xs text-red-700">${pct(totals.late, totals.total)}%</div>
+      </div>
+      <div class="p-3 rounded-lg bg-fuchsia-50 border border-fuchsia-200">
+        <div class="text-xs text-fuchsia-700">Trễ + đã hoàn thành</div>
+        <div class="text-xl font-semibold text-fuchsia-700">${totals.lateDone}</div>
+        <div class="text-xs text-fuchsia-700">${pct(totals.lateDone, totals.total)}%</div>
+      </div>
+    </div>
+
+    ${renderStatsTable(stats)}
+  `;
+
+    openStatsModal();
+}
+
+// Tạo bảng thống kê đẹp với Tailwind
+function renderStatsTable(stats) {
+    const rows = Object.values(stats).map(s => {
+        const total = s.total;
+        const bar = buildBar(total, s.done, s.doing, s.late + s.lateDone);
+        return `
+      <tr class="hover:bg-gray-50">
+        <td class="border px-3 py-2 whitespace-nowrap">${s.name}</td>
+        <td class="border px-3 py-2 text-center">${total}</td>
+        <td class="border px-3 py-2 text-center">
+          <span class="px-2 py-0.5 rounded bg-green-100 text-green-700 text-xs">${s.done}</span>
+        </td>
+        <td class="border px-3 py-2 text-center">
+          <span class="px-2 py-0.5 rounded bg-amber-100 text-amber-700 text-xs">${s.doing}</span>
+        </td>
+        <td class="border px-3 py-2 text-center">
+          <span class="px-2 py-0.5 rounded bg-red-100 text-red-700 text-xs">${s.late}</span>
+        </td>
+        <td class="border px-3 py-2 text-center">
+          <span class="px-2 py-0.5 rounded bg-fuchsia-100 text-fuchsia-700 text-xs">${s.lateDone}</span>
+        </td>
+
+        <!-- Tỉ lệ: tăng độ rộng -->
+        <td class="border px-3 py-2 align-middle min-w-[180px] w-[220px]">
+          ${bar}
+        </td>
+      </tr>
+    `;
+    }).join('');
+
+    return `
+    <div class="overflow-x-auto rounded-lg border">
+      <table class="min-w-full text-sm">
+        <thead class="bg-gray-100">
+          <tr>
+            <th class="border px-3 py-2 text-left">Thành viên</th>
+            <th class="border px-3 py-2 w-20 text-center">Tổng</th>
+            <th class="border px-3 py-2 w-28 text-center text-green-700">Hoàn thành</th>
+            <th class="border px-3 py-2 w-28 text-center text-amber-700">Đang làm</th>
+            <th class="border px-3 py-2 w-32 text-center text-red-700">Trễ deadline</th>
+            <th class="border px-3 py-2 w-40 text-center text-fuchsia-700">Trễ + đã hoàn thành</th>
+
+            <!-- Tỉ lệ: tăng độ rộng -->
+            <th class="border px-3 py-2 text-left min-w-[180px] w-[220px]">Tỉ lệ</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+  `;
+}
+
+// Thanh tỷ lệ gộp (done / doing / late+lateDone)
+function buildBar(total, done, doing, lateAll) {
+    if (!total) {
+        return `<div class="text-xs text-gray-400">Chưa có dữ liệu</div>`;
+    }
+    let pDone = Math.round((done / total) * 100);
+    let pDoing = Math.round((doing / total) * 100);
+    // Phần còn lại dồn cho lateAll để luôn = 100%
+    let pLate = 100 - pDone - pDoing;
+    if (pLate < 0) pLate = 0;
+
+
+    return `
+    <div class="w-full bg-gray-100 rounded h-2.5 overflow-hidden">
+      <div class="h-2.5 bg-green-500 inline-block" style="width:${pDone}%"></div>
+      <div class="h-2.5 bg-amber-500 inline-block" style="width:${pDoing}%"></div>
+      <div class="h-2.5 bg-red-500 inline-block" style="width:${pLate}%"></div>
+    </div>
+    <div class="mt-1 text-[11px] text-gray-500">
+      ${pDone}% hoàn thành • ${pDoing}% đang làm • ${pLate}% trễ/khác
+    </div>
+  `;
+}

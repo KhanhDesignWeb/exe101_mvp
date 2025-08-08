@@ -10,6 +10,19 @@
 </head>
 
 <body class="bg-gray-50 min-h-screen">
+    <!-- Stats Modal -->
+    <div id="statsModal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black/40" onclick="closeStatsModal()"></div>
+        <div class="relative max-w-3xl w-[92%] mx-auto mt-16 bg-white rounded-xl shadow-lg">
+            <div class="flex items-center justify-between px-5 py-4 border-b">
+                <h3 class="text-lg font-semibold">Thống kê công việc nhóm</h3>
+                <button class="text-gray-500 hover:text-red-600 text-2xl leading-none px-2"
+                    onclick="closeStatsModal()">&times;</button>
+            </div>
+            <div id="statsBody" class="p-5"></div>
+        </div>
+    </div>
+
     <div class="max-w-5xl w-full mx-auto mt-4 bg-white rounded-xl shadow p-8 relative">
 
         <div class="mb-6">
@@ -23,6 +36,8 @@
             <h1 class="text-3xl font-bold text-blue-700 mt-2" id="groupName">Group 1</h1>
         </div>
 
+
+
         <!-- Thành viên group -->
         <div class="mb-6">
             <h2 class="text-lg font-semibold mb-2">Thành viên nhóm</h2>
@@ -31,12 +46,22 @@
 
         <!-- Quản lý nhiệm vụ -->
         <div>
-            <div class="flex justify-between items-center mb-2">
+            <div class="flex items-center justify-between mb-2">
                 <h2 class="text-lg font-semibold">Danh sách nhiệm vụ</h2>
-                <button id="openTaskModal"
-                    class="bg-blue-600 text-white px-3 py-1.5 rounded hover:bg-blue-700 text-sm">+ Thêm nhiệm
-                    vụ</button>
+
+                <!-- nhóm nút bên phải -->
+                <div class="flex items-center gap-3">
+                    <button id="openTaskModal"
+                        class="bg-blue-600 text-white px-3 py-1.5 rounded hover:bg-blue-700 text-sm">
+                        + Thêm nhiệm vụ
+                    </button>
+
+                    <button id="btnStats" class="bg-blue-600 text-white px-3 py-1.5 rounded hover:bg-blue-700 text-sm">
+                        Xem thống kê
+                    </button>
+                </div>
             </div>
+
             <div id="tasksList" class="space-y-4"></div>
         </div>
     </div>
