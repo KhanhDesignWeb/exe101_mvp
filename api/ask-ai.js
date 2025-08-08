@@ -79,15 +79,14 @@ async function classifyCognitiveEngagement(userInput) {
     const apiKey = process.env.OPENAI_API_KEY;
 
     const prompt = `
-    Please classify the following user input as one of the following: "Positive", "Neutral", or "Negative". 
-    - "Positive" indicates the input shows active engagement, critical thinking, or enthusiasm. Example: "This is an interesting topic! I have some ideas about it."
-    - "Neutral" indicates the input is somewhat engaged but lacks deep analysis or emotion. Example: "I think that's okay, but I don't have much to add."
-    - "Negative" indicates the input shows a lack of engagement, confusion, or indifference. Example: "I don't know what you mean, I'm confused."
+        Please classify the following user input as one of the following: "Positive", "Neutral", or "Negative". 
+        - "Positive" indicates the input shows active engagement, critical thinking, or enthusiasm. Example: "This is an interesting topic! I have some ideas about it."
+        - "Neutral" indicates the input is somewhat engaged but lacks deep analysis or emotion. Example: "I think that's okay, but I don't have much to add."
+        - "Negative" indicates the input shows confusion, frustration, lack of engagement, or disinterest. Example: "I don't know what you mean, I'm confused." OR "I can't understand this, it's too complex."
 
-    Here is the user input: "${userInput}"
-    Please respond with only one of the labels: Positive, Neutral, Negative.
-
-    `;
+        Here is the user input: "${userInput}"
+        Please respond with only one of the labels: Positive, Neutral, Negative.
+`;
 
     try {
         // Gửi yêu cầu tới OpenAI để phân loại
