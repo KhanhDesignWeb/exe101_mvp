@@ -61,10 +61,10 @@ export default async function handler(req, res) {
     // Add the AI reply to the conversation history
     conversationHistory.push({ role: "assistant", content: aiReply });
 
-    // Phân loại Cognitive Engagement với mô hình phân loại cảm xúc (Hugging Face hoặc OpenAI)
-    const engagementLevel = await classifyCognitiveEngagement(aiReply);
-    // Log kết quả phân loại Cognitive Engagement
-    console.log("Cognitive Engagement Level:", engagementLevel);  // In mức độ Cognitive Engagement ra console
+    // Phân loại Cognitive Engagement cho input của người dùng
+    const engagementLevel = await classifyCognitiveEngagement(userInput);
+
+
     // Gửi lại phản hồi và mức độ Cognitive Engagement
     return res.json({
         reply: aiReply,
@@ -74,16 +74,17 @@ export default async function handler(req, res) {
 }
 
 // Hàm phân loại Cognitive Engagement (Positive, Neutral, Negative)
-async function classifyCognitiveEngagement(aiReply) {
+// Hàm phân loại Cognitive Engagement (Positive, Neutral, Negative)
+async function classifyCognitiveEngagement(userInput) {
     const apiKey = process.env.OPENAI_API_KEY;
 
     const prompt = `
-    Please classify the following response as one of the following: "Positive", "Neutral", or "Negative". 
-    "Positive" indicates the response shows active engagement and critical thinking.
-    "Neutral" indicates the response is somewhat engaged but lacks deep analysis or emotion.
-    "Negative" indicates the response shows a lack of engagement or confusion.
+    Please classify the following user input as one of the following: "Positive", "Neutral", or "Negative". 
+    "Positive" indicates the input shows active engagement and critical thinking.
+    "Neutral" indicates the input is somewhat engaged but lacks deep analysis or emotion.
+    "Negative" indicates the input shows a lack of engagement or confusion.
     
-    Here is the response: "${aiReply}"
+    Here is the user input: "${userInput}"
     Please respond with only one of the labels: Positive, Neutral, Negative.
     `;
 
@@ -107,7 +108,7 @@ async function classifyCognitiveEngagement(aiReply) {
         return data.choices[0].text.trim();  // Trả về "Positive", "Neutral", hoặc "Negative"
     } catch (error) {
         // Catching errors if classification fails
-        console.error("Error classifying cognitive engagement:", error);
+        console.error("Error classifying user input:", error);
         return "Neutral";  // Default fallback value
     }
 }
