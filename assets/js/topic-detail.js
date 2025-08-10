@@ -30,16 +30,16 @@ if (!topic) {
 
 // Hiển thị header và prompt
 document.getElementById("topicInfo").innerHTML = `
-  <a href="javascript:history.back()" class="text-blue-600 text-sm">&larr; Back to class list</a>
+  <a href="class-detail.html?id=${encodeURIComponent(classId)}" class="text-blue-600 text-sm">&larr; Back to class</a>
   <h1 class="text-3xl font-bold mt-2 mb-2">${topic.title}</h1>
   <div class="flex items-center gap-2 text-sm text-gray-600">
-    <span class="bg-gray-200 px-2 py-0.5 rounded-full text-xs font-semibold">${topic.role || "Teacher"
-  }</span>
+    <span class="bg-gray-200 px-2 py-0.5 rounded-full text-xs font-semibold">${topic.role || "Teacher"}</span>
     <span>${topic.created_by}</span>
     <span>&bull;</span>
     <span>${topic.created_at ? new Date(topic.created_at).toLocaleString() : ""}</span>
   </div>
 `;
+
 document.getElementById("promptBlock").innerHTML = `
   <p class="text-gray-800 mb-4">${topic.description}</p>
   <div class="flex items-center gap-6 text-sm text-gray-500">
@@ -556,3 +556,11 @@ function showToast(message, time = 3500, type = "warning") {
     toast.classList.remove("opacity-100");
   }, time);
 }
+
+document.getElementById("discussionLink").href =
+  `topic-detail.html?class_id=${encodeURIComponent(classId)}&topic_id=${encodeURIComponent(topicId)}`;
+document.getElementById("thisHomeworkLink").href =
+  `homework-list.html?class_id=${encodeURIComponent(classId)}&topic_id=${encodeURIComponent(topicId)}`;
+document.getElementById("infoStudents").innerText = (cls.memberList || []).length;
+document.getElementById("infoAssignments").innerText = (topic.homeworks || []).length;
+document.getElementById("infoDiscussions").innerText = (cls.topics || []).length;

@@ -9,7 +9,27 @@ if (!localStorage.getItem('classes')) {
       members: 4,
       slots: 10,
       teacher: "Nguyen Van A",
-      topics: [],
+      topics: [
+        {
+          topic_id: "T1",
+          title: "Chủ đề 1 - Lập luận cơ bản",
+          description: "Thảo luận về các lập luận cơ bản trong đời sống",
+          end_time: "2025-08-27T16:40:00.000Z",
+          created_by: "Nguyen Van A",
+          created_at: "2025-08-01T10:00:00.000Z",
+          homeworks: [
+            {
+              hw_id: "HW1",
+              title: "Bài tập Critical Thinking 1",
+              description: "Hãy phân tích và phản biện một lập luận bất kỳ trong đời sống.",
+              attachments: [],
+              due_date: "2025-08-15T23:59:00",
+              created_by: "Nguyen Van A",
+              submissions: []
+            }
+          ]
+        }
+      ],
       memberList: [
         { id: "stu01", name: "Pham Minh", rating: 20 },
         { id: "stu02", name: "Le Hoa", rating: 2 },
@@ -26,7 +46,25 @@ if (!localStorage.getItem('classes')) {
       members: 3,
       slots: 8,
       teacher: "Tran Thi B",
-      topics: [],
+      topics: [
+        {
+          topic_id: "T1",
+          title: "Chủ đề 1 - Lập luận nâng cao",
+          description: "Phân tích logic của một tranh luận phức tạp.",
+          end_time: "2025-08-30T16:40:00.000Z",
+          homeworks: [
+            {
+              hw_id: "HW1",
+              title: "Bài tập Nâng cao 1",
+              description: "Phân tích logic của một tranh luận phức tạp.",
+              attachments: [],
+              due_date: "2025-08-20T23:59:00",
+              created_by: "Tran Thi B",
+              submissions: []
+            }
+          ]
+        }
+      ],
       memberList: [
         { id: "stu11", name: "Bui Thao", rating: 1 },
         { id: "stu12", name: "Dang Khoa", rating: 5 },
@@ -42,7 +80,25 @@ if (!localStorage.getItem('classes')) {
       members: 5,
       slots: 10,
       teacher: "Le Phuoc C",
-      topics: [],
+      topics: [
+        {
+          topic_id: "T1",
+          title: "Chủ đề 1 - Viết học thuật",
+          description: "Luyện tập viết học thuật chuyên sâu.",
+          end_time: "2025-09-01T16:40:00.000Z",
+          homeworks: [
+            {
+              hw_id: "HW1",
+              title: "Bài tập Viết học thuật 1",
+              description: "Viết một bài luận 500 từ về một chủ đề tự chọn.",
+              attachments: [],
+              due_date: "2025-08-25T23:59:00",
+              created_by: "Le Phuoc C",
+              submissions: []
+            }
+          ]
+        }
+      ],
       memberList: [
         { id: "stu21", name: "Vo Dung", rating: 6 },
         { id: "stu22", name: "Ly An", rating: 18 },
@@ -65,7 +121,7 @@ if (!localStorage.getItem("students")) {
     { id: "u5", name: "Tieu Hi", rating: 8 },
     { id: "u6", name: "Hai Tu", rating: 2 },
     { id: "u7", name: "Dang Khoi", rating: 25 },
-    { id: "u8", name: "Hoang Anh", rating: 7 },
+    { id: "u8", name: "Hoang Anh", rating: 7 }
   ];
   localStorage.setItem("students", JSON.stringify(students));
 }

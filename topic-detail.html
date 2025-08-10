@@ -76,25 +76,57 @@
     </style>
 
 </head>
-
-<body class="bg-gray-50 min-h-screen text-gray-800">
+<body>
     <!-- Header Topic Info -->
-    <div class="max-w-6xl mx-auto px-4 py-6" id="topicInfo">
+    <div class="max-w-7xl mx-auto px-4 py-6" id="topicInfo">
         <!-- sẽ được JS fill vào -->
     </div>
 
-    <!-- Main Content -->
-    <div class="max-w-6xl mx-auto px-4">
-        <!-- Prompt -->
-        <div class="bg-white rounded-lg p-6 shadow-sm border mb-8" id="promptBlock">
-            <!-- JS sẽ fill vào -->
-        </div>
+    <!-- Main Content + Sidebar -->
+    <div class="max-w-7xl mx-auto px-4 flex gap-6">
+        <!-- Main -->
+        <main class="flex-1">
+            <!-- Prompt -->
+            <div class="bg-white rounded-lg p-6 shadow-sm border mb-8" id="promptBlock">
+                <!-- JS sẽ fill vào -->
+            </div>
 
-        <!-- Student Responses -->
-        <h2 class="text-lg font-semibold mb-4">Student Responses:</h2>
-        <div id="answersList" class="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-32"></div>
+            <!-- Student Responses -->
+            <h2 class="text-lg font-semibold mb-4">Student Responses:</h2>
+            <div id="answersList" class="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-32"></div>
+        </main>
+
+        <!-- Sidebar -->
+        <aside class="w-72 flex-shrink-0">
+            <div class="bg-white rounded-lg p-4 shadow-sm border mb-4">
+                <h2 class="font-semibold text-lg mb-3">Quick Actions</h2>
+                <div class="flex flex-col gap-2">
+                    <a id="discussionLink" href="#"
+                        class="flex items-center gap-3 rounded-lg px-3 py-2 bg-black text-white text-sm">
+                        <span>💬</span><span>Discussion</span>
+                    </a>
+                    <a id="thisHomeworkLink" href="#"
+                        class="flex items-center gap-3 rounded-lg px-3 py-2 border hover:bg-gray-50 text-sm">
+                        <span>📚</span><span>Homework</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg p-4 shadow-sm border">
+                <h2 class="font-semibold text-lg mb-3">Class Information</h2>
+                <div class="flex justify-between text-sm py-1">
+                    <span>Students:</span><span id="infoStudents" class="font-medium">0</span>
+                </div>
+                <div class="flex justify-between text-sm py-1">
+                    <span>Assignments:</span><span id="infoAssignments" class="font-medium">0</span>
+                </div>
+                <div class="flex justify-between text-sm py-1">
+                    <span>Discussions:</span><span id="infoDiscussions" class="font-medium">0</span>
+                </div>
+            </div>
+        </aside>
     </div>
-
+    
     <div id="answerBar"
         class="fixed left-1/2 bottom-6 transform -translate-x-1/2 bg-white border shadow-lg z-40 flex items-center px-3 py-2 gap-2 rounded-2xl transition-all duration-300 ease-in-out"
         style="width: 420px; max-width: 94vw;">
