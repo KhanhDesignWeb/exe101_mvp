@@ -13,11 +13,12 @@ async function callOpenAIAPI(userInput) {
     const user = JSON.parse(localStorage.getItem('user') || '{}'); 
     const senderId = user.sub || null;
     const senderName = user.name || "Unknown";
+    const senderAvatar = user.picture || null;
 
     const res = await fetch('/api/ask-ai', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userInput, history, senderId, senderName }) // Gửi lịch sử cùng với yêu cầu
+        body: JSON.stringify({ userInput, history, senderId, senderName, senderAvatar }) // Gửi lịch sử cùng với yêu cầu
     });
 
     const data = await res.json();
@@ -29,6 +30,7 @@ async function callOpenAIAPI(userInput) {
     cognitiveEngagementHistory.push({
         senderId,
         senderName,
+        senderAvatar,
         engagement: data.cognitiveEngagement
     });    localStorage.setItem('cognitiveEngagementHistory', JSON.stringify(cognitiveEngagementHistory));
 
