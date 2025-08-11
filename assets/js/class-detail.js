@@ -2,6 +2,8 @@ let classes = JSON.parse(localStorage.getItem("classes")) || [];
 let countdownTimers = [];
 const params = new URLSearchParams(window.location.search);
 const classId = params.get("id");
+// Thêm dòng này để lưu classId vào localStorage
+if (classId) localStorage.setItem('currentClassId', classId);
 
 const cls = classes.find((c) => c.class_id === classId);
 

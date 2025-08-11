@@ -16,13 +16,21 @@ async function callOpenAIAPI(userInput) {
     const senderAvatar = user.picture || null;
     // Lấy thông tin lớp học hiện tại từ localStorage
     const classes = JSON.parse(localStorage.getItem('classes') || '[]'); 
-    // Ví dụ lấy lớp đầu tiên, hoặc lấy lớp đang active
-    const currentClassId = classes.length > 0 ? classes[0].class_id : null;
+
+    // Lấy classId đã lưu trong localStorage (nếu có)
+    let currentClassId = localStorage.getItem('currentClassId');
+
+    // Nếu chưa có currentClassId hoặc lớp này không tồn tại trong danh sách thì lấy lớp đầu tiên
+    if (!currentClassId || !classes.find(c => c.class_id === currentClassId)) {
+    currentClassId = classes.length > 0 ? classes[0].class_id : null;
+    }
 
     const res = await fetch('/api/ask-ai', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userInput, history, senderId, senderName, senderAvatar }) // Gửi lịch sử cùng với yêu cầu
+        body: JSON.stringify({ userInput, history, 
+            // senderId, senderName, senderAvatar 
+        }) // Gửi lịch sử cùng với yêu cầu
     });
 
     const data = await res.json();
