@@ -122,7 +122,7 @@ function renderHomeworkCard(hw) {
   const subs = hw.submissions || [];
 
   if (!subs.length) {
-    subsHtml = `<p class="text-gray-500 text-sm">Chưa có bài nộp</p>`;
+    subsHtml = `<p class="text-gray-500 text-sm">No submissions yet</p>`;
   } else {
     const visible = subs.slice(0, 2);
     const hidden = subs.slice(2);
