@@ -14,6 +14,10 @@ async function callOpenAIAPI(userInput) {
     const senderId = user.sub || null;
     const senderName = user.name || "Unknown";
     const senderAvatar = user.picture || null;
+    // Lấy thông tin lớp học hiện tại từ localStorage
+    const classes = JSON.parse(localStorage.getItem('classes') || '[]'); 
+    // Ví dụ lấy lớp đầu tiên, hoặc lấy lớp đang active
+    const currentClassId = classes.length > 0 ? classes[0].class_id : null;
 
     const res = await fetch('/api/ask-ai', {
         method: 'POST',
@@ -31,7 +35,8 @@ async function callOpenAIAPI(userInput) {
         senderId,
         senderName,
         senderAvatar,
-        engagement: data.cognitiveEngagement
+        engagement: data.cognitiveEngagement,
+        classId: currentClassId
     });    localStorage.setItem('cognitiveEngagementHistory', JSON.stringify(cognitiveEngagementHistory));
 
     return data.reply || "Không có phản hồi từ AI.";
