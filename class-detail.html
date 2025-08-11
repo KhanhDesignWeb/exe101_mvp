@@ -176,6 +176,15 @@
       <div id="rankModalContent"></div>
     </div>
   </div>
+  <!-- Modal Báo Cáo -->
+  <div id="reportModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-3xl p-6 relative">
+      <button id="closeReportModal"
+        class="absolute right-4 top-2 text-2xl text-gray-500 hover:text-red-500 font-bold">&times;</button>
+      <h3 class="text-lg font-semibold mb-4 text-center">BÁO CÁO THAM GIA</h3>
+      <div id="reportModalContent"></div>
+    </div>
+  </div>
 
 
   <!-- Sidebar -->
@@ -248,10 +257,17 @@
           building analytical reasoning and logical problem-solving abilities.
         </p>
       </div>
-      <button id="rankButton"
-        class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition whitespace-nowrap">
-        Xem bảng xếp hạng
-      </button>
+      <div class="flex flex-col items-end space-y-2">
+        <button id="rankButton"
+          class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition whitespace-nowrap">
+          Xem bảng xếp hạng
+        </button>
+        <button id="reportButton"
+          class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition whitespace-nowrap">
+          Xem báo cáo
+        </button>
+      </div>
+
     </div>
 
 

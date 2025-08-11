@@ -612,3 +612,66 @@ function renderRankModal(page = 1) {
     <div class="text-xs text-gray-400 text-right mt-2">* Top 1, 2, 3 được làm nổi bật</div>
   `;
 } 
+// ==== REPORT FEATURE ====
+// Giả sử dữ liệu báo cáo lưu trong localStorage hoặc API trả về
+// Ví dụ tạm: reportData = JSON.parse(localStorage.getItem("reportData")) || [];
+let reportData = JSON.parse(localStorage.getItem("cognitiveEngagementHistory")) || [];
+
+document.getElementById("reportButton").addEventListener("click", () => {
+  renderReportModal();
+  document.getElementById("reportModal").classList.remove("hidden");
+});
+
+document.getElementById("closeReportModal").addEventListener("click", () => {
+  document.getElementById("reportModal").classList.add("hidden");
+});
+
+function renderReportModal() {
+  const container = document.getElementById("reportModalContent");
+  container.innerHTML = "";
+
+  if (!reportData || reportData.length === 0) {
+    container.innerHTML = `<div class="text-gray-500 text-center py-4">Chưa có dữ liệu báo cáo.</div>`;
+    return;
+  }
+
+  // Đếm số lần Negative, Neutral, Positive cho mỗi học viên
+  const summary = {};
+  reportData.forEach(item => {
+    const name = item.senderName;
+    if (!summary[name]) {
+      summary[name] = { Negative: 0, Neutral: 0, Positive: 0 };
+    }
+    if (summary[name][item.engagement] !== undefined) {
+      summary[name][item.engagement]++;
+    }
+  });
+
+  // Tạo bảng
+  const tableHTML = `
+    <div class="overflow-x-auto">
+      <table class="min-w-full border border-gray-200">
+        <thead class="bg-gray-100">
+          <tr>
+            <th class="py-2 px-4 border">Tên</th>
+            <th class="py-2 px-4 border text-center">Negative</th>
+            <th class="py-2 px-4 border text-center">Neutral</th>
+            <th class="py-2 px-4 border text-center">Positive</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${Object.entries(summary).map(([name, counts]) => `
+            <tr>
+              <td class="py-2 px-4 border">${name}</td>
+              <td class="py-2 px-4 border text-center">${counts.Negative}</td>
+              <td class="py-2 px-4 border text-center">${counts.Neutral}</td>
+              <td class="py-2 px-4 border text-center">${counts.Positive}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    </div>
+  `;
+
+  container.innerHTML = tableHTML;
+}

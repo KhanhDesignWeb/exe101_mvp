@@ -127,6 +127,18 @@ if (!localStorage.getItem("students")) {
     { id: "u6", name: "Hai Tu", rating: 2 },
     { id: "u7", name: "Dang Khoi", rating: 25 },
     { id: "u8", name: "Hoang Anh", rating: 7 },
+    { id: "u9", name: "Pham Minh", rating: 32 },
+    { id: "u10", name: "Le Hoa", rating: 56 },
+    { id: "u11", name: "Tran Quan", rating: 7 },
+    { id: "u12", name: "Nguyen Lan", rating: 2 },
+    { id: "u13", name: "Bui Thao", rating: 9 },
+    { id: "u14", name: "Dang Khoa", rating: 0 },
+    { id: "u15", name: "Hoang Nhi", rating: 0 },
+    { id: "u16", name: "Vo Dung", rating: 23 },
+    { id: "u17", name: "Ly An", rating: 8 },
+    { id: "u18", name: "Mai Chien", rating: 34 },
+    { id: "u18", name: "Dinh Tien", rating: 15 },
+    { id: "u18", name: "Phan Dao", rating: 26 },
   ];
   localStorage.setItem("students", JSON.stringify(students));
 }
@@ -145,25 +157,76 @@ if (!localStorage.getItem("conversationHistory")) {
 if (!localStorage.getItem("cognitiveEngagementHistory")) {
   const cognitiveEngagementHistory = [
     {
+      classId: "SE1801",
       senderId: "115260584507841844388",
       senderName: "Le Phuoc Loc (K18 CT)",
       engagement: "Neutral",
       senderAvatar: "https://lh3.googleusercontent.com/a/ACg8ocLJxw3478uSHig1rqk20wxkpjJIgJhoczVcXFB-uW-xdAoCWA=s96-c"
     },
     {
+      classId: "SE1801",
       senderId: "115260584507841844388",
       senderName: "Le Phuoc Loc (K18 CT)",
       engagement: "Positive",
       senderAvatar: "https://lh3.googleusercontent.com/a/ACg8ocLJxw3478uSHig1rqk20wxkpjJIgJhoczVcXFB-uW-xdAoCWA=s96-c"
     },
     {
+      classId: "SE1801",
       senderId: "115260584507841844388",
       senderName: "Le Phuoc Loc (K18 CT)",
       engagement: "Negative",
       senderAvatar: "https://lh3.googleusercontent.com/a/ACg8ocLJxw3478uSHig1rqk20wxkpjJIgJhoczVcXFB-uW-xdAoCWA=s96-c"
+    },
+    {
+      classId: "SE1801",
+      senderId: "u9",
+      senderName: "Pham Minh",
+      engagement: "Positive",
+      senderAvatar: null
+    },
+    {
+      classId: "SE1801",
+      senderId: "u9",
+      senderName: "Pham Minh",
+      engagement: "Positive",
+      senderAvatar: null
+    },
+    {
+      classId: "SE1801",
+      senderId: "u9",
+      senderName: "Pham Minh",
+      engagement: "Positive",
+      senderAvatar: null
+    },
+    {
+      classId: "SE1801",
+      senderId: "u9",
+      senderName: "Pham Minh",
+      engagement: "Neutral",
+      senderAvatar: null
+    },
+    {
+      classId: "SE1801",
+      senderId: "u10",
+      senderName: "Le Hoa",
+      engagement: "Neutral",
+      senderAvatar: null
+    },
+    {
+      classId: "SE1801",
+      senderId: "u11",
+      senderName: "Tran Quan",
+      engagement: "Neutral",
+      senderAvatar: null
+    },
+    {
+      classId: "SE1801",
+      senderId: "u12",
+      senderName: "Nguyen Lan",
+      engagement: "Negative",
+      senderAvatar: null
     }
   ];
 
   localStorage.setItem("cognitiveEngagementHistory", JSON.stringify(cognitiveEngagementHistory));
 }
-
