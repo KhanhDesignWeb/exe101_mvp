@@ -11,7 +11,7 @@ async function callOpenAIAPI(userInput) {
 
    // Lấy thông tin user từ localStorage
     const user = JSON.parse(localStorage.getItem('user') || '{}'); 
-    const senderId = user.id || null;
+    const senderId = user.sub || null;
     const senderName = user.name || "Unknown";
 
     const res = await fetch('/api/ask-ai', {
