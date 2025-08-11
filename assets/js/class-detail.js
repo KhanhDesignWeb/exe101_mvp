@@ -3,7 +3,7 @@ let countdownTimers = [];
 const params = new URLSearchParams(window.location.search);
 const classId = params.get("id");
 // Thêm dòng này để lưu classId vào localStorage
-if (classId) localStorage.setItem('currentClassId', classId);
+if (classId) localStorage.setItem("currentClassId", classId);
 
 const cls = classes.find((c) => c.class_id === classId);
 
@@ -21,10 +21,9 @@ document.getElementById("subjectCode").innerText = cls.subject_code;
 document.getElementById("semester").innerText = cls.semester;
 document.getElementById("status").innerText = cls.status;
 
-
 function renderTopics() {
   // Xóa hết timer cũ trước khi render lại
-  countdownTimers.forEach(id => clearTimeout(id));
+  countdownTimers.forEach((id) => clearTimeout(id));
   countdownTimers = [];
   const topicsList = document.getElementById("topicsList");
   if (!cls.topics || cls.topics.length === 0) {
@@ -43,12 +42,16 @@ function renderTopics() {
           <div class="text-gray-900 font-semibold text-base">${t.title}</div>
           <div class="text-gray-500 text-sm">by ${t.created_by}</div>
           <div class="text-gray-500 text-sm">
-            <b>Thời gian kết thúc:</b> <span id="topic-end-${idx}">${t.end_time ? new Date(t.end_time).toLocaleString() : "Không đặt"}</span>
+            <b>Thời gian kết thúc:</b> <span id="topic-end-${idx}">${
+        t.end_time ? new Date(t.end_time).toLocaleString() : "Không đặt"
+      }</span>
             <span class="ml-2 text-red-600" id="countdown-${idx}"></span>
           </div>
           <div class="text-gray-500 text-sm flex justify-end space-x-4">
               <span>${t.answers ? t.answers.length : 0} replies</span>
-              <span>${t.created_at ? new Date(t.created_at).toLocaleString() : ""}</span>
+              <span>${
+                t.created_at ? new Date(t.created_at).toLocaleString() : ""
+              }</span>
           </div>
       </div>
   `
@@ -70,13 +73,11 @@ window.deleteTopic = function (idx) {
   renderTopics();
 };
 
-
 //Đặt min cho input datetime-local
 const now = new Date();
 const tzoffset = now.getTimezoneOffset() * 60000; // bù múi giờ
-const localISOTime = (new Date(now - tzoffset)).toISOString().slice(0, 16);
-document.getElementById('topicEndTime').setAttribute('min', localISOTime);
-
+const localISOTime = new Date(now - tzoffset).toISOString().slice(0, 16);
+document.getElementById("topicEndTime").setAttribute("min", localISOTime);
 
 // Cập nhật thông tin số lượng thành viên và học viên
 function updateMemberSection() {
@@ -118,21 +119,24 @@ function renderMemberList() {
         <div class="flex items-center space-x-2">
           <span class="bg-gray-200 text-xs w-7 h-7 flex items-center justify-center rounded-full">
             ${member.name
-        .split(" ")
-        .map((w) => w[0])
-        .join("")
-        .toUpperCase()}
+              .split(" ")
+              .map((w) => w[0])
+              .join("")
+              .toUpperCase()}
           </span>
           <span class="font-medium">${member.name}</span>
-          <span class="text-gray-500 text-sm">${isTeacher ? "Teacher" : "Student"
-      }</span>
+          <span class="text-gray-500 text-sm">${
+            isTeacher ? "Teacher" : "Student"
+          }</span>
         </div>
-        <div class="text-gray-500 text-sm">${isTeacher ? "Instructor" : ""
-      }</div>
+        <div class="text-gray-500 text-sm">${
+          isTeacher ? "Instructor" : ""
+        }</div>
       </div>
-      ${!isTeacher
-        ? `<button class="text-red-600 text-sm hover:underline" onclick="removeMemberById('${member.id}')">❌ Remove</button>`
-        : ""
+      ${
+        !isTeacher
+          ? `<button class="text-red-600 text-sm hover:underline" onclick="removeMemberById('${member.id}')">❌ Remove</button>`
+          : ""
       }
     `;
 
@@ -339,7 +343,7 @@ document.getElementById("addTopicBtn").onclick = () => {
   const title = document.getElementById("topicTitle").value.trim();
   const desc = document.getElementById("topicDesc").value.trim();
   const endTimeInput = document.getElementById("topicEndTime").value; // local time
-  const endTimeISO = new Date(endTimeInput).toISOString();           // luôn ISO UTC
+  const endTimeISO = new Date(endTimeInput).toISOString(); // luôn ISO UTC
 
   if (!title) {
     alert("Nhập tiêu đề.");
@@ -375,8 +379,6 @@ document.getElementById("addTopicBtn").onclick = () => {
   document.getElementById("topicEndTime").value = "";
 };
 
-
-
 // Xóa thành viên khỏi lớp
 window.removeMemberById = function (id) {
   if (!confirm("Bạn có chắc muốn xóa thành viên này khỏi lớp không?")) return;
@@ -397,7 +399,8 @@ function renderGroups() {
 
   cls.groups.forEach((group, index) => {
     const groupDiv = document.createElement("div");
-    groupDiv.className = "border border-gray-300 p-4 rounded cursor-pointer hover:shadow transition";
+    groupDiv.className =
+      "border border-gray-300 p-4 rounded cursor-pointer hover:shadow transition";
 
     const membersHtml = group.members
       .map((id) => {
@@ -423,8 +426,9 @@ function renderGroups() {
         ${membersHtml || "<li><em>No members</em></li>"}
       </ul>
 
-      ${availableToAdd.length > 0
-        ? `
+      ${
+        availableToAdd.length > 0
+          ? `
         <!-- CHẶN NỔI BỌT Ở SELECT -->
         <select id="addMemberSelect_${index}"
                 class="mt-2 border p-1 rounded text-sm"
@@ -432,10 +436,12 @@ function renderGroups() {
                 onmousedown="event.stopPropagation()"
                 onchange="event.stopPropagation()">
           <option value="">+ Add Member</option>
-          ${availableToAdd.map((m) => `<option value="${m.id}">${m.name}</option>`).join("")}
+          ${availableToAdd
+            .map((m) => `<option value="${m.id}">${m.name}</option>`)
+            .join("")}
         </select>
         `
-        : ""
+          : ""
       }
     `;
 
@@ -463,7 +469,6 @@ function renderGroups() {
     groupList.appendChild(groupDiv);
   });
 }
-
 
 document.getElementById("createGroupBtn").addEventListener("click", () => {
   if (!cls.groups) cls.groups = [];
@@ -496,7 +501,12 @@ function startCountdown(endTimeStr, countdownElemId, createdAtStr, idx) {
     const diff = endTime - now;
     const el = document.getElementById(countdownElemId);
     if (!el) return;
-    el.classList.remove("countdown-green", "countdown-yellow", "countdown-red", "countdown-expired");
+    el.classList.remove(
+      "countdown-green",
+      "countdown-yellow",
+      "countdown-red",
+      "countdown-expired"
+    );
     if (diff <= 0) {
       el.textContent = "Đã hết thời gian!";
       el.classList.add("countdown-expired");
@@ -507,7 +517,7 @@ function startCountdown(endTimeStr, countdownElemId, createdAtStr, idx) {
     const m = Math.floor((diff / (1000 * 60)) % 60);
     const s = Math.floor((diff / 1000) % 60);
 
-    el.textContent = `Còn lại: ${d > 0 ? d + ' ngày ' : ''}${h}h ${m}m ${s}s`;
+    el.textContent = `Còn lại: ${d > 0 ? d + " ngày " : ""}${h}h ${m}m ${s}s`;
     // Lưu id timer vào mảng countdownTimers theo index
     countdownTimers[idx] = setTimeout(updateCountdown, 1000);
   }
@@ -532,7 +542,9 @@ function renderRankModal(page = 1) {
   const container = document.getElementById("rankModalContent");
   container.innerHTML = ""; // Xóa nội dung cũ
 
-  const rankedMembers = [...cls.memberList].sort((a, b) => (b.rating || 0) - (a.rating || 0));
+  const rankedMembers = [...cls.memberList].sort(
+    (a, b) => (b.rating || 0) - (a.rating || 0)
+  );
   if (rankedMembers.length === 0) {
     container.innerHTML = `<div class="text-gray-500 text-center py-4">Chưa có thành viên nào.</div>`;
     return;
@@ -562,14 +574,25 @@ function renderRankModal(page = 1) {
           </tr>
         </thead>
         <tbody>
-          ${currentMembers.map((m, i) => {
-    const globalIndex = startIndex + i + 1;
-    return `
-              <tr class="${globalIndex === 1 ? 'top-1' : globalIndex === 2 ? 'top-2' : globalIndex === 3 ? 'top-3' : ''}">
+          ${currentMembers
+            .map((m, i) => {
+              const globalIndex = startIndex + i + 1;
+              return `
+              <tr class="${
+                globalIndex === 1
+                  ? "top-1"
+                  : globalIndex === 2
+                  ? "top-2"
+                  : globalIndex === 3
+                  ? "top-3"
+                  : ""
+              }">
                 <td class="py-3 px-4 text-center font-medium text-gray-800 border-b border-gray-200">${globalIndex}</td>
                 <td class="py-3 px-4 flex items-center gap-3 border-b border-gray-200">
-                  ${globalIndex === 1 ? crown : ''}
-                  <span class="font-medium ${globalIndex <= 3 ? 'text-gray-900' : 'text-gray-700'}">${m.name}</span>
+                  ${globalIndex === 1 ? crown : ""}
+                  <span class="font-medium ${
+                    globalIndex <= 3 ? "text-gray-900" : "text-gray-700"
+                  }">${m.name}</span>
                 </td>
                 <td class="py-3 px-4 text-center font-medium border-b border-gray-200">
                   ${m.rating || 0}
@@ -577,7 +600,8 @@ function renderRankModal(page = 1) {
                 </td>
               </tr>
             `;
-  }).join("")}
+            })
+            .join("")}
         </tbody>
       </table>
     </div>
@@ -587,20 +611,38 @@ function renderRankModal(page = 1) {
   const paginationHTML = `
     <div class="flex justify-between items-center mt-4">
       <div class="text-sm text-gray-500">
-        Hiển thị ${startIndex + 1}-${Math.min(endIndex, rankedMembers.length)} trong ${rankedMembers.length} thành viên
+        Hiển thị ${startIndex + 1}-${Math.min(
+    endIndex,
+    rankedMembers.length
+  )} trong ${rankedMembers.length} thành viên
       </div>
       <div class="flex gap-2">
-        <button class="pagination-btn px-3 py-1.5 rounded-md text-sm ${page === 1 ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700'}" 
-                ${page === 1 ? 'disabled' : ''} 
+        <button class="pagination-btn px-3 py-1.5 rounded-md text-sm ${
+          page === 1
+            ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+            : "bg-blue-600 text-white hover:bg-blue-700"
+        }" 
+                ${page === 1 ? "disabled" : ""} 
                 onclick="renderRankModal(${page - 1})">Trước</button>
         <div class="flex gap-1">
-          ${Array.from({ length: totalPages }, (_, i) => `
-            <button class="pagination-btn px-3 py-1.5 rounded-md text-sm ${page === i + 1 ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}" 
+          ${Array.from(
+            { length: totalPages },
+            (_, i) => `
+            <button class="pagination-btn px-3 py-1.5 rounded-md text-sm ${
+              page === i + 1
+                ? "bg-blue-600 text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+            }" 
                     onclick="renderRankModal(${i + 1})">${i + 1}</button>
-          `).join("")}
+          `
+          ).join("")}
         </div>
-        <button class="pagination-btn px-3 py-1.5 rounded-md text-sm ${page === totalPages ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700'}" 
-                ${page === totalPages ? 'disabled' : ''} 
+        <button class="pagination-btn px-3 py-1.5 rounded-md text-sm ${
+          page === totalPages
+            ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+            : "bg-blue-600 text-white hover:bg-blue-700"
+        }" 
+                ${page === totalPages ? "disabled" : ""} 
                 onclick="renderRankModal(${page + 1})">Sau</button>
       </div>
     </div>
@@ -611,11 +653,12 @@ function renderRankModal(page = 1) {
     ${paginationHTML}
     <div class="text-xs text-gray-400 text-right mt-2">* Top 1, 2, 3 được làm nổi bật</div>
   `;
-} 
+}
 // ==== REPORT FEATURE ====
 // Giả sử dữ liệu báo cáo lưu trong localStorage hoặc API trả về
 // Ví dụ tạm: reportData = JSON.parse(localStorage.getItem("reportData")) || [];
-let reportData = JSON.parse(localStorage.getItem("cognitiveEngagementHistory")) || [];
+let reportData =
+  JSON.parse(localStorage.getItem("cognitiveEngagementHistory")) || [];
 
 document.getElementById("reportButton").addEventListener("click", () => {
   renderReportModal();
@@ -625,7 +668,6 @@ document.getElementById("reportButton").addEventListener("click", () => {
 document.getElementById("closeReportModal").addEventListener("click", () => {
   document.getElementById("reportModal").classList.add("hidden");
 });
-
 function renderReportModal() {
   const container = document.getElementById("reportModalContent");
   container.innerHTML = "";
@@ -637,7 +679,7 @@ function renderReportModal() {
 
   // Đếm số lần Negative, Neutral, Positive cho mỗi học viên
   const summary = {};
-  reportData.forEach(item => {
+  reportData.forEach((item) => {
     const name = item.senderName;
     if (!summary[name]) {
       summary[name] = { Negative: 0, Neutral: 0, Positive: 0 };
@@ -646,28 +688,52 @@ function renderReportModal() {
       summary[name][item.engagement]++;
     }
   });
-
+  // Hàm đánh giá chung dựa vào loại nhiều nhất
+  //Negative nhiều nhất → "Chưa thực sự tham gia đóng góp vào bài học"
+  // Neutral nhiều nhất → "Có tham gia nhưng cần cải thiện hơn"
+  // Positive nhiều nhất → "Tích cực tham gia và đóng góp vào bài học"
+  function getOverallAssessment(counts) {
+    const maxType = Object.entries(counts).sort((a, b) => b[1] - a[1])[0][0];
+    switch (maxType) {
+      case "Negative":
+        return "Has not actively contributed to the lesson";
+      case "Neutral":
+        return "Participated but needs improvement";
+      case "Positive":
+        return "Actively engaged and contributed to the lesson";
+      default:
+        return "No assessment available";
+    }
+  }
   // Tạo bảng
   const tableHTML = `
     <div class="overflow-x-auto">
       <table class="min-w-full border border-gray-200">
         <thead class="bg-gray-100">
           <tr>
-            <th class="py-2 px-4 border">Tên</th>
+            <th class="py-2 px-4 border">Name</th>
             <th class="py-2 px-4 border text-center">Negative</th>
             <th class="py-2 px-4 border text-center">Neutral</th>
             <th class="py-2 px-4 border text-center">Positive</th>
+            <th class="py-2 px-4 border text-center">Overall Assessment</th>
           </tr>
         </thead>
         <tbody>
-          ${Object.entries(summary).map(([name, counts]) => `
+          ${Object.entries(summary)
+            .map(
+              ([name, counts]) => `
             <tr>
               <td class="py-2 px-4 border">${name}</td>
               <td class="py-2 px-4 border text-center">${counts.Negative}</td>
               <td class="py-2 px-4 border text-center">${counts.Neutral}</td>
               <td class="py-2 px-4 border text-center">${counts.Positive}</td>
+              <td class="py-2 px-4 border text-center">${getOverallAssessment(
+                counts
+              )}</td>
             </tr>
-          `).join("")}
+          `
+            )
+            .join("")}
         </tbody>
       </table>
     </div>
