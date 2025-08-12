@@ -9,8 +9,8 @@ let countdownTimers = []; // Lưu các interval cho từng task để clear khi 
 let classes = JSON.parse(localStorage.getItem("classes")) || [];
 const cls = classes.find(c => c.class_id === classId);
 if (!cls || !cls.groups || !cls.groups[groupIndex]) {
-    document.body.innerHTML = '<div class="text-red-600 text-center text-xl mt-20">Không tìm thấy group này!</div>';
-    throw "Group not found";
+  document.body.innerHTML = '<div class="text-red-600 text-center text-xl mt-20">Không tìm thấy group này!</div>';
+  throw "Group not found";
 }
 const group = cls.groups[groupIndex];
 document.getElementById("backToClass").href = `class-detail.html?id=${classId}`;
@@ -18,55 +18,55 @@ document.getElementById("groupName").innerText = `Group ${groupIndex + 1}`;
 
 // Render thành viên nhóm
 function renderMembers() {
-    const groupMembers = document.getElementById("groupMembers");
-    groupMembers.innerHTML = group.members.map(memberId => {
-        const mem = cls.memberList.find(m => m.id === memberId);
-        if (!mem) return "";
-        const initials = mem.name.split(" ").map(w => w[0]).join("").toUpperCase();
-        return `
+  const groupMembers = document.getElementById("groupMembers");
+  groupMembers.innerHTML = group.members.map(memberId => {
+    const mem = cls.memberList.find(m => m.id === memberId);
+    if (!mem) return "";
+    const initials = mem.name.split(" ").map(w => w[0]).join("").toUpperCase();
+    return `
       <div class="flex items-center gap-2 bg-blue-50 rounded p-2 px-4 shadow">
         <span class="bg-gray-200 w-8 h-8 flex items-center justify-center rounded-full text-base font-bold">${initials}</span>
         <span class="font-medium">${mem.name}</span>
       </div>
     `;
-    }).join("") || `<span class="text-gray-400">Chưa có thành viên nào.</span>`;
+  }).join("") || `<span class="text-gray-400">Chưa có thành viên nào.</span>`;
 }
 renderMembers();
 
 // Quản lý Task
 function saveToLocal() {
-    localStorage.setItem("classes", JSON.stringify(classes));
+  localStorage.setItem("classes", JSON.stringify(classes));
 }
 
 // Hiển thị danh sách nhiệm vụ
 // Hiển thị danh sách nhiệm vụ
 function renderTasks() {
-    // Dừng hết interval cũ
-    countdownTimers.forEach(timer => clearInterval(timer));
-    countdownTimers = [];
-    const tasksList = document.getElementById("tasksList");
-    group.tasks = group.tasks || [];
-    if (group.tasks.length === 0) {
-        tasksList.innerHTML = `<div class="text-gray-400">Chưa có nhiệm vụ nào.</div>`;
-        return;
+  // Dừng hết interval cũ
+  countdownTimers.forEach(timer => clearInterval(timer));
+  countdownTimers = [];
+  const tasksList = document.getElementById("tasksList");
+  group.tasks = group.tasks || [];
+  if (group.tasks.length === 0) {
+    tasksList.innerHTML = `<div class="text-gray-400">Chưa có nhiệm vụ nào.</div>`;
+    return;
+  }
+  tasksList.innerHTML = group.tasks.map((task, idx) => {
+    const mem = cls.memberList.find(m => m.id === task.assign_to);
+    const assignedName = mem ? mem.name : "Chưa giao";
+    const deadlineStr = task.deadline ? new Date(task.deadline).toLocaleString() : "Không đặt";
+    // Tính trạng thái để disable nút check nếu cần
+    let isLate = false;
+    if (task.deadline) {
+      isLate = (new Date(task.deadline) < new Date());
     }
-    tasksList.innerHTML = group.tasks.map((task, idx) => {
-        const mem = cls.memberList.find(m => m.id === task.assign_to);
-        const assignedName = mem ? mem.name : "Chưa giao";
-        const deadlineStr = task.deadline ? new Date(task.deadline).toLocaleString() : "Không đặt";
-        // Tính trạng thái để disable nút check nếu cần
-        let isLate = false;
-        if (task.deadline) {
-            isLate = (new Date(task.deadline) < new Date());
-        }
-        // Nếu trễ deadline và đã hoàn thành => disable checkbox
-        const checkboxDisabled = (isLate && task.completed) ? "disabled" : "";
+    // Nếu trễ deadline và đã hoàn thành => disable checkbox
+    const checkboxDisabled = (isLate && task.completed) ? "disabled" : "";
 
-        // Kiểm tra điều kiện để có thể chỉnh sửa
-        const canEdit = !(isLate && !task.completed || task.completed);  // Ẩn nút Sửa khi trễ deadline và chưa hoàn thành, hoặc đã hoàn thành
+    // Kiểm tra điều kiện để có thể chỉnh sửa
+    const canEdit = !(isLate && !task.completed || task.completed);  // Ẩn nút Sửa khi trễ deadline và chưa hoàn thành, hoặc đã hoàn thành
 
 
-        return `
+    return `
       <div class="bg-gray-50 p-4 rounded shadow flex justify-between items-center border border-gray-200">
         <div>
           <div class="font-semibold text-gray-900">${task.title}</div>
@@ -87,185 +87,196 @@ function renderTasks() {
         </div>
       </div>
     `;
-    }).join("");
-    // Gọi lại countdown cho từng task
-    group.tasks.forEach((task, idx) => {
-        setupTaskCountdown(idx, task);
-    });
+  }).join("");
+  // Gọi lại countdown cho từng task
+  group.tasks.forEach((task, idx) => {
+    setupTaskCountdown(idx, task);
+  });
 }
 
 renderTasks();
 
 // Hàm xóa nhiệm vụ
 window.deleteTask = function (idx) {
-    const task = group.tasks[idx];
-    const isLate = task.deadline && new Date(task.deadline) < new Date();
-    const isCompleted = task.completed;
+  const task = group.tasks[idx];
+  const isLate = task.deadline && new Date(task.deadline) < new Date();
+  const isCompleted = task.completed;
 
-    // Kiểm tra nếu nhiệm vụ đã hoàn thành hoặc trễ deadline mà chưa hoàn thành
-    if (isCompleted) {
-        alert("Không thể xóa nhiệm vụ đã hoàn thành.");
-        return;
-    }
+  // Kiểm tra nếu nhiệm vụ đã hoàn thành hoặc trễ deadline mà chưa hoàn thành
+  if (isCompleted) {
+    alert("Không thể xóa nhiệm vụ đã hoàn thành.");
+    return;
+  }
 
-    if (isLate && !isCompleted) {
-        alert("Không thể xóa nhiệm vụ đã trễ deadline.");
-        return;
-    }
+  if (isLate && !isCompleted) {
+    alert("Không thể xóa nhiệm vụ đã trễ deadline.");
+    return;
+  }
 
-    // Xóa nhiệm vụ nếu điều kiện cho phép
-    if (confirm("Bạn có chắc muốn xóa nhiệm vụ này?")) {
-        group.tasks.splice(idx, 1);
-        saveToLocal();
-        renderTasks();
-    }
+  // Xóa nhiệm vụ nếu điều kiện cho phép
+  if (confirm("Bạn có chắc muốn xóa nhiệm vụ này?")) {
+    group.tasks.splice(idx, 1);
+    saveToLocal();
+    renderTasks();
+  }
 };
 
 // Kiểm tra có thể xóa nhiệm vụ hay không
 function canDelete(idx) {
-    const task = group.tasks[idx];
-    const isLate = task.deadline && new Date(task.deadline) < new Date();
-    const isCompleted = task.completed;
+  const task = group.tasks[idx];
+  const isLate = task.deadline && new Date(task.deadline) < new Date();
+  const isCompleted = task.completed;
 
-    // Nếu đã hoàn thành hoặc trễ deadline mà chưa hoàn thành, không cho xóa
-    return !(isCompleted || (isLate && !isCompleted));
+  // Nếu đã hoàn thành hoặc trễ deadline mà chưa hoàn thành, không cho xóa
+  return !(isCompleted || (isLate && !isCompleted));
 }
 
 
 window.toggleDone = function (idx) {
-    const task = group.tasks[idx];
-    const now = new Date();
-    const deadline = new Date(task.deadline);
-    // Nếu đã trễ deadline và đã hoàn thành thì không cho bỏ tick nữa
-    if ((deadline < now) && task.completed) {
-        alert("Không thể bỏ hoàn thành cho nhiệm vụ đã hoàn thành sau deadline!");
-        renderTasks(); // Để checkbox về đúng trạng thái
-        return;
-    }
-    group.tasks[idx].completed = !group.tasks[idx].completed;
-    localStorage.setItem("classes", JSON.stringify(classes));
-    renderTasks();
+  const task = group.tasks[idx];
+  const now = new Date();
+  const deadline = new Date(task.deadline);
+  // Nếu đã trễ deadline và đã hoàn thành thì không cho bỏ tick nữa
+  if ((deadline < now) && task.completed) {
+    alert("Không thể bỏ hoàn thành cho nhiệm vụ đã hoàn thành sau deadline!");
+    renderTasks(); // Để checkbox về đúng trạng thái
+    return;
+  }
+  group.tasks[idx].completed = !group.tasks[idx].completed;
+  localStorage.setItem("classes", JSON.stringify(classes));
+  renderTasks();
 };
 
 
 let editIdx = null;
 window.editTask = function (idx) {
-    const task = group.tasks[idx];
-    editIdx = idx;
-    showTaskModal(task);
+  const task = group.tasks[idx];
+  editIdx = idx;
+  showTaskModal(task);
 };
 
 // Modal Tạo/Chỉnh sửa Task
 const taskModal = document.getElementById("taskModal");
 document.getElementById("openTaskModal").onclick = () => {
-    editIdx = null;
-    showTaskModal();
+  editIdx = null;
+  showTaskModal();
 };
 document.getElementById("closeTaskModal").onclick = () => {
-    taskModal.classList.add("hidden");
+  taskModal.classList.add("hidden");
 };
 
 // Hiển thị modal tạo/chỉnh sửa task
 function showTaskModal(task = {}) {
-    document.getElementById("taskModalTitle").innerText = editIdx === null ? "Tạo nhiệm vụ" : "Chỉnh sửa nhiệm vụ";
-    document.getElementById("taskTitle").value = task.title || "";
-    document.getElementById("taskDesc").value = task.desc || "";
-    document.getElementById("taskDeadline").value = task.deadline ? task.deadline.slice(0, 16) : "";
-    const assignSelect = document.getElementById("assignTo");
-    assignSelect.innerHTML = `<option value="">-- Giao cho thành viên --</option>` +
-        group.members.map(mid => {
-            const mem = cls.memberList.find(m => m.id === mid);
-            if (!mem) return "";
-            return `<option value="${mem.id}" ${task.assign_to === mem.id ? "selected" : ""}>${mem.name}</option>`;
-        }).join("");
-    // Đặt min cho deadline
-    const now = new Date();
-    const tzoffset = now.getTimezoneOffset() * 60000;
-    const localISOTime = (new Date(now - tzoffset)).toISOString().slice(0, 16);
-    document.getElementById('taskDeadline').setAttribute('min', localISOTime);
+  document.getElementById("taskModalTitle").innerText = editIdx === null ? "Tạo nhiệm vụ" : "Chỉnh sửa nhiệm vụ";
+  document.getElementById("taskTitle").value = task.title || "";
+  document.getElementById("taskDesc").value = task.desc || "";
+  document.getElementById("taskDeadline").value = task.deadline ? task.deadline.slice(0, 16) : "";
+  const assignSelect = document.getElementById("assignTo");
+  assignSelect.innerHTML = `<option value="">-- Giao cho thành viên --</option>` +
+    group.members.map(mid => {
+      const mem = cls.memberList.find(m => m.id === mid);
+      if (!mem) return "";
+      return `<option value="${mem.id}" ${task.assign_to === mem.id ? "selected" : ""}>${mem.name}</option>`;
+    }).join("");
+  // Đặt min cho deadline
+  const now = new Date();
+  const tzoffset = now.getTimezoneOffset() * 60000;
+  const localISOTime = (new Date(now - tzoffset)).toISOString().slice(0, 16);
+  document.getElementById('taskDeadline').setAttribute('min', localISOTime);
 
-    taskModal.classList.remove("hidden");
+  taskModal.classList.remove("hidden");
 }
 document.getElementById("saveTaskBtn").onclick = function () {
-    const title = document.getElementById("taskTitle").value.trim();
-    const desc = document.getElementById("taskDesc").value.trim();
-    const deadline = document.getElementById("taskDeadline").value;
-    const assign_to = document.getElementById("assignTo").value;
-    if (!title) {
-        alert("Nhập tiêu đề!");
-        return;
-    }
-    if (!deadline) {
-        alert("Chọn deadline!");
-        return;
-    }
-    if (!assign_to) {
-        alert("Chọn thành viên được giao!");
-        return;
-    }
-    const newTask = { title, desc, deadline, assign_to, completed: false };
-    if (editIdx === null) {
-        group.tasks = group.tasks || [];
-        group.tasks.unshift(newTask);
-    } else {
-        group.tasks[editIdx] = { ...group.tasks[editIdx], ...newTask };
-    }
-    saveToLocal();
-    renderTasks();
-    taskModal.classList.add("hidden");
+  const title = document.getElementById("taskTitle").value.trim();
+  const desc = document.getElementById("taskDesc").value.trim();
+  const deadline = document.getElementById("taskDeadline").value;
+  const assign_to = document.getElementById("assignTo").value;
+  if (!title) {
+    alert("Nhập tiêu đề!");
+    return;
+  }
+  if (!deadline) {
+    alert("Chọn deadline!");
+    return;
+  }
+  if (!assign_to) {
+    alert("Chọn thành viên được giao!");
+    return;
+  }
+  const newTask = { title, desc, deadline, assign_to, completed: false };
+  if (editIdx === null) {
+    group.tasks = group.tasks || [];
+    group.tasks.unshift(newTask);
+  } else {
+    group.tasks[editIdx] = { ...group.tasks[editIdx], ...newTask };
+  }
+  saveToLocal();
+  renderTasks();
+  taskModal.classList.add("hidden");
 };
 
 // Thiết lập đếm ngược cho từng task
 function setupTaskCountdown(idx, task) {
-    const el = document.getElementById(`countdown-task-${idx}`);
-    if (!el) return;
-    if (!task.deadline) {
-        el.innerHTML = '';
-        if (countdownTimers[idx]) clearInterval(countdownTimers[idx]);
-        return;
-    }
-    function updateCountdown() {
-        const now = new Date();
-        const deadline = new Date(task.deadline);
-        const diff = deadline - now;
-        let html = "";
+  const el = document.getElementById(`countdown-task-${idx}`);
+  if (!el) return;
 
-        if (diff <= 0) {
-            // Đã trễ deadline
-            if (task.completed) {
-                html = `<span class="text-red-600">Trễ deadline!</span> <span class="text-green-600 ml-2">Đã hoàn thành</span>`;
-            } else {
-                html = `<span class="text-red-600">Trễ deadline!</span>`;
-            }
-            // Khi hết hạn, luôn show trạng thái này, không cần đếm tiếp
-            clearInterval(countdownTimers[idx]);
-        } else {
-            // Chưa trễ deadline
-            if (task.completed) {
-                html = `<span class="text-green-600">Đã hoàn thành</span>`;
-                clearInterval(countdownTimers[idx]);
-            } else {
-                // Còn hạn và chưa hoàn thành => hiện đếm ngược
-                const d = Math.floor(diff / (1000 * 60 * 60 * 24));
-                const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
-                const m = Math.floor((diff / (1000 * 60)) % 60);
-                const s = Math.floor((diff / 1000) % 60);
-                html = `<span class="text-red-600">${d > 0 ? d + " ngày " : ""}${h}h ${m}m ${s}s</span>`;
-            }
-        }
-        el.innerHTML = html;
+  // Nếu nhiệm vụ đã hoàn thành, không cần đếm ngược nữa
+  if (task.completed) {
+    el.innerHTML = '<span class="text-green-600">Đã hoàn thành</span>';
+    if (countdownTimers[idx]) clearInterval(countdownTimers[idx]);
+    return;
+  }
+
+  // Nếu không có deadline, không cần hiển thị đếm ngược
+  if (!task.deadline) {
+    el.innerHTML = '';
+    if (countdownTimers[idx]) clearInterval(countdownTimers[idx]);
+    return;
+  }
+
+  function updateCountdown() {
+    const now = new Date();
+    const deadline = new Date(task.deadline);
+    const diff = deadline - now;
+    let html = "";
+
+    // Nếu đã trễ deadline
+    if (diff <= 0) {
+      if (task.completed) {
+        // Nếu hoàn thành sau deadline, hiển thị "Trễ deadline + Hoàn thành"
+        html = `<span class="text-red-600">Trễ deadline!</span> <span class="text-green-600 ml-2">Đã hoàn thành</span>`;
+      } else {
+        // Nếu chưa hoàn thành và trễ deadline
+        html = `<span class="text-red-600">Trễ deadline!</span>`;
+      }
+      // Dừng đếm ngược khi hết thời gian
+      clearInterval(countdownTimers[idx]);
+    } else {
+      // Còn thời gian và chưa hoàn thành => hiển thị đếm ngược
+      const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const m = Math.floor((diff / (1000 * 60)) % 60);
+      const s = Math.floor((diff / 1000) % 60);
+      html = `<span class="text-red-600">${d > 0 ? d + " ngày " : ""}${h}h ${m}m ${s}s</span>`;
     }
+    el.innerHTML = html;
+  }
+
+  // Nếu nhiệm vụ chưa hoàn thành, gọi updateCountdown để bắt đầu đếm ngược
+  if (!task.completed) {
     updateCountdown();
-    countdownTimers[idx] = setInterval(updateCountdown, 1000);
+    countdownTimers[idx] = setInterval(updateCountdown, 1000);  // Bắt đầu đếm ngược
+  }
 }
+
 
 
 // Mở/đóng modal
 function openStatsModal() {
-    document.getElementById('statsModal').classList.remove('hidden');
+  document.getElementById('statsModal').classList.remove('hidden');
 }
 function closeStatsModal() {
-    document.getElementById('statsModal').classList.add('hidden');
+  document.getElementById('statsModal').classList.add('hidden');
 }
 
 // Gắn nút
@@ -275,78 +286,78 @@ if (statsBtn) statsBtn.addEventListener('click', showGroupStats);
 
 // Hiển thị thống kê nhóm
 function showGroupStats() {
-    const body = document.getElementById('statsBody');
-    body.innerHTML = ''; // reset
+  const body = document.getElementById('statsBody');
+  body.innerHTML = ''; // reset
 
-    // Empty state: không có thành viên
-    if (!group.members || group.members.length === 0) {
-        body.innerHTML = `
+  // Empty state: không có thành viên
+  if (!group.members || group.members.length === 0) {
+    body.innerHTML = `
       <div class="p-4 rounded-lg bg-yellow-50 border border-yellow-200 text-yellow-800">
         Nhóm <b>chưa có thành viên</b>. Hãy thêm thành viên để bắt đầu giao nhiệm vụ và thống kê.
       </div>`;
-        openStatsModal();
-        return;
+    openStatsModal();
+    return;
+  }
+
+  // Gom dữ liệu thống kê
+  const stats = {};
+  group.members.forEach(mid => {
+    const mem = cls.memberList.find(m => m.id === mid);
+    stats[mid] = { name: mem ? mem.name : 'Không rõ', total: 0, done: 0, doing: 0, late: 0, lateDone: 0 };
+  });
+
+  const now = new Date();
+  const tasks = group.tasks || [];
+
+  tasks.forEach(t => {
+    if (!t.assign_to || !stats[t.assign_to]) return;
+
+    const s = stats[t.assign_to];
+    s.total++;
+
+    const hasDeadline = !!t.deadline;
+    const deadline = hasDeadline ? new Date(t.deadline) : null;
+    const isOver = hasDeadline && deadline < now;
+
+    if (t.completed) {
+      // ✅ Không double-count: hoặc done, hoặc lateDone
+      if (isOver) {
+        s.lateDone++;        // Hoàn thành sau deadline
+      } else {
+        s.done++;            // Hoàn thành đúng hạn
+      }
+    } else {
+      if (isOver) {
+        s.late++;            // Trễ deadline (chưa hoàn thành)
+      } else {
+        s.doing++;           // Đang làm
+      }
     }
-
-    // Gom dữ liệu thống kê
-    const stats = {};
-    group.members.forEach(mid => {
-        const mem = cls.memberList.find(m => m.id === mid);
-        stats[mid] = { name: mem ? mem.name : 'Không rõ', total: 0, done: 0, doing: 0, late: 0, lateDone: 0 };
-    });
-
-    const now = new Date();
-    const tasks = group.tasks || [];
-
-    tasks.forEach(t => {
-        if (!t.assign_to || !stats[t.assign_to]) return;
-
-        const s = stats[t.assign_to];
-        s.total++;
-
-        const hasDeadline = !!t.deadline;
-        const deadline = hasDeadline ? new Date(t.deadline) : null;
-        const isOver = hasDeadline && deadline < now;
-
-        if (t.completed) {
-            // ✅ Không double-count: hoặc done, hoặc lateDone
-            if (isOver) {
-                s.lateDone++;        // Hoàn thành sau deadline
-            } else {
-                s.done++;            // Hoàn thành đúng hạn
-            }
-        } else {
-            if (isOver) {
-                s.late++;            // Trễ deadline (chưa hoàn thành)
-            } else {
-                s.doing++;           // Đang làm
-            }
-        }
-    });
+  });
 
 
-    // Empty state: có thành viên nhưng không có task
-    const totalTasks = tasks.length;
-    if (totalTasks === 0) {
-        body.innerHTML = `
+  // Empty state: có thành viên nhưng không có task
+  const totalTasks = tasks.length;
+  if (totalTasks === 0) {
+    body.innerHTML = `
       <div class="p-4 rounded-lg bg-blue-50 border border-blue-200 text-blue-800 mb-4">
         <b>Chưa có task nào</b> để thống kê. Hãy tạo nhiệm vụ cho các thành viên.
       </div>
       ${renderStatsTable(stats)}
     `;
-        openStatsModal();
-        return;
-    }
+    openStatsModal();
+    return;
+  }
 
-    // Có task → render bảng + tổng quan
-    const totals = Object.values(stats).reduce((acc, s) => {
-        acc.total += s.total; acc.done += s.done; acc.doing += s.doing; acc.late += s.late; acc.lateDone += s.lateDone;
-        return acc;
-    }, { total: 0, done: 0, doing: 0, late: 0, lateDone: 0 });
+  // Có task → render bảng + tổng quan
+  const totals = Object.values(stats).reduce((acc, s) => {
+    acc.total += s.total; acc.done += s.done; acc.doing += s.doing; acc.late += s.late; acc.lateDone += s.lateDone;
+    return acc;
+  }, { total: 0, done: 0, doing: 0, late: 0, lateDone: 0 });
 
-    const pct = (num, den) => den ? Math.round((num / den) * 100) : 0;
+  const pct = (num, den) => den ? Math.round((num / den) * 100) : 0;
 
-    body.innerHTML = `
+  body.innerHTML = `
     <div class="grid sm:grid-cols-5 gap-3 mb-4">
       <div class="p-3 rounded-lg bg-gray-50 border">
         <div class="text-xs text-gray-500">Tổng task</div>
@@ -377,15 +388,15 @@ function showGroupStats() {
     ${renderStatsTable(stats)}
   `;
 
-    openStatsModal();
+  openStatsModal();
 }
 
 // Tạo bảng thống kê đẹp với Tailwind
 function renderStatsTable(stats) {
-    const rows = Object.values(stats).map(s => {
-        const total = s.total;
-        const bar = buildBar(total, s.done, s.doing, s.late + s.lateDone);
-        return `
+  const rows = Object.values(stats).map(s => {
+    const total = s.total;
+    const bar = buildBar(total, s.done, s.doing, s.late + s.lateDone);
+    return `
       <tr class="hover:bg-gray-50">
         <td class="border px-3 py-2 whitespace-nowrap">${s.name}</td>
         <td class="border px-3 py-2 text-center">${total}</td>
@@ -408,9 +419,9 @@ function renderStatsTable(stats) {
         </td>
       </tr>
     `;
-    }).join('');
+  }).join('');
 
-    return `
+  return `
     <div class="overflow-x-auto rounded-lg border">
       <table class="min-w-full text-sm">
         <thead class="bg-gray-100">
@@ -434,17 +445,17 @@ function renderStatsTable(stats) {
 
 // Thanh tỷ lệ gộp (done / doing / late+lateDone)
 function buildBar(total, done, doing, lateAll) {
-    if (!total) {
-        return `<div class="text-xs text-gray-400">Chưa có dữ liệu</div>`;
-    }
-    let pDone = Math.round((done / total) * 100);
-    let pDoing = Math.round((doing / total) * 100);
-    // Phần còn lại dồn cho lateAll để luôn = 100%
-    let pLate = 100 - pDone - pDoing;
-    if (pLate < 0) pLate = 0;
+  if (!total) {
+    return `<div class="text-xs text-gray-400">Chưa có dữ liệu</div>`;
+  }
+  let pDone = Math.round((done / total) * 100);
+  let pDoing = Math.round((doing / total) * 100);
+  // Phần còn lại dồn cho lateAll để luôn = 100%
+  let pLate = 100 - pDone - pDoing;
+  if (pLate < 0) pLate = 0;
 
 
-    return `
+  return `
     <div class="w-full bg-gray-100 rounded h-2.5 overflow-hidden">
       <div class="h-2.5 bg-green-500 inline-block" style="width:${pDone}%"></div>
       <div class="h-2.5 bg-amber-500 inline-block" style="width:${pDoing}%"></div>
