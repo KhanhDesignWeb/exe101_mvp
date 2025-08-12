@@ -39,7 +39,6 @@ function saveToLocal() {
 }
 
 // Hiển thị danh sách nhiệm vụ
-// Hiển thị danh sách nhiệm vụ
 function renderTasks() {
   // Dừng hết interval cũ
   countdownTimers.forEach(timer => clearInterval(timer));
@@ -65,7 +64,6 @@ function renderTasks() {
     // Kiểm tra điều kiện để có thể chỉnh sửa
     const canEdit = !(isLate && !task.completed || task.completed);  // Ẩn nút Sửa khi trễ deadline và chưa hoàn thành, hoặc đã hoàn thành
 
-
     return `
       <div class="bg-gray-50 p-4 rounded shadow flex justify-between items-center border border-gray-200">
         <div>
@@ -79,7 +77,7 @@ function renderTasks() {
         </div>
         <div class="flex flex-col gap-1 items-end">
           <button onclick="editTask(${idx})" class="text-blue-500 text-xs hover:underline" ${canEdit ? "" : "hidden"}>Sửa</button>
-          <button onclick="deleteTask(${idx})" class="text-red-500 text-xs hover:underline" ${canDelete ? "" : "disabled"}>Xóa</button>
+          <button onclick="deleteTask(${idx})" class="text-red-500 text-xs hover:underline" ${canDelete(idx) ? "" : "disabled"}>Xóa</button>
           <label class="flex items-center gap-1 mt-1 cursor-pointer">
             <input type="checkbox" ${task.completed ? "checked" : ""} onchange="toggleDone(${idx})" ${checkboxDisabled}/>
             <span class="text-xs">Hoàn thành</span>
@@ -131,22 +129,30 @@ function canDelete(idx) {
   return !(isCompleted || (isLate && !isCompleted));
 }
 
-
 window.toggleDone = function (idx) {
   const task = group.tasks[idx];
   const now = new Date();
-  const deadline = new Date(task.deadline);
-  // Nếu đã trễ deadline và đã hoàn thành thì không cho bỏ tick nữa
-  if ((deadline < now) && task.completed) {
-    alert("Không thể bỏ hoàn thành cho nhiệm vụ đã hoàn thành sau deadline!");
-    renderTasks(); // Để checkbox về đúng trạng thái
-    return;
+  const deadline = task.deadline ? new Date(task.deadline) : null;
+
+  // Nếu đang bỏ tick (từ true sang false)
+  if (task.completed) {
+    // Không cho bỏ nếu trễ và đã hoàn thành
+    if (deadline && deadline < now) {
+      alert("Không thể bỏ hoàn thành cho nhiệm vụ đã hoàn thành sau deadline!");
+      renderTasks(); // Giữ nguyên checkbox
+      return;
+    }
+    // Nếu cho phép bỏ, xóa completion_time
+    delete task.completion_time;
+  } else {
+    // Khi tick hoàn thành (từ false sang true), lưu thời điểm
+    task.completion_time = new Date().toISOString();
   }
-  group.tasks[idx].completed = !group.tasks[idx].completed;
-  localStorage.setItem("classes", JSON.stringify(classes));
+
+  task.completed = !task.completed;
+  saveToLocal();
   renderTasks();
 };
-
 
 let editIdx = null;
 window.editTask = function (idx) {
@@ -208,6 +214,9 @@ document.getElementById("saveTaskBtn").onclick = function () {
     group.tasks = group.tasks || [];
     group.tasks.unshift(newTask);
   } else {
+    // Khi edit, giữ nguyên completion_time nếu đã có
+    newTask.completed = group.tasks[editIdx].completed;
+    newTask.completion_time = group.tasks[editIdx].completion_time;
     group.tasks[editIdx] = { ...group.tasks[editIdx], ...newTask };
   }
   saveToLocal();
@@ -219,57 +228,51 @@ document.getElementById("saveTaskBtn").onclick = function () {
 function setupTaskCountdown(idx, task) {
   const el = document.getElementById(`countdown-task-${idx}`);
   if (!el) return;
-
-  // Nếu nhiệm vụ đã hoàn thành, không cần đếm ngược nữa
-  if (task.completed) {
-    el.innerHTML = '<span class="text-green-600">Đã hoàn thành</span>';
-    if (countdownTimers[idx]) clearInterval(countdownTimers[idx]);
-    return;
-  }
-
-  // Nếu không có deadline, không cần hiển thị đếm ngược
   if (!task.deadline) {
-    el.innerHTML = '';
+    el.innerHTML = task.completed ? `<span class="text-green-600">Đã hoàn thành</span>` : '';
     if (countdownTimers[idx]) clearInterval(countdownTimers[idx]);
     return;
   }
-
   function updateCountdown() {
     const now = new Date();
     const deadline = new Date(task.deadline);
     const diff = deadline - now;
     let html = "";
 
-    // Nếu đã trễ deadline
+    let isOverForCompletion = false;
+    if (task.completed && task.completion_time) {
+      const completionTime = new Date(task.completion_time);
+      isOverForCompletion = deadline < completionTime;
+    }
+
     if (diff <= 0) {
+      // Đã trễ deadline
       if (task.completed) {
-        // Nếu hoàn thành sau deadline, hiển thị "Trễ deadline + Hoàn thành"
-        html = `<span class="text-red-600">Trễ deadline!</span> <span class="text-green-600 ml-2">Đã hoàn thành</span>`;
+        html = isOverForCompletion
+          ? `<span class="text-red-600">Trễ deadline!</span> <span class="text-green-600 ml-2">Đã hoàn thành</span>`
+          : `<span class="text-green-600">Đã hoàn thành (đúng hạn)</span>`;
       } else {
-        // Nếu chưa hoàn thành và trễ deadline
         html = `<span class="text-red-600">Trễ deadline!</span>`;
       }
-      // Dừng đếm ngược khi hết thời gian
       clearInterval(countdownTimers[idx]);
     } else {
-      // Còn thời gian và chưa hoàn thành => hiển thị đếm ngược
-      const d = Math.floor(diff / (1000 * 60 * 60 * 24));
-      const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
-      const m = Math.floor((diff / (1000 * 60)) % 60);
-      const s = Math.floor((diff / 1000) % 60);
-      html = `<span class="text-red-600">${d > 0 ? d + " ngày " : ""}${h}h ${m}m ${s}s</span>`;
+      // Chưa trễ deadline
+      if (task.completed) {
+        html = `<span class="text-green-600">Đã hoàn thành</span>`;
+        clearInterval(countdownTimers[idx]);
+      } else {
+        const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+        const m = Math.floor((diff / (1000 * 60)) % 60);
+        const s = Math.floor((diff / 1000) % 60);
+        html = `<span class="text-red-600">${d > 0 ? d + " ngày " : ""}${h}h ${m}m ${s}s</span>`;
+      }
     }
     el.innerHTML = html;
   }
-
-  // Nếu nhiệm vụ chưa hoàn thành, gọi updateCountdown để bắt đầu đếm ngược
-  if (!task.completed) {
-    updateCountdown();
-    countdownTimers[idx] = setInterval(updateCountdown, 1000);  // Bắt đầu đếm ngược
-  }
+  updateCountdown();
+  countdownTimers[idx] = setInterval(updateCountdown, 1000);
 }
-
-
 
 // Mở/đóng modal
 function openStatsModal() {
@@ -282,7 +285,6 @@ function closeStatsModal() {
 // Gắn nút
 const statsBtn = document.getElementById('btnStats');
 if (statsBtn) statsBtn.addEventListener('click', showGroupStats);
-
 
 // Hiển thị thống kê nhóm
 function showGroupStats() {
@@ -317,20 +319,27 @@ function showGroupStats() {
 
     const hasDeadline = !!t.deadline;
     const deadline = hasDeadline ? new Date(t.deadline) : null;
-    const isOver = hasDeadline && deadline < now;
+
+    let isOverForCompletion = false;
+    if (t.completed && t.completion_time) {
+      const completionTime = new Date(t.completion_time);
+      isOverForCompletion = hasDeadline && deadline < completionTime;
+    }
 
     if (t.completed) {
-      // ✅ Không double-count: nếu đã hoàn thành trước deadline thì tính là hoàn thành
-      if (isOver) {
-        s.lateDone++;        // Hoàn thành sau deadline
+      // Hoàn thành: kiểm tra dựa trên completion_time
+      if (isOverForCompletion) {
+        s.lateDone++;  // Hoàn thành sau deadline
       } else {
-        s.done++;            // Hoàn thành đúng hạn
+        s.done++;  // Hoàn thành đúng hạn hoặc không deadline
       }
     } else {
+      // Chưa hoàn thành: kiểm tra dựa trên now
+      const isOver = hasDeadline && deadline < now;
       if (isOver) {
-        s.late++;            // Trễ deadline (chưa hoàn thành)
+        s.late++;  // Trễ deadline (chưa hoàn thành)
       } else {
-        s.doing++;           // Đang làm
+        s.doing++;  // Đang làm
       }
     }
   });
@@ -389,7 +398,6 @@ function showGroupStats() {
 
   openStatsModal();
 }
-
 
 // Tạo bảng thống kê đẹp với Tailwind
 function renderStatsTable(stats) {
@@ -453,7 +461,6 @@ function buildBar(total, done, doing, lateAll) {
   // Phần còn lại dồn cho lateAll để luôn = 100%
   let pLate = 100 - pDone - pDoing;
   if (pLate < 0) pLate = 0;
-
 
   return `
     <div class="w-full bg-gray-100 rounded h-2.5 overflow-hidden">
