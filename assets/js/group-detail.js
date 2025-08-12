@@ -320,7 +320,7 @@ function showGroupStats() {
     const isOver = hasDeadline && deadline < now;
 
     if (t.completed) {
-      // ✅ Không double-count: hoặc done, hoặc lateDone
+      // ✅ Không double-count: nếu đã hoàn thành trước deadline thì tính là hoàn thành
       if (isOver) {
         s.lateDone++;        // Hoàn thành sau deadline
       } else {
@@ -334,7 +334,6 @@ function showGroupStats() {
       }
     }
   });
-
 
   // Empty state: có thành viên nhưng không có task
   const totalTasks = tasks.length;
@@ -390,6 +389,7 @@ function showGroupStats() {
 
   openStatsModal();
 }
+
 
 // Tạo bảng thống kê đẹp với Tailwind
 function renderStatsTable(stats) {
