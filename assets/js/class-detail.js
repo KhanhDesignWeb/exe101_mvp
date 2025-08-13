@@ -688,56 +688,72 @@ function renderReportModal() {
       summary[name][item.engagement]++;
     }
   });
-  // Hàm đánh giá chung dựa vào loại nhiều nhất
-  //Negative nhiều nhất → "Chưa thực sự tham gia đóng góp vào bài học"
-  // Neutral nhiều nhất → "Có tham gia nhưng cần cải thiện hơn"
-  // Positive nhiều nhất → "Tích cực tham gia và đóng góp vào bài học"
-  function getOverallAssessment(counts) {
-    const maxType = Object.entries(counts).sort((a, b) => b[1] - a[1])[0][0];
-    switch (maxType) {
-      case "Negative":
-        return "Has not actively contributed to the lesson";
-      case "Neutral":
-        return "Participated but needs improvement";
-      case "Positive":
-        return "Actively engaged and contributed to the lesson";
-      default:
-        return "No assessment available";
-    }
+  // Tính điểm chung từ 3 giá trị
+  // Ví dụ quy đổi:
+  // Negative = 0 điểm
+  // Neutral = 50 điểm
+  // Positive = 100 điểm
+  // Điểm trung bình = (Negative*0 + Neutral*50 + Positive*100) / (Tổng lượt)
+  // Tính điểm participation points (0–100)
+  function calcParticipationPoints(counts) {
+    const total = counts.Negative + counts.Neutral + counts.Positive;
+    if (total === 0) return 0;
+    const score =
+      (counts.Negative * 0 + counts.Neutral * 50 + counts.Positive * 100) /
+      total;
+    return Math.round(score);
   }
-  // Tạo bảng
+  // Tính điểm tổng kết
+  function getLetterGrade(score) {
+    if (score >= 97) return "A+";
+    if (score >= 93) return "A";
+    if (score >= 90) return "A−";
+    if (score >= 87) return "B+";
+    if (score >= 83) return "B";
+    if (score >= 80) return "B−";
+    if (score >= 77) return "C+";
+    if (score >= 73) return "C";
+    if (score >= 70) return "C−";
+    if (score >= 67) return "D+";
+    if (score >= 63) return "D";
+    if (score >= 60) return "D−";
+    return "F";
+  }
+  // Render bảng mới chỉ có 2 cột: Name + Participation Points + Nhận xét
   const tableHTML = `
     <div class="overflow-x-auto">
       <table class="min-w-full border border-gray-200">
         <thead class="bg-gray-100">
           <tr>
             <th class="py-2 px-4 border">Name</th>
-            <th class="py-2 px-4 border text-center">Negative</th>
-            <th class="py-2 px-4 border text-center">Neutral</th>
-            <th class="py-2 px-4 border text-center">Positive</th>
+            <th class="py-2 px-4 border text-center">Participation Points</th>
+            <th class="py-2 px-4 border text-center">Letter Grade</th>
             <th class="py-2 px-4 border text-center">Overall Assessment</th>
           </tr>
         </thead>
         <tbody>
           ${Object.entries(summary)
-            .map(
-              ([name, counts]) => `
-            <tr>
-              <td class="py-2 px-4 border">${name}</td>
-              <td class="py-2 px-4 border text-center">${counts.Negative}</td>
-              <td class="py-2 px-4 border text-center">${counts.Neutral}</td>
-              <td class="py-2 px-4 border text-center">${counts.Positive}</td>
-              <td class="py-2 px-4 border text-center">${getOverallAssessment(
-                counts
-              )}</td>
-            </tr>
-          `
-            )
+            .map(([name, counts]) => {
+              const points = calcParticipationPoints(counts);
+              const grade = getLetterGrade(points);
+              let comment = "";
+              if (points >= 80) comment = "Very good and active student";
+              else if (points >= 60) comment = "There is an effort but you need to work more critically";
+              else comment = "Needs much more engagement";
+
+              return `
+                <tr>
+                  <td class="py-2 px-4 border">${name}</td>
+                  <td class="py-2 px-4 border text-center">${points}%</td>
+                  <td class="py-2 px-4 border text-center">${grade}</td>
+                  <td class="py-2 px-4 border text-center">${comment}</td>
+                </tr>
+              `;
+            })
             .join("")}
         </tbody>
       </table>
     </div>
   `;
-
   container.innerHTML = tableHTML;
 }
