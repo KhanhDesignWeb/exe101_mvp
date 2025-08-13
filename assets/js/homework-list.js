@@ -21,7 +21,7 @@ function showToast(msg, time = 3000) {
 let classes = JSON.parse(localStorage.getItem("classes") || "[]");
 const user = JSON.parse(localStorage.getItem("user") || "{}") || {};
 const currentUser = {
-  id: user.id || "stu-demo",
+  id: user.sub || "stu-demo",
   name: user.name || "Bạn",
   picture: user.picture || "https://via.placeholder.com/40",
 };
@@ -43,7 +43,7 @@ if (clsIndex === -1) {
 let cls = classes[clsIndex];
 
 // tìm topic
-let topic = cls.topics.find(t => t.topic_id === topicId);
+let topic = cls.topics.find((t) => t.topic_id === topicId);
 if (!topic) {
   document.body.innerHTML = `<div class="text-red-600 text-center text-xl mt-20">Không tìm thấy topic</div>`;
   throw new Error("topic not found");
@@ -58,29 +58,53 @@ const SELECTED_FILES = {};
 
 /* ================= Render ================= */
 const homeworkListEl = document.getElementById("homeworkList");
-document.getElementById("discussionLink").href = `topic-detail.html?class_id=${encodeURIComponent(classId)}&topic_id=${encodeURIComponent(topicId)}`;
-document.getElementById("thisHomeworkLink").href = `homework-list.html?class_id=${encodeURIComponent(classId)}&topic_id=${encodeURIComponent(topicId)}`;
-document.getElementById("infoStudents").innerText = (cls.memberList || []).length;
-document.getElementById("infoAssignments").innerText = (topic.homeworks || []).length;
-document.getElementById("infoDiscussions").innerText = (cls.topics || []).length;
+document.getElementById(
+  "discussionLink"
+).href = `topic-detail.html?class_id=${encodeURIComponent(
+  classId
+)}&topic_id=${encodeURIComponent(topicId)}`;
+document.getElementById(
+  "thisHomeworkLink"
+).href = `homework-list.html?class_id=${encodeURIComponent(
+  classId
+)}&topic_id=${encodeURIComponent(topicId)}`;
+document.getElementById("infoStudents").innerText = (
+  cls.memberList || []
+).length;
+document.getElementById("infoAssignments").innerText = (
+  topic.homeworks || []
+).length;
+document.getElementById("infoDiscussions").innerText = (
+  cls.topics || []
+).length;
 
 function saveClasses() {
   classes[clsIndex] = cls;
   localStorage.setItem("classes", JSON.stringify(classes));
-  document.getElementById("infoAssignments").innerText = (topic.homeworks || []).length;
+  document.getElementById("infoAssignments").innerText = (
+    topic.homeworks || []
+  ).length;
 }
 
 function makeAttachmentHtml(hw) {
   if (!hw.attachments || !hw.attachments.length) return "";
-  return `<div class="mb-4"><strong>Attachments:</strong><div class="mt-2">` +
-    hw.attachments.map(a => {
-      if (typeof a === "string")
-        return `<a class="inline-block mr-3 text-sm text-blue-600 underline" href="${escapeHtml(a)}" target="_blank">📎 ${escapeHtml(a)}</a>`;
-      if (a && a.name && a.url)
-        return `<a class="inline-block mr-3 text-sm text-blue-600 underline" href="${escapeHtml(a.url)}" target="_blank">📎 ${escapeHtml(a.name)}</a>`;
-      return "";
-    }).join("") +
-    `</div></div>`;
+  return (
+    `<div class="mb-4"><strong>Attachments:</strong><div class="mt-2">` +
+    hw.attachments
+      .map((a) => {
+        if (typeof a === "string")
+          return `<a class="inline-block mr-3 text-sm text-blue-600 underline" href="${escapeHtml(
+            a
+          )}" target="_blank">📎 ${escapeHtml(a)}</a>`;
+        if (a && a.name && a.url)
+          return `<a class="inline-block mr-3 text-sm text-blue-600 underline" href="${escapeHtml(
+            a.url
+          )}" target="_blank">📎 ${escapeHtml(a.name)}</a>`;
+        return "";
+      })
+      .join("") +
+    `</div></div>`
+  );
 }
 
 function truncatedText(txt, len = 150) {
@@ -94,22 +118,43 @@ function renderSubmissionHtml(hwId, idx, sub) {
   const shortEsc = nl2br(truncatedText(sub.text || "", 150));
   const needsToggle = (sub.text || "").length > 150;
 
-  const filesHtml = sub.files && sub.files.length
-    ? `<div class="mt-2 text-xs text-gray-500">Files: ${sub.files.map(f => escapeHtml(f)).join(", ")}</div>` : "";
+  const filesHtml =
+    sub.files && sub.files.length
+      ? `<div class="mt-2 text-xs text-gray-500">Files: ${sub.files
+          .map((f) => escapeHtml(f))
+          .join(", ")}</div>`
+      : "";
+
+  const editBtn =
+    sub.student_id === currentUser.id
+      ? `<button data-action="edit-submission" data-hw="${hwId}" data-idx="${idx}" 
+         class="text-blue-600 text-xs mt-2">✏️ Edit</button>`
+      : "";
 
   return `
     <div class="border rounded-lg p-3 mt-3 bg-white">
       <div class="flex items-center gap-3 mb-2">
-        <img src="${escapeHtml(sub.picture || "https://via.placeholder.com/40")}" class="w-9 h-9 rounded-full object-cover"/>
+        <img src="${escapeHtml(
+          sub.picture || "https://via.placeholder.com/40"
+        )}" class="w-9 h-9 rounded-full object-cover"/>
         <div>
-          <div class="font-semibold text-sm">${escapeHtml(sub.student_name || "Unknown")}</div>
-          <div class="text-xs text-gray-500">${escapeHtml(sub.submitted_at || "")}</div>
+          <div class="font-semibold text-sm">${escapeHtml(
+            sub.student_name || "Unknown"
+          )}</div>
+          <div class="text-xs text-gray-500">${escapeHtml(
+            sub.submitted_at || ""
+          )}</div>
         </div>
       </div>
       <div id="sub-text-${hwId}-${idx}" class="text-sm text-gray-700 whitespace-pre-line break-words">
         ${shortEsc}
       </div>
-      ${needsToggle ? `<button data-action="toggle-text" data-hw="${hwId}" data-idx="${idx}" class="text-blue-600 text-xs mt-2">Xem thêm</button>` : ""}
+      ${
+        needsToggle
+          ? `<button data-action="toggle-text" data-hw="${hwId}" data-idx="${idx}" class="text-blue-600 text-xs mt-2">Xem thêm</button>`
+          : ""
+      }
+      ${editBtn}
       ${filesHtml}
     </div>
   `;
@@ -118,57 +163,84 @@ function renderSubmissionHtml(hwId, idx, sub) {
 function renderHomeworkCard(hw) {
   const submittedCount = (hw.submissions || []).length;
   const totalStudents = (cls.memberList || []).length || 0;
-  let subsHtml = "";
   const subs = hw.submissions || [];
-
+  
+  // kiểm tra xem người dùng đã nộp bài chưa
+  const hasSubmitted = subs.some((s) => s.student_id === currentUser.id);
+  console.log("hasSubmitted", hasSubmitted, subs, currentUser.id);
+  let subsHtml = "";
   if (!subs.length) {
     subsHtml = `<p class="text-gray-500 text-sm">No submissions yet</p>`;
   } else {
     const visible = subs.slice(0, 2);
     const hidden = subs.slice(2);
 
-    visible.forEach((s, i) => subsHtml += renderSubmissionHtml(hw.hw_id, i, s));
+    visible.forEach(
+      (s, i) => (subsHtml += renderSubmissionHtml(hw.hw_id, i, s))
+    );
 
     if (hidden.length > 0) {
       subsHtml += `<div id="more-${hw.hw_id}" class="hidden">`;
-      hidden.forEach((s, i) => subsHtml += renderSubmissionHtml(hw.hw_id, 2 + i, s));
+      hidden.forEach(
+        (s, i) => (subsHtml += renderSubmissionHtml(hw.hw_id, 2 + i, s))
+      );
       subsHtml += `<div class="mt-2"><button data-action="toggle-less" data-hw="${hw.hw_id}" class="text-blue-600 text-sm">Thu gọn</button></div></div>`;
       subsHtml += `<button data-action="toggle-more" data-hw="${hw.hw_id}" class="text-blue-600 text-sm mt-2">Xem thêm (${hidden.length})</button>`;
     }
   }
 
-  const fileInputHtml = `<input type="file" multiple class="hidden hw-file-input" data-hw="${escapeHtml(hw.hw_id)}">`;
+  const fileInputHtml = `<input type="file" multiple class="hidden hw-file-input" data-hw="${escapeHtml(
+    hw.hw_id
+  )}">`;
+
+  // Form trả lời
+  let responseHtml = "";
+  if (!hasSubmitted) {
+    responseHtml = `
+      <div class="mb-3">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Your Response:</label>
+        <textarea data-hw-text="${escapeHtml(
+          hw.hw_id
+        )}" rows="3" class="w-full border rounded-xl px-4 py-3 bg-gray-50 focus:bg-white focus:outline-blue-400 text-base resize-none"></textarea>
+      </div>
+      <div class="flex items-center gap-3">
+        <button data-action="open-file" data-hw="${escapeHtml(
+          hw.hw_id
+        )}" class="px-3 py-2 border rounded-lg text-sm flex items-center gap-2">📁 Upload File</button>
+        <button data-action="submit" data-hw="${escapeHtml(hw.hw_id)}"
+          class="ml-auto bg-blue-600 text-white px-4 py-2 rounded-xl text-sm flex items-center gap-2">Submit</button>
+      </div>
+    `;
+  } else {
+    responseHtml = `
+      <div class="p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm">
+        You have already submitted this homework. Use the Edit button below your submission to make changes.
+      </div>
+    `;
+  }
 
   return `
-    <div id="hw-${escapeHtml(hw.hw_id)}" class="hw-card bg-white rounded-lg shadow-sm border p-6">
+    <div id="hw-${escapeHtml(
+      hw.hw_id
+    )}" class="hw-card bg-white rounded-lg shadow-sm border p-6">
       <div class="flex justify-between items-start">
         <div>
-          <h2 class="text-xl font-semibold">${escapeHtml(hw.title || "Untitled")}</h2>
+          <h2 class="text-xl font-semibold">${escapeHtml(
+            hw.title || "Untitled"
+          )}</h2>
           <p class="text-gray-600 mt-1">${escapeHtml(hw.description || "")}</p>
-          <p class="text-sm text-gray-500 mt-2">Due: ${hw.due_date ? escapeHtml(new Date(hw.due_date).toLocaleString()) : "No due date"}</p>
+          <p class="text-sm text-gray-500 mt-2">Due: ${
+            hw.due_date
+              ? escapeHtml(new Date(hw.due_date).toLocaleString())
+              : "No due date"
+          }</p>
           ${makeAttachmentHtml(hw)}
         </div>
         <div class="text-sm bg-gray-100 px-3 py-1 rounded-full">${submittedCount}/${totalStudents} submitted</div>
       </div>
 
       <div class="mt-4">
-        <div class="mb-3">
-          <label class="block text-sm font-medium text-gray-700 mb-1">Your Response:</label>
-          <textarea data-hw-text="${escapeHtml(hw.hw_id)}" rows="3" class="w-full border rounded-xl px-4 py-3 bg-gray-50 focus:bg-white focus:outline-blue-400 text-base resize-none"></textarea>
-        </div>
-        <div class="flex items-center gap-3">
-          <button data-action="open-file" data-hw="${escapeHtml(hw.hw_id)}" class="px-3 py-2 border rounded-lg text-sm flex items-center gap-2">📁 Upload File</button>
- <button data-action="submit" data-hw="${escapeHtml(hw.hw_id)}" 
-          class="ml-auto bg-blue-600 text-white px-4 py-2 rounded-xl text-sm flex items-center gap-2">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" 
-         fill="none" stroke="currentColor" stroke-width="2" 
-         stroke-linecap="round" stroke-linejoin="round" 
-         class="w-4 h-4">
-      <path d="M22 2L11 13"></path>
-      <path d="M22 2L15 22l-4-9-9-4z"></path>
-    </svg>
-    Submit
-  </button>        </div>
+        ${responseHtml}
       </div>
       <div class="mt-6">
         <h3 class="text-sm font-semibold mb-2">Submissions:</h3>
@@ -192,13 +264,16 @@ function renderAll() {
     homeworkListEl.appendChild(wrapper.firstElementChild);
   });
 
-  document.querySelectorAll(".hw-file-input").forEach(inp => {
+  document.querySelectorAll(".hw-file-input").forEach((inp) => {
     inp.addEventListener("change", () => {
       const hwId = inp.dataset.hw;
       SELECTED_FILES[hwId] = SELECTED_FILES[hwId] || [];
       for (const f of inp.files) SELECTED_FILES[hwId].push(f.name);
       inp.value = "";
-      showToast("File đã chọn: " + (SELECTED_FILES[hwId].join(", ") || "empty"), 1500);
+      showToast(
+        "File đã chọn: " + (SELECTED_FILES[hwId].join(", ") || "empty"),
+        1500
+      );
     });
   });
 }
@@ -215,9 +290,11 @@ document.addEventListener("click", function (e) {
       showToast("Nhập nội dung trước khi gửi!", 2000);
       return;
     }
-    const hw = topic.homeworks.find(h => h.hw_id === hwId);
+    const hw = topic.homeworks.find((h) => h.hw_id === hwId);
     if (!hw) return;
     hw.submissions = hw.submissions || [];
+
+    // Thêm mới submission
     hw.submissions.unshift({
       student_id: currentUser.id,
       student_name: currentUser.name,
@@ -227,32 +304,90 @@ document.addEventListener("click", function (e) {
       submitted_at: new Date().toLocaleString(),
     });
     SELECTED_FILES[hwId] = [];
-    ta.value = "";
     saveClasses();
     renderAll();
     showToast("✅ Bài nộp đã được gửi!", 2000);
     return;
   }
 
+  if (btn.dataset.action === "edit-submission") {
+    const hwId = btn.dataset.hw;
+    const idx = parseInt(btn.dataset.idx, 10);
+    const hw = topic.homeworks.find((h) => h.hw_id === hwId);
+    if (!hw) return;
+    const sub = hw.submissions[idx];
+    if (!sub) return;
+
+    const hwCard = document.getElementById(`hw-${hwId}`);
+    hwCard.querySelector(".mt-4").innerHTML = `
+      <div class="mb-3">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Edit Response:</label>
+        <textarea data-hw-text="${hwId}" rows="3" class="w-full border rounded-xl px-4 py-3 bg-white focus:outline-blue-400 text-base resize-none">${escapeHtml(
+      sub.text
+    )}</textarea>
+      </div>
+      <div class="flex items-center gap-3">
+        <button data-action="open-file" data-hw="${hwId}" class="px-3 py-2 border rounded-lg text-sm flex items-center gap-2">📁 Upload File</button>
+        <button data-action="update-submission" data-hw="${hwId}" data-idx="${idx}"
+          class="ml-auto bg-blue-600 text-white px-4 py-2 rounded-xl text-sm">Save Changes</button>
+      </div>
+    `;
+    return;
+  }
+
+  if (btn.dataset.action === "update-submission") {
+    const hwId = btn.dataset.hw;
+    const idx = parseInt(btn.dataset.idx, 10);
+    const ta = document.querySelector(`textarea[data-hw-text="${hwId}"]`);
+    if (!ta || !ta.value.trim()) {
+      showToast("Please enter your updated content!", 2000);
+      return;
+    }
+
+    const hw = topic.homeworks.find((h) => h.hw_id === hwId);
+    if (!hw) return;
+    const sub = hw.submissions[idx];
+    if (!sub) return;
+
+    sub.text = ta.value.trim();
+    sub.files = SELECTED_FILES[hwId] || [];
+    sub.submitted_at = new Date().toLocaleString();
+
+    saveClasses();
+    renderAll();
+    showToast("✅ Submission updated!", 2000);
+    return;
+  }
+
   if (btn.dataset.action === "open-file") {
-    document.querySelector(`input.hw-file-input[data-hw="${btn.dataset.hw}"]`)?.click();
+    document
+      .querySelector(`input.hw-file-input[data-hw="${btn.dataset.hw}"]`)
+      ?.click();
     return;
   }
 
   if (btn.dataset.action === "toggle-more") {
-    document.getElementById(`more-${btn.dataset.hw}`)?.classList.remove("hidden");
+    document
+      .getElementById(`more-${btn.dataset.hw}`)
+      ?.classList.remove("hidden");
     btn.classList.add("hidden");
     return;
   }
   if (btn.dataset.action === "toggle-less") {
     document.getElementById(`more-${btn.dataset.hw}`)?.classList.add("hidden");
-    document.querySelector(`button[data-action="toggle-more"][data-hw="${btn.dataset.hw}"]`)?.classList.remove("hidden");
+    document
+      .querySelector(
+        `button[data-action="toggle-more"][data-hw="${btn.dataset.hw}"]`
+      )
+      ?.classList.remove("hidden");
     return;
   }
 
   if (btn.dataset.action === "toggle-text") {
     const key = `${btn.dataset.hw}|${btn.dataset.idx}`;
-    const div = document.getElementById(`sub-text-${btn.dataset.hw}-${btn.dataset.idx}`);
+    const div = document.getElementById(
+      `sub-text-${btn.dataset.hw}-${btn.dataset.idx}`
+    );
     if (!div) return;
     if (btn.textContent.trim() === "Xem thêm") {
       div.innerHTML = nl2br(SUB_FULL[key] || "");
@@ -267,7 +402,8 @@ document.addEventListener("click", function (e) {
 
 /* ================= Initial render ================= */
 renderAll();
-// ===== Modal Create Homework =====
+
+/* ===== Modal Create Homework ===== */
 const modal = document.getElementById("createHomeworkModal");
 const openBtn = document.getElementById("openCreateHomework");
 const closeBtn = document.getElementById("closeCreateHomework");
@@ -279,9 +415,11 @@ openBtn.addEventListener("click", (e) => {
   modal.classList.remove("hidden");
 });
 
-[closeBtn, cancelBtn].forEach(btn => btn.addEventListener("click", () => {
-  modal.classList.add("hidden");
-}));
+[closeBtn, cancelBtn].forEach((btn) =>
+  btn.addEventListener("click", () => {
+    modal.classList.add("hidden");
+  })
+);
 
 saveBtn.addEventListener("click", () => {
   const title = document.getElementById("hwTitle").value.trim();
@@ -300,17 +438,16 @@ saveBtn.addEventListener("click", () => {
     attachments: [],
     due_date: due,
     created_by: cls.teacher || "Unknown",
-    submissions: []
+    submissions: [],
   };
 
   topic.homeworks.push(newHw);
-  saveClasses(); // đã có sẵn trong homework-list.js
+  saveClasses();
   renderAll();
 
   modal.classList.add("hidden");
   showToast("✅ Homework created!", 2000);
 
-  // Reset form
   document.getElementById("hwTitle").value = "";
   document.getElementById("hwDescription").value = "";
   document.getElementById("hwDueDate").value = "";
