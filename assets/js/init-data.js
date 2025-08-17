@@ -28,6 +28,48 @@ if (!localStorage.getItem("classes")) {
               submissions: [],
             },
           ],
+          answers: [
+            {
+              answer_id: "A1",
+              content:
+                "In daily life, we often use basic arguments to explain our choices and actions. For example, we may argue that we should sleep early because we have class tomorrow, or that we should take the bus because it is faster than walking. Common types of arguments include cause and effect, comparison, generalization, analogy, and authority. These arguments help us make decisions, solve problems, and convince others. By using reasoning in everyday situations, we can think more clearly and act more wisely.",
+              created_at: "2025-08-17T19:31:31.000Z",
+              created_by: "Pham Minh",
+              likes: 0,
+              picture:
+                '<span class="bg-gray-200 text-xs w-7 h-7 flex items-center justify-center rounded-full">PM</span>',
+            },
+            {
+              answer_id: "A2",
+              content:
+                "Reasoning helps us avoid mistakes. For example, deciding to save money instead of spending it all at once is based on logical thinking about the future.",
+              created_at: "2025-08-17T19:33:12.000Z",
+              created_by: "Le Hoa",
+              likes: 0,
+              picture:
+                '<span class="bg-gray-200 text-xs w-7 h-7 flex items-center justify-center rounded-full">LH</span>',
+            },
+            {
+              answer_id: "A3",
+              content:
+                "We often compare options before making a choice. Like choosing a bus instead of a motorbike if it is cheaper and safer.",
+              created_at: "2025-08-17T19:34:55.000Z",
+              created_by: "Tran Quan",
+              likes: 0,
+              picture:
+                '<span class="bg-gray-200 text-xs w-7 h-7 flex items-center justify-center rounded-full">TQ</span>',
+            },
+            {
+              answer_id: "A4",
+              content:
+                "Basic arguments are useful in conversations. For example, when convincing a friend to join group study, we explain that it helps everyone understand better.",
+              created_at: "2025-08-17T19:36:27.000Z",
+              created_by: "Nguyen Lan",
+              likes: 0,
+              picture:
+                '<span class="bg-gray-200 text-xs w-7 h-7 flex items-center justify-center rounded-full">NL</span>',
+            },
+          ],
         },
       ],
       memberList: [

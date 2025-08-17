@@ -151,7 +151,7 @@ function renderSubmissionHtml(hwId, idx, sub) {
       </div>
       ${
         needsToggle
-          ? `<button data-action="toggle-text" data-hw="${hwId}" data-idx="${idx}" class="text-blue-600 text-xs mt-2">Xem thêm</button>`
+          ? `<button data-action="toggle-text" data-hw="${hwId}" data-idx="${idx}" class="text-blue-600 text-xs mt-2">See more</button>`
           : ""
       }
       ${editBtn}

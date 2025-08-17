@@ -58,45 +58,47 @@ document.getElementById("promptBlock").innerHTML = `
 function renderAnswers() {
   const box = document.getElementById("answersList");
   if (!topic.answers || !topic.answers.length) {
-    box.innerHTML = `<div class="text-gray-500">Chưa có câu trả lời nào.</div>`;
+    box.innerHTML = `<div class="text-gray-500">No answers yet.</div>`;
     return;
   }
 
   box.innerHTML = topic.answers
-    .map(
-      (a, index) => `
-    <div onclick="openAnswerDetail(${index})"
-         class="bg-white p-4 rounded-xl shadow hover:shadow-xl transition border cursor-pointer transform hover:scale-[1.02]">
-      <div class="flex items-center gap-3 mb-3">
-        <img src="${
-          a.picture
-        }" alt="avatar" class="w-9 h-9 rounded-full object-cover"/>
-        <div>
-          <div class="font-semibold">${a.created_by}</div>
-          <div class="text-xs text-gray-500">${a.created_at}</div>
-        </div>
-      </div>
-      <div class="text-sm text-gray-700 max-h-32 overflow-y-auto whitespace-pre-line">
-        ${a.content}
-      </div>
-      <div class="mt-3 text-sm text-gray-500">
-        <div id="likeCount">
-        ${[1, 2, 3, 4, 5]
-          .map(
-            (star) =>
-              `<span class="star ${
-                star <= (a.rating || 0) ? "selected" : ""
-              }" onclick="rateAnswer(${star}, ${index}); event.stopPropagation();" onmouseover="showRatingLabel(${star}, ${index})" onmouseout="hideRatingLabel(${index})">
-        ★
-      </span>`
-          )
-          .join("")}
-        <span id="ratingLabel${index}" class="text-gray-500 ml-2 hidden"></span>
-    </div>
+    .map((a, index) => {
+      // Xử lý avatar: span hoặc ảnh
+      let avatarHtml = a.picture.startsWith("<span")
+        ? a.picture
+        : `<img src="${a.picture}" alt="avatar" class="w-9 h-9 rounded-full object-cover"/>`;
 
-      </div>
-    </div>`
-    )
+      return `
+      <div onclick="openAnswerDetail(${index})"
+           class="bg-white p-4 rounded-xl shadow hover:shadow-xl transition border cursor-pointer transform hover:scale-[1.02]">
+        <div class="flex items-center gap-3 mb-3">
+          ${avatarHtml}
+          <div>
+            <div class="font-semibold">${a.created_by}</div>
+            <div class="text-xs text-gray-500">${a.created_at}</div>
+          </div>
+        </div>
+        <div class="text-sm text-gray-700 max-h-32 overflow-y-auto whitespace-pre-line">
+          ${a.content}
+        </div>
+        <div class="mt-3 text-sm text-gray-500">
+          <div id="likeCount">
+            ${[1, 2, 3, 4, 5]
+              .map(
+                (star) =>
+                  `<span class="star ${
+                    star <= (a.rating || 0) ? "selected" : ""
+                  }" onclick="rateAnswer(${star}, ${index}); event.stopPropagation();" onmouseover="showRatingLabel(${star}, ${index})" onmouseout="hideRatingLabel(${index})">
+              ★
+            </span>`
+              )
+              .join("")}
+            <span id="ratingLabel${index}" class="text-gray-500 ml-2 hidden"></span>
+          </div>
+        </div>
+      </div>`;
+    })
     .join("");
 }
 
@@ -218,27 +220,31 @@ function openAnswerDetail(index) {
   currentAnswerIndex = index;
   const ans = topic.answers[index];
 
+  // avatar: span hay img
+  const avatarHtml = ans.picture.startsWith("<span")
+    ? ans.picture
+    : `<img src="${ans.picture}" alt="avatar" class="w-10 h-10 rounded-full object-cover"/>`;
+
   // Mở modal chi tiết câu trả lời
   document.getElementById("answerModal").classList.remove("hidden");
 
+  // ✅ Cập nhật avatar (innerHTML thay vì .src)
+  document.getElementById("answerAvatar").innerHTML = avatarHtml;
+
   // Cập nhật thông tin câu trả lời
-  document.getElementById("answerAvatar").src =
-    ans.picture || "https://via.placeholder.com/40";
-  document.getElementById("answerAuthor").innerText =
-    ans.created_by || "Lỗi hiển thị";
+  document.getElementById("answerAuthor").innerText = ans.created_by || "Lỗi hiển thị";
   document.getElementById("answerText").innerText = ans.content;
 
   // Hiển thị đánh giá sao
-  renderStars(ans.rating || 0); // Gọi hàm renderStars để hiển thị sao đã chọn
+  renderStars(ans.rating || 0);
 
-  // Cập nhật thông tin số lượng câu trả lời
-  document.getElementById("replyCount").innerText = `${
-    ans.replies?.length || 0
-  } replies`;
+  // Cập nhật số lượng phản hồi
+  document.getElementById("replyCount").innerText = `${ans.replies?.length || 0} replies`;
 
   // Hiển thị các phản hồi
   renderReplies();
 }
+
 
 // đóng chi tiết câu trả lời
 function closeAnswerDetail() {
