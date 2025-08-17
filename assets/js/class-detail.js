@@ -568,9 +568,9 @@ function renderRankModal(page = 1) {
       <table class="rank-table w-full text-left">
         <thead>
           <tr class="bg-gray-100">
-            <th class="py-3 px-4 w-12 text-center font-semibold text-gray-700 border-b border-gray-200">Hạng</th>
-            <th class="py-3 px-4 font-semibold text-gray-700 border-b border-gray-200">Thành viên</th>
-            <th class="py-3 px-4 text-center font-semibold text-gray-700 border-b border-gray-200">Số sao</th>
+            <th class="py-3 px-4 w-12 text-center font-semibold text-gray-700 border-b border-gray-200">Rank</th>
+            <th class="py-3 px-4 font-semibold text-gray-700 border-b border-gray-200">Member</th>
+            <th class="py-3 px-4 text-center font-semibold text-gray-700 border-b border-gray-200">Stars</th>
           </tr>
         </thead>
         <tbody>
@@ -607,14 +607,14 @@ function renderRankModal(page = 1) {
     </div>
   `;
 
-  // Tạo HTML cho phân trang
+  // Create HTML for pagination
   const paginationHTML = `
     <div class="flex justify-between items-center mt-4">
       <div class="text-sm text-gray-500">
-        Hiển thị ${startIndex + 1}-${Math.min(
-    endIndex,
-    rankedMembers.length
-  )} trong ${rankedMembers.length} thành viên
+        Showing ${startIndex + 1}-${Math.min(
+      endIndex,
+      rankedMembers.length
+    )} of ${rankedMembers.length} members
       </div>
       <div class="flex gap-2">
         <button class="pagination-btn px-3 py-1.5 rounded-md text-sm ${
@@ -623,7 +623,7 @@ function renderRankModal(page = 1) {
             : "bg-blue-600 text-white hover:bg-blue-700"
         }" 
                 ${page === 1 ? "disabled" : ""} 
-                onclick="renderRankModal(${page - 1})">Trước</button>
+                onclick="renderRankModal(${page - 1})">Previous</button>
         <div class="flex gap-1">
           ${Array.from(
             { length: totalPages },
@@ -643,7 +643,7 @@ function renderRankModal(page = 1) {
             : "bg-blue-600 text-white hover:bg-blue-700"
         }" 
                 ${page === totalPages ? "disabled" : ""} 
-                onclick="renderRankModal(${page + 1})">Sau</button>
+                onclick="renderRankModal(${page + 1})">Next</button>
       </div>
     </div>
   `;
@@ -651,7 +651,7 @@ function renderRankModal(page = 1) {
   container.innerHTML = `
     ${tableHTML}
     ${paginationHTML}
-    <div class="text-xs text-gray-400 text-right mt-2">* Top 1, 2, 3 được làm nổi bật</div>
+      <div class="text-xs text-gray-400 text-right mt-2">* Top 1, 2, 3 are highlighted</div>
   `;
 }
 // ==== REPORT FEATURE ====
@@ -673,7 +673,7 @@ function renderReportModal() {
   container.innerHTML = "";
 
   if (!reportData || reportData.length === 0) {
-    container.innerHTML = `<div class="text-gray-500 text-center py-4">Chưa có dữ liệu báo cáo.</div>`;
+    container.innerHTML = `<div class="text-gray-500 text-center py-4">No report data available.</div>`;
     return;
   }
 
@@ -738,7 +738,9 @@ function renderReportModal() {
               const grade = getLetterGrade(points);
               let comment = "";
               if (points >= 80) comment = "Very good and active student";
-              else if (points >= 60) comment = "There is an effort but you need to work more critically";
+              else if (points >= 60)
+                comment =
+                  "There is an effort but you need to work more critically";
               else comment = "Needs much more engagement";
 
               return `

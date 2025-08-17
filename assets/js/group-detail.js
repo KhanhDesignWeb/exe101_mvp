@@ -7,9 +7,10 @@ const groupIndex = +params.get("group_index");
 
 let countdownTimers = []; // Lưu các interval cho từng task để clear khi render lại
 let classes = JSON.parse(localStorage.getItem("classes")) || [];
-const cls = classes.find(c => c.class_id === classId);
+const cls = classes.find((c) => c.class_id === classId);
 if (!cls || !cls.groups || !cls.groups[groupIndex]) {
-  document.body.innerHTML = '<div class="text-red-600 text-center text-xl mt-20">Không tìm thấy group này!</div>';
+  document.body.innerHTML =
+    '<div class="text-red-600 text-center text-xl mt-20">Không tìm thấy group này!</div>';
   throw "Group not found";
 }
 const group = cls.groups[groupIndex];
@@ -19,17 +20,24 @@ document.getElementById("groupName").innerText = `Group ${groupIndex + 1}`;
 // Render thành viên nhóm
 function renderMembers() {
   const groupMembers = document.getElementById("groupMembers");
-  groupMembers.innerHTML = group.members.map(memberId => {
-    const mem = cls.memberList.find(m => m.id === memberId);
-    if (!mem) return "";
-    const initials = mem.name.split(" ").map(w => w[0]).join("").toUpperCase();
-    return `
+  groupMembers.innerHTML =
+    group.members
+      .map((memberId) => {
+        const mem = cls.memberList.find((m) => m.id === memberId);
+        if (!mem) return "";
+        const initials = mem.name
+          .split(" ")
+          .map((w) => w[0])
+          .join("")
+          .toUpperCase();
+        return `
       <div class="flex items-center gap-2 bg-blue-50 rounded p-2 px-4 shadow">
         <span class="bg-gray-200 w-8 h-8 flex items-center justify-center rounded-full text-base font-bold">${initials}</span>
         <span class="font-medium">${mem.name}</span>
       </div>
     `;
-  }).join("") || `<span class="text-gray-400">Chưa có thành viên nào.</span>`;
+      })
+      .join("") || `<span class="text-gray-400">No members yet.</span>`;
 }
 renderMembers();
 
@@ -41,30 +49,33 @@ function saveToLocal() {
 // Hiển thị danh sách nhiệm vụ
 function renderTasks() {
   // Dừng hết interval cũ
-  countdownTimers.forEach(timer => clearInterval(timer));
+  countdownTimers.forEach((timer) => clearInterval(timer));
   countdownTimers = [];
   const tasksList = document.getElementById("tasksList");
   group.tasks = group.tasks || [];
   if (group.tasks.length === 0) {
-    tasksList.innerHTML = `<div class="text-gray-400">Chưa có nhiệm vụ nào.</div>`;
+    tasksList.innerHTML = `<div class="text-gray-400">No tasks yet.</div>`;
     return;
   }
-  tasksList.innerHTML = group.tasks.map((task, idx) => {
-    const mem = cls.memberList.find(m => m.id === task.assign_to);
-    const assignedName = mem ? mem.name : "Chưa giao";
-    const deadlineStr = task.deadline ? new Date(task.deadline).toLocaleString() : "Không đặt";
-    // Tính trạng thái để disable nút check nếu cần
-    let isLate = false;
-    if (task.deadline) {
-      isLate = (new Date(task.deadline) < new Date());
-    }
-    // Nếu trễ deadline và đã hoàn thành => disable checkbox
-    const checkboxDisabled = (isLate && task.completed) ? "disabled" : "";
+  tasksList.innerHTML = group.tasks
+    .map((task, idx) => {
+      const mem = cls.memberList.find((m) => m.id === task.assign_to);
+      const assignedName = mem ? mem.name : "Chưa giao";
+      const deadlineStr = task.deadline
+        ? new Date(task.deadline).toLocaleString()
+        : "Not set";
+      // Tính trạng thái để disable nút check nếu cần
+      let isLate = false;
+      if (task.deadline) {
+        isLate = new Date(task.deadline) < new Date();
+      }
+      // Nếu trễ deadline và đã hoàn thành => disable checkbox
+      const checkboxDisabled = isLate && task.completed ? "disabled" : "";
 
-    // Kiểm tra điều kiện để có thể chỉnh sửa
-    const canEdit = !(isLate && !task.completed || task.completed);  // Ẩn nút Sửa khi trễ deadline và chưa hoàn thành, hoặc đã hoàn thành
+      // Kiểm tra điều kiện để có thể chỉnh sửa
+      const canEdit = !((isLate && !task.completed) || task.completed); // Ẩn nút Sửa khi trễ deadline và chưa hoàn thành, hoặc đã hoàn thành
 
-    return `
+      return `
       <div class="bg-gray-50 p-4 rounded shadow flex justify-between items-center border border-gray-200">
         <div>
           <div class="font-semibold text-gray-900">${task.title}</div>
@@ -76,16 +87,23 @@ function renderTasks() {
           <div class="text-xs text-gray-500">Giao cho: <span class="text-gray-800 font-semibold">${assignedName}</span></div>
         </div>
         <div class="flex flex-col gap-1 items-end">
-          <button onclick="editTask(${idx})" class="text-blue-500 text-xs hover:underline" ${canEdit ? "" : "hidden"}>Sửa</button>
-          <button onclick="deleteTask(${idx})" class="text-red-500 text-xs hover:underline" ${canDelete(idx) ? "" : "disabled"}>Xóa</button>
+          <button onclick="editTask(${idx})" class="text-blue-500 text-xs hover:underline" ${
+        canEdit ? "" : "hidden"
+      }>Edit</button>
+          <button onclick="deleteTask(${idx})" class="text-red-500 text-xs hover:underline" ${
+        canDelete(idx) ? "" : "disabled"
+      }>Delete</button>
           <label class="flex items-center gap-1 mt-1 cursor-pointer">
-            <input type="checkbox" ${task.completed ? "checked" : ""} onchange="toggleDone(${idx})" ${checkboxDisabled}/>
+            <input type="checkbox" ${
+              task.completed ? "checked" : ""
+            } onchange="toggleDone(${idx})" ${checkboxDisabled}/>
             <span class="text-xs">Hoàn thành</span>
           </label>
         </div>
       </div>
     `;
-  }).join("");
+    })
+    .join("");
   // Gọi lại countdown cho từng task
   group.tasks.forEach((task, idx) => {
     setupTaskCountdown(idx, task);
@@ -102,17 +120,17 @@ window.deleteTask = function (idx) {
 
   // Kiểm tra nếu nhiệm vụ đã hoàn thành hoặc trễ deadline mà chưa hoàn thành
   if (isCompleted) {
-    alert("Không thể xóa nhiệm vụ đã hoàn thành.");
+    alert("Cannot delete a completed task.");
     return;
   }
 
   if (isLate && !isCompleted) {
-    alert("Không thể xóa nhiệm vụ đã trễ deadline.");
+    alert("Cannot delete a task that is past its deadline.");
     return;
   }
 
   // Xóa nhiệm vụ nếu điều kiện cho phép
-  if (confirm("Bạn có chắc muốn xóa nhiệm vụ này?")) {
+  if (confirm("Are you sure you want to delete this task?")) {
     group.tasks.splice(idx, 1);
     saveToLocal();
     renderTasks();
@@ -138,7 +156,9 @@ window.toggleDone = function (idx) {
   if (task.completed) {
     // Không cho bỏ nếu trễ và đã hoàn thành
     if (deadline && deadline < now) {
-      alert("Không thể bỏ hoàn thành cho nhiệm vụ đã hoàn thành sau deadline!");
+      alert(
+        "Cannot unmark as completed for a task that was finished after the deadline!"
+      );
       renderTasks(); // Giữ nguyên checkbox
       return;
     }
@@ -173,22 +193,30 @@ document.getElementById("closeTaskModal").onclick = () => {
 
 // Hiển thị modal tạo/chỉnh sửa task
 function showTaskModal(task = {}) {
-  document.getElementById("taskModalTitle").innerText = editIdx === null ? "Tạo nhiệm vụ" : "Chỉnh sửa nhiệm vụ";
+  document.getElementById("taskModalTitle").innerText =
+    editIdx === null ? "Create Task" : "Edit Task";
   document.getElementById("taskTitle").value = task.title || "";
   document.getElementById("taskDesc").value = task.desc || "";
-  document.getElementById("taskDeadline").value = task.deadline ? task.deadline.slice(0, 16) : "";
+  document.getElementById("taskDeadline").value = task.deadline
+    ? task.deadline.slice(0, 16)
+    : "";
   const assignSelect = document.getElementById("assignTo");
-  assignSelect.innerHTML = `<option value="">-- Giao cho thành viên --</option>` +
-    group.members.map(mid => {
-      const mem = cls.memberList.find(m => m.id === mid);
-      if (!mem) return "";
-      return `<option value="${mem.id}" ${task.assign_to === mem.id ? "selected" : ""}>${mem.name}</option>`;
-    }).join("");
+  assignSelect.innerHTML =
+    `<option value="">-- Assign to member --</option>` +
+    group.members
+      .map((mid) => {
+        const mem = cls.memberList.find((m) => m.id === mid);
+        if (!mem) return "";
+        return `<option value="${mem.id}" ${
+          task.assign_to === mem.id ? "selected" : ""
+        }>${mem.name}</option>`;
+      })
+      .join("");
   // Đặt min cho deadline
   const now = new Date();
   const tzoffset = now.getTimezoneOffset() * 60000;
-  const localISOTime = (new Date(now - tzoffset)).toISOString().slice(0, 16);
-  document.getElementById('taskDeadline').setAttribute('min', localISOTime);
+  const localISOTime = new Date(now - tzoffset).toISOString().slice(0, 16);
+  document.getElementById("taskDeadline").setAttribute("min", localISOTime);
 
   taskModal.classList.remove("hidden");
 }
@@ -198,15 +226,15 @@ document.getElementById("saveTaskBtn").onclick = function () {
   const deadline = document.getElementById("taskDeadline").value;
   const assign_to = document.getElementById("assignTo").value;
   if (!title) {
-    alert("Nhập tiêu đề!");
+    alert("Enter a title!");
     return;
   }
   if (!deadline) {
-    alert("Chọn deadline!");
+    alert("Select a deadline!");
     return;
   }
   if (!assign_to) {
-    alert("Chọn thành viên được giao!");
+    alert("Select an assignee!");
     return;
   }
   const newTask = { title, desc, deadline, assign_to, completed: false };
@@ -229,7 +257,9 @@ function setupTaskCountdown(idx, task) {
   const el = document.getElementById(`countdown-task-${idx}`);
   if (!el) return;
   if (!task.deadline) {
-    el.innerHTML = task.completed ? `<span class="text-green-600">Đã hoàn thành</span>` : '';
+    el.innerHTML = task.completed
+      ? `<span class="text-green-600">Completed</span>`
+      : "";
     if (countdownTimers[idx]) clearInterval(countdownTimers[idx]);
     return;
   }
@@ -249,23 +279,26 @@ function setupTaskCountdown(idx, task) {
       // Đã trễ deadline
       if (task.completed) {
         html = isOverForCompletion
-          ? `<span class="text-red-600">Trễ deadline!</span> <span class="text-green-600 ml-2">Đã hoàn thành</span>`
-          : `<span class="text-green-600">Đã hoàn thành (đúng hạn)</span>`;
+          ? `<span class="text-red-600">Past deadline!</span> <span class="text-green-600 ml-2">Completed</span>`
+          : `<span class="text-green-600">Completed (on time)</span>`;
       } else {
-        html = `<span class="text-red-600">Trễ deadline!</span>`;
+        html = `<span class="text-red-600">Past deadline!</span>`;
       }
       clearInterval(countdownTimers[idx]);
     } else {
-      // Chưa trễ deadline
+      // Not past deadline yet
       if (task.completed) {
-        html = `<span class="text-green-600">Đã hoàn thành</span>`;
+        html = `<span class="text-green-600">Completed</span>`;
+
         clearInterval(countdownTimers[idx]);
       } else {
         const d = Math.floor(diff / (1000 * 60 * 60 * 24));
         const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
         const m = Math.floor((diff / (1000 * 60)) % 60);
         const s = Math.floor((diff / 1000) % 60);
-        html = `<span class="text-red-600">${d > 0 ? d + " ngày " : ""}${h}h ${m}m ${s}s</span>`;
+        html = `<span class="text-red-600">${
+          d > 0 ? d + " ngày " : ""
+        }${h}h ${m}m ${s}s</span>`;
       }
     }
     el.innerHTML = html;
@@ -276,42 +309,49 @@ function setupTaskCountdown(idx, task) {
 
 // Mở/đóng modal
 function openStatsModal() {
-  document.getElementById('statsModal').classList.remove('hidden');
+  document.getElementById("statsModal").classList.remove("hidden");
 }
 function closeStatsModal() {
-  document.getElementById('statsModal').classList.add('hidden');
+  document.getElementById("statsModal").classList.add("hidden");
 }
 
 // Gắn nút
-const statsBtn = document.getElementById('btnStats');
-if (statsBtn) statsBtn.addEventListener('click', showGroupStats);
+const statsBtn = document.getElementById("btnStats");
+if (statsBtn) statsBtn.addEventListener("click", showGroupStats);
 
 // Hiển thị thống kê nhóm
 function showGroupStats() {
-  const body = document.getElementById('statsBody');
-  body.innerHTML = ''; // reset
+  const body = document.getElementById("statsBody");
+  body.innerHTML = ""; // reset
 
-  // Empty state: không có thành viên
+  // Empty state: no members
   if (!group.members || group.members.length === 0) {
     body.innerHTML = `
-      <div class="p-4 rounded-lg bg-yellow-50 border border-yellow-200 text-yellow-800">
-        Nhóm <b>chưa có thành viên</b>. Hãy thêm thành viên để bắt đầu giao nhiệm vụ và thống kê.
-      </div>`;
+    <div class="p-4 rounded-lg bg-yellow-50 border border-yellow-200 text-yellow-800">
+      The group <b>has no members</b>. Please add members to start assigning tasks and viewing statistics.
+    </div>`;
     openStatsModal();
     return;
   }
 
   // Gom dữ liệu thống kê
   const stats = {};
-  group.members.forEach(mid => {
-    const mem = cls.memberList.find(m => m.id === mid);
-    stats[mid] = { name: mem ? mem.name : 'Không rõ', total: 0, done: 0, doing: 0, late: 0, lateDone: 0 };
+  group.members.forEach((mid) => {
+    const mem = cls.memberList.find((m) => m.id === mid);
+    stats[mid] = {
+      name: mem ? mem.name : "Unknown",
+      total: 0,
+      done: 0,
+      doing: 0,
+      late: 0,
+      lateDone: 0,
+    };
   });
 
   const now = new Date();
   const tasks = group.tasks || [];
 
-  tasks.forEach(t => {
+  tasks.forEach((t) => {
     if (!t.assign_to || !stats[t.assign_to]) return;
 
     const s = stats[t.assign_to];
@@ -329,17 +369,17 @@ function showGroupStats() {
     if (t.completed) {
       // Hoàn thành: kiểm tra dựa trên completion_time
       if (isOverForCompletion) {
-        s.lateDone++;  // Hoàn thành sau deadline
+        s.lateDone++; // Hoàn thành sau deadline
       } else {
-        s.done++;  // Hoàn thành đúng hạn hoặc không deadline
+        s.done++; // Hoàn thành đúng hạn hoặc không deadline
       }
     } else {
       // Chưa hoàn thành: kiểm tra dựa trên now
       const isOver = hasDeadline && deadline < now;
       if (isOver) {
-        s.late++;  // Trễ deadline (chưa hoàn thành)
+        s.late++; // Trễ deadline (chưa hoàn thành)
       } else {
-        s.doing++;  // Đang làm
+        s.doing++; // Đang làm
       }
     }
   });
@@ -348,50 +388,68 @@ function showGroupStats() {
   const totalTasks = tasks.length;
   if (totalTasks === 0) {
     body.innerHTML = `
-      <div class="p-4 rounded-lg bg-blue-50 border border-blue-200 text-blue-800 mb-4">
-        <b>Chưa có task nào</b> để thống kê. Hãy tạo nhiệm vụ cho các thành viên.
-      </div>
-      ${renderStatsTable(stats)}
-    `;
+    <div class="p-4 rounded-lg bg-blue-50 border border-blue-200 text-blue-800 mb-4">
+      <b>No tasks yet</b> to display statistics. Please create tasks for the members.
+    </div>
+    ${renderStatsTable(stats)}
+  `;
     openStatsModal();
     return;
   }
 
   // Có task → render bảng + tổng quan
-  const totals = Object.values(stats).reduce((acc, s) => {
-    acc.total += s.total; acc.done += s.done; acc.doing += s.doing; acc.late += s.late; acc.lateDone += s.lateDone;
-    return acc;
-  }, { total: 0, done: 0, doing: 0, late: 0, lateDone: 0 });
+  const totals = Object.values(stats).reduce(
+    (acc, s) => {
+      acc.total += s.total;
+      acc.done += s.done;
+      acc.doing += s.doing;
+      acc.late += s.late;
+      acc.lateDone += s.lateDone;
+      return acc;
+    },
+    { total: 0, done: 0, doing: 0, late: 0, lateDone: 0 }
+  );
 
-  const pct = (num, den) => den ? Math.round((num / den) * 100) : 0;
+  const pct = (num, den) => (den ? Math.round((num / den) * 100) : 0);
 
   body.innerHTML = `
-    <div class="grid sm:grid-cols-5 gap-3 mb-4">
-      <div class="p-3 rounded-lg bg-gray-50 border">
-        <div class="text-xs text-gray-500">Tổng task</div>
-        <div class="text-xl font-semibold">${totals.total}</div>
-      </div>
-      <div class="p-3 rounded-lg bg-green-50 border border-green-200">
-        <div class="text-xs text-green-700">Hoàn thành</div>
-        <div class="text-xl font-semibold text-green-700">${totals.done}</div>
-        <div class="text-xs text-green-700">${pct(totals.done, totals.total)}%</div>
-      </div>
-      <div class="p-3 rounded-lg bg-amber-50 border border-amber-200">
-        <div class="text-xs text-amber-700">Đang làm</div>
-        <div class="text-xl font-semibold text-amber-700">${totals.doing}</div>
-        <div class="text-xs text-amber-700">${pct(totals.doing, totals.total)}%</div>
-      </div>
-      <div class="p-3 rounded-lg bg-red-50 border border-red-200">
-        <div class="text-xs text-red-700">Trễ deadline</div>
-        <div class="text-xl font-semibold text-red-700">${totals.late}</div>
-        <div class="text-xs text-red-700">${pct(totals.late, totals.total)}%</div>
-      </div>
-      <div class="p-3 rounded-lg bg-fuchsia-50 border border-fuchsia-200">
-        <div class="text-xs text-fuchsia-700">Trễ + đã hoàn thành</div>
-        <div class="text-xl font-semibold text-fuchsia-700">${totals.lateDone}</div>
-        <div class="text-xs text-fuchsia-700">${pct(totals.lateDone, totals.total)}%</div>
-      </div>
+  <div class="grid sm:grid-cols-5 gap-3 mb-4">
+    <div class="p-3 rounded-lg bg-gray-50 border">
+      <div class="text-xs text-gray-500">Total Tasks</div>
+      <div class="text-xl font-semibold">${totals.total}</div>
     </div>
+    <div class="p-3 rounded-lg bg-green-50 border border-green-200">
+      <div class="text-xs text-green-700">Completed</div>
+      <div class="text-xl font-semibold text-green-700">${totals.done}</div>
+      <div class="text-xs text-green-700">${pct(
+        totals.done,
+        totals.total
+      )}%</div>
+    </div>
+    <div class="p-3 rounded-lg bg-amber-50 border border-amber-200">
+      <div class="text-xs text-amber-700">In Progress</div>
+      <div class="text-xl font-semibold text-amber-700">${totals.doing}</div>
+      <div class="text-xs text-amber-700">${pct(
+        totals.doing,
+        totals.total
+      )}%</div>
+    </div>
+    <div class="p-3 rounded-lg bg-red-50 border border-red-200">
+      <div class="text-xs text-red-700">Overdue</div>
+      <div class="text-xl font-semibold text-red-700">${totals.late}</div>
+      <div class="text-xs text-red-700">${pct(totals.late, totals.total)}%</div>
+    </div>
+    <div class="p-3 rounded-lg bg-fuchsia-50 border border-fuchsia-200">
+      <div class="text-xs text-fuchsia-700">Overdue + Completed</div>
+      <div class="text-xl font-semibold text-fuchsia-700">${
+        totals.lateDone
+      }</div>
+      <div class="text-xs text-fuchsia-700">${pct(
+        totals.lateDone,
+        totals.total
+      )}%</div>
+    </div>
+  </div>
 
     ${renderStatsTable(stats)}
   `;
@@ -401,10 +459,11 @@ function showGroupStats() {
 
 // Tạo bảng thống kê đẹp với Tailwind
 function renderStatsTable(stats) {
-  const rows = Object.values(stats).map(s => {
-    const total = s.total;
-    const bar = buildBar(total, s.done, s.doing, s.late + s.lateDone);
-    return `
+  const rows = Object.values(stats)
+    .map((s) => {
+      const total = s.total;
+      const bar = buildBar(total, s.done, s.doing, s.late + s.lateDone);
+      return `
       <tr class="hover:bg-gray-50">
         <td class="border px-3 py-2 whitespace-nowrap">${s.name}</td>
         <td class="border px-3 py-2 text-center">${total}</td>
@@ -427,27 +486,28 @@ function renderStatsTable(stats) {
         </td>
       </tr>
     `;
-  }).join('');
+    })
+    .join("");
 
   return `
-    <div class="overflow-x-auto rounded-lg border">
-      <table class="min-w-full text-sm">
-        <thead class="bg-gray-100">
-          <tr>
-            <th class="border px-3 py-2 text-left">Thành viên</th>
-            <th class="border px-3 py-2 w-20 text-center">Tổng</th>
-            <th class="border px-3 py-2 w-28 text-center text-green-700">Hoàn thành</th>
-            <th class="border px-3 py-2 w-28 text-center text-amber-700">Đang làm</th>
-            <th class="border px-3 py-2 w-32 text-center text-red-700">Trễ deadline</th>
-            <th class="border px-3 py-2 w-40 text-center text-fuchsia-700">Trễ + đã hoàn thành</th>
+  <div class="overflow-x-auto rounded-lg border">
+    <table class="min-w-full text-sm">
+      <thead class="bg-gray-100">
+        <tr>
+          <th class="border px-3 py-2 text-left">Member</th>
+          <th class="border px-3 py-2 w-20 text-center">Total</th>
+          <th class="border px-3 py-2 w-28 text-center text-green-700">Completed</th>
+          <th class="border px-3 py-2 w-28 text-center text-amber-700">In Progress</th>
+          <th class="border px-3 py-2 w-32 text-center text-red-700">Overdue</th>
+          <th class="border px-3 py-2 w-40 text-center text-fuchsia-700">Overdue + Completed</th>
 
-            <!-- Tỉ lệ: tăng độ rộng -->
-            <th class="border px-3 py-2 text-left min-w-[180px] w-[220px]">Tỉ lệ</th>
-          </tr>
-        </thead>
-        <tbody>${rows}</tbody>
-      </table>
-    </div>
+          <!-- Ratio: increase width -->
+          <th class="border px-3 py-2 text-left min-w-[180px] w-[220px]">Ratio</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </div>
   `;
 }
 
@@ -469,7 +529,7 @@ function buildBar(total, done, doing, lateAll) {
       <div class="h-2.5 bg-red-500 inline-block" style="width:${pLate}%"></div>
     </div>
     <div class="mt-1 text-[11px] text-gray-500">
-      ${pDone}% hoàn thành • ${pDoing}% đang làm • ${pLate}% trễ/khác
+      ${pDone}% completed • ${pDoing}% in progress • ${pLate}% overdue/other
     </div>
   `;
 }

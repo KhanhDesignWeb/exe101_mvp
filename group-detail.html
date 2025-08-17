@@ -15,7 +15,7 @@
         <div class="absolute inset-0 bg-black/40" onclick="closeStatsModal()"></div>
         <div class="relative max-w-3xl w-[92%] mx-auto mt-16 bg-white rounded-xl shadow-lg">
             <div class="flex items-center justify-between px-5 py-4 border-b">
-                <h3 class="text-lg font-semibold">Thống kê công việc nhóm</h3>
+                <h3 class="text-lg font-semibold">Group Work Statistics</h3>
                 <button class="text-gray-500 hover:text-red-600 text-2xl leading-none px-2"
                     onclick="closeStatsModal()">&times;</button>
             </div>
@@ -40,24 +40,24 @@
 
         <!-- Thành viên group -->
         <div class="mb-6">
-            <h2 class="text-lg font-semibold mb-2">Thành viên nhóm</h2>
+            <h2 class="text-lg font-semibold mb-2">Group Members</h2>
             <div id="groupMembers" class="flex flex-wrap gap-4"></div>
         </div>
 
         <!-- Quản lý nhiệm vụ -->
         <div>
             <div class="flex items-center justify-between mb-2">
-                <h2 class="text-lg font-semibold">Danh sách nhiệm vụ</h2>
+                <h2 class="text-lg font-semibold">Task List</h2>
 
                 <!-- nhóm nút bên phải -->
                 <div class="flex items-center gap-3">
                     <button id="openTaskModal"
                         class="bg-blue-600 text-white px-3 py-1.5 rounded hover:bg-blue-700 text-sm">
-                        + Thêm nhiệm vụ
+                        + Add Task
                     </button>
 
                     <button id="btnStats" class="bg-blue-600 text-white px-3 py-1.5 rounded hover:bg-blue-700 text-sm">
-                        Xem thống kê
+                        View Statistics
                     </button>
                 </div>
             </div>
@@ -71,7 +71,7 @@
         <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
             <button id="closeTaskModal"
                 class="absolute right-4 top-2 text-2xl text-gray-500 hover:text-red-500 font-bold">&times;</button>
-            <h3 class="text-lg font-semibold mb-4" id="taskModalTitle">Tạo nhiệm vụ</h3>
+            <h3 class="text-lg font-semibold mb-4" id="taskModalTitle">Create Task</h3>
             <div class="space-y-3">
                 <input id="taskTitle" type="text" placeholder="Tiêu đề nhiệm vụ..."
                     class="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500" />
@@ -79,7 +79,7 @@
                     class="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500 h-20"></textarea>
                 <input id="taskDeadline" type="datetime-local" class="w-full border p-2 rounded" min="">
                 <select id="assignTo" class="w-full border p-2 rounded">
-                    <option value="">-- Giao cho thành viên --</option>
+                    <option value="">-- Assign to member --</option>
                 </select>
             </div>
             <div class="flex justify-end gap-2 mt-4">
