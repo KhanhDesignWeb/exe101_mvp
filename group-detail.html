@@ -31,25 +31,23 @@
                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                 </svg>
-                Quay lại lớp học
+                Back to Class
             </a>
             <h1 class="text-3xl font-bold text-blue-700 mt-2" id="groupName">Group 1</h1>
         </div>
 
-
-
-        <!-- Thành viên group -->
+        <!-- Group Members -->
         <div class="mb-6">
             <h2 class="text-lg font-semibold mb-2">Group Members</h2>
             <div id="groupMembers" class="flex flex-wrap gap-4"></div>
         </div>
 
-        <!-- Quản lý nhiệm vụ -->
+        <!-- Task Management -->
         <div>
             <div class="flex items-center justify-between mb-2">
                 <h2 class="text-lg font-semibold">Task List</h2>
 
-                <!-- nhóm nút bên phải -->
+                <!-- Right-side buttons -->
                 <div class="flex items-center gap-3">
                     <button id="openTaskModal"
                         class="bg-blue-600 text-white px-3 py-1.5 rounded hover:bg-blue-700 text-sm">
@@ -66,16 +64,16 @@
         </div>
     </div>
 
-    <!-- Modal tạo/chỉnh sửa Task -->
+    <!-- Task Create/Edit Modal -->
     <div id="taskModal" class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50 hidden">
         <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
             <button id="closeTaskModal"
                 class="absolute right-4 top-2 text-2xl text-gray-500 hover:text-red-500 font-bold">&times;</button>
             <h3 class="text-lg font-semibold mb-4" id="taskModalTitle">Create Task</h3>
             <div class="space-y-3">
-                <input id="taskTitle" type="text" placeholder="Tiêu đề nhiệm vụ..."
+                <input id="taskTitle" type="text" placeholder="Task title..."
                     class="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500" />
-                <textarea id="taskDesc" placeholder="Mô tả..."
+                <textarea id="taskDesc" placeholder="Description..."
                     class="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500 h-20"></textarea>
                 <input id="taskDeadline" type="datetime-local" class="w-full border p-2 rounded" min="">
                 <select id="assignTo" class="w-full border p-2 rounded">
@@ -83,7 +81,7 @@
                 </select>
             </div>
             <div class="flex justify-end gap-2 mt-4">
-                <button id="saveTaskBtn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Lưu</button>
+                <button id="saveTaskBtn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Save</button>
             </div>
         </div>
     </div>

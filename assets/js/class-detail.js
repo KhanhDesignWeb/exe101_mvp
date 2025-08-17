@@ -9,7 +9,7 @@ const cls = classes.find((c) => c.class_id === classId);
 
 if (!cls) {
   document.body.innerHTML =
-    '<div class="text-red-600 text-center text-xl mt-20">Không tìm thấy lớp này!</div>';
+    '<div class="text-red-600 text-center text-xl mt-20">Class not found!</div>';
   throw "Class not found";
 }
 
@@ -34,26 +34,26 @@ function renderTopics() {
   topicsList.innerHTML = cls.topics
     .map(
       (t, idx) => `
-     <div class="p-4 border border-gray-300 rounded-lg shadow-sm hover:shadow-md transition duration-200 bg-white relative"
-          onclick="goToTopic('${cls.class_id}','${t.topic_id}')">
-          <button class="topic-delete-btn text-red-500 hover:text-red-700 font-bold text-lg"
-                  title="Xóa chủ đề"
-                  onclick="event.stopPropagation(); deleteTopic(${idx}); return false;">×</button>
-          <div class="text-gray-900 font-semibold text-base">${t.title}</div>
-          <div class="text-gray-500 text-sm">by ${t.created_by}</div>
-          <div class="text-gray-500 text-sm">
-            <b>Thời gian kết thúc:</b> <span id="topic-end-${idx}">${
-        t.end_time ? new Date(t.end_time).toLocaleString() : "Không đặt"
+    <div class="p-4 border border-gray-300 rounded-lg shadow-sm hover:shadow-md transition duration-200 bg-white relative"
+        onclick="goToTopic('${cls.class_id}','${t.topic_id}')">
+        <button class="topic-delete-btn text-red-500 hover:text-red-700 font-bold text-lg"
+                title="Delete topic"
+                onclick="event.stopPropagation(); deleteTopic(${idx}); return false;">×</button>
+        <div class="text-gray-900 font-semibold text-base">${t.title}</div>
+        <div class="text-gray-500 text-sm">by ${t.created_by}</div>
+        <div class="text-gray-500 text-sm">
+          <b>End time:</b> <span id="topic-end-${idx}">${
+        t.end_time ? new Date(t.end_time).toLocaleString() : "Not set"
       }</span>
-            <span class="ml-2 text-red-600" id="countdown-${idx}"></span>
-          </div>
-          <div class="text-gray-500 text-sm flex justify-end space-x-4">
-              <span>${t.answers ? t.answers.length : 0} replies</span>
-              <span>${
-                t.created_at ? new Date(t.created_at).toLocaleString() : ""
-              }</span>
-          </div>
-      </div>
+          <span class="ml-2 text-red-600" id="countdown-${idx}"></span>
+        </div>
+        <div class="text-gray-500 text-sm flex justify-end space-x-4">
+            <span>${t.answers ? t.answers.length : 0} replies</span>
+            <span>${
+              t.created_at ? new Date(t.created_at).toLocaleString() : ""
+            }</span>
+        </div>
+    </div>
   `
     )
     .join("");
@@ -67,7 +67,7 @@ function renderTopics() {
 }
 
 window.deleteTopic = function (idx) {
-  if (!confirm("Bạn có chắc muốn xóa chủ đề này không?")) return;
+  if (!confirm("Are you sure you want to delete this topic?")) return;
   cls.topics.splice(idx, 1);
   localStorage.setItem("classes", JSON.stringify(classes));
   renderTopics();
@@ -185,7 +185,7 @@ confirmAddMember.addEventListener("click", () => {
   const selectedIds = Array.from(checkedBoxes).map((cb) => cb.value);
 
   if (selectedIds.length === 0) {
-    alert("Chưa chọn học viên nào.");
+    alert("No student selected.");
     return;
   }
 
@@ -199,7 +199,6 @@ confirmAddMember.addEventListener("click", () => {
 });
 
 // Tab switching
-
 document.getElementById("discussionsTab").addEventListener("click", () => {
   document.getElementById("discussionsSection").classList.remove("hidden");
   document.getElementById("membersSection").classList.add("hidden");
@@ -346,17 +345,17 @@ document.getElementById("addTopicBtn").onclick = () => {
   const endTimeISO = new Date(endTimeInput).toISOString(); // luôn ISO UTC
 
   if (!title) {
-    alert("Nhập tiêu đề.");
+    alert("Enter a title.");
     return;
   }
   if (!endTimeISO) {
-    alert("Vui lòng chọn thời gian kết thúc cho chủ đề!");
+    alert("Please select an end time for the topic!");
     document.getElementById("topicEndTime").focus();
     return;
   }
-  // Kiểm tra không cho phép ngày quá khứ
+  // Check: do not allow past dates
   if (new Date(endTimeISO) <= new Date()) {
-    alert("Thời gian kết thúc phải lớn hơn thời gian hiện tại!");
+    alert("The end time must be later than the current time!");
     document.getElementById("topicEndTime").focus();
     return;
   }
@@ -381,7 +380,8 @@ document.getElementById("addTopicBtn").onclick = () => {
 
 // Xóa thành viên khỏi lớp
 window.removeMemberById = function (id) {
-  if (!confirm("Bạn có chắc muốn xóa thành viên này khỏi lớp không?")) return;
+  if (!confirm("Are you sure you want to remove this member from the class?"))
+    return;
   console.log("Removing member with ID:", id);
   cls.memberList = cls.memberList.filter((member) => member.id !== id);
   localStorage.setItem("classes", JSON.stringify(classes));
@@ -478,7 +478,7 @@ document.getElementById("createGroupBtn").addEventListener("click", () => {
 });
 
 window.deleteGroup = function (index) {
-  if (!confirm("Bạn có chắc muốn xoá nhóm này không?")) return;
+  if (!confirm("Are you sure you want to delete this group?")) return;
   cls.groups.splice(index, 1);
   localStorage.setItem("classes", JSON.stringify(classes));
   renderGroups();
@@ -508,7 +508,7 @@ function startCountdown(endTimeStr, countdownElemId, createdAtStr, idx) {
       "countdown-expired"
     );
     if (diff <= 0) {
-      el.textContent = "Đã hết thời gian!";
+      el.textContent = "Time is up!";
       el.classList.add("countdown-expired");
       return;
     }
@@ -517,7 +517,7 @@ function startCountdown(endTimeStr, countdownElemId, createdAtStr, idx) {
     const m = Math.floor((diff / (1000 * 60)) % 60);
     const s = Math.floor((diff / 1000) % 60);
 
-    el.textContent = `Còn lại: ${d > 0 ? d + " ngày " : ""}${h}h ${m}m ${s}s`;
+    el.textContent = `Remaining: ${d > 0 ? d + " days " : ""}${h}h ${m}m ${s}s`;
     // Lưu id timer vào mảng countdownTimers theo index
     countdownTimers[idx] = setTimeout(updateCountdown, 1000);
   }
@@ -612,9 +612,9 @@ function renderRankModal(page = 1) {
     <div class="flex justify-between items-center mt-4">
       <div class="text-sm text-gray-500">
         Showing ${startIndex + 1}-${Math.min(
-      endIndex,
-      rankedMembers.length
-    )} of ${rankedMembers.length} members
+    endIndex,
+    rankedMembers.length
+  )} of ${rankedMembers.length} members
       </div>
       <div class="flex gap-2">
         <button class="pagination-btn px-3 py-1.5 rounded-md text-sm ${

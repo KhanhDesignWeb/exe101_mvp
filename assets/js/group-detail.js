@@ -97,7 +97,7 @@ function renderTasks() {
             <input type="checkbox" ${
               task.completed ? "checked" : ""
             } onchange="toggleDone(${idx})" ${checkboxDisabled}/>
-            <span class="text-xs">Hoàn thành</span>
+            <span class="text-xs">Completed</span>
           </label>
         </div>
       </div>
