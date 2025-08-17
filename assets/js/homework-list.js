@@ -164,7 +164,7 @@ function renderHomeworkCard(hw) {
   const submittedCount = (hw.submissions || []).length;
   const totalStudents = (cls.memberList || []).length || 0;
   const subs = hw.submissions || [];
-  
+
   // kiểm tra xem người dùng đã nộp bài chưa
   const hasSubmitted = subs.some((s) => s.student_id === currentUser.id);
   console.log("hasSubmitted", hasSubmitted, subs, currentUser.id);
@@ -409,6 +409,9 @@ const openBtn = document.getElementById("openCreateHomework");
 const closeBtn = document.getElementById("closeCreateHomework");
 const cancelBtn = document.getElementById("cancelCreateHomework");
 const saveBtn = document.getElementById("saveCreateHomework");
+document.getElementById(
+  "backClassLink"
+).href = `class-detail.html?id=${encodeURIComponent(classId)}`;
 
 openBtn.addEventListener("click", (e) => {
   e.preventDefault();

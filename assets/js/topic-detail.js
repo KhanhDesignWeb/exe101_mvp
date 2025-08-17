@@ -12,7 +12,7 @@ const starLabels = {
   2: "Tệ",
   3: "Bình thường",
   4: "Tốt",
-  5: "Rất tốt"
+  5: "Rất tốt",
 };
 
 const cls = classes.find((c) => c.class_id === classId);
@@ -30,13 +30,19 @@ if (!topic) {
 
 // Hiển thị header và prompt
 document.getElementById("topicInfo").innerHTML = `
-  <a href="class-detail.html?id=${encodeURIComponent(classId)}" class="text-blue-600 text-sm">&larr; Back to class</a>
+  <a href="class-detail.html?id=${encodeURIComponent(
+    classId
+  )}" class="text-blue-600 text-sm">&larr; Back to class</a>
   <h1 class="text-3xl font-bold mt-2 mb-2">${topic.title}</h1>
   <div class="flex items-center gap-2 text-sm text-gray-600">
-    <span class="bg-gray-200 px-2 py-0.5 rounded-full text-xs font-semibold">${topic.role || "Teacher"}</span>
+    <span class="bg-gray-200 px-2 py-0.5 rounded-full text-xs font-semibold">${
+      topic.role || "Teacher"
+    }</span>
     <span>${topic.created_by}</span>
     <span>&bull;</span>
-    <span>${topic.created_at ? new Date(topic.created_at).toLocaleString() : ""}</span>
+    <span>${
+      topic.created_at ? new Date(topic.created_at).toLocaleString() : ""
+    }</span>
   </div>
 `;
 
@@ -62,7 +68,9 @@ function renderAnswers() {
     <div onclick="openAnswerDetail(${index})"
          class="bg-white p-4 rounded-xl shadow hover:shadow-xl transition border cursor-pointer transform hover:scale-[1.02]">
       <div class="flex items-center gap-3 mb-3">
-        <img src="${a.picture}" alt="avatar" class="w-9 h-9 rounded-full object-cover"/>
+        <img src="${
+          a.picture
+        }" alt="avatar" class="w-9 h-9 rounded-full object-cover"/>
         <div>
           <div class="font-semibold">${a.created_by}</div>
           <div class="text-xs text-gray-500">${a.created_at}</div>
@@ -73,12 +81,16 @@ function renderAnswers() {
       </div>
       <div class="mt-3 text-sm text-gray-500">
         <div id="likeCount">
-        ${[1, 2, 3, 4, 5].map(
-        (star) =>
-          `<span class="star ${star <= (a.rating || 0) ? 'selected' : ''}" onclick="rateAnswer(${star}, ${index}); event.stopPropagation();" onmouseover="showRatingLabel(${star}, ${index})" onmouseout="hideRatingLabel(${index})">
+        ${[1, 2, 3, 4, 5]
+          .map(
+            (star) =>
+              `<span class="star ${
+                star <= (a.rating || 0) ? "selected" : ""
+              }" onclick="rateAnswer(${star}, ${index}); event.stopPropagation();" onmouseover="showRatingLabel(${star}, ${index})" onmouseout="hideRatingLabel(${index})">
         ★
       </span>`
-      ).join('')}
+          )
+          .join("")}
         <span id="ratingLabel${index}" class="text-gray-500 ml-2 hidden"></span>
     </div>
 
@@ -117,57 +129,55 @@ function rateAnswer(rating, index = null) {
   }
 }
 
-
-
 // Hàm gán hiệu ứng hover cho tất cả sao trên danh sách
 function attachStarHoverHandlersToAll() {
-  document.querySelectorAll('#answersList .star').forEach((star) => {
+  document.querySelectorAll("#answersList .star").forEach((star) => {
     const parent = star.parentElement;
-    const allStars = Array.from(parent.querySelectorAll('.star'));
+    const allStars = Array.from(parent.querySelectorAll(".star"));
     const idx = allStars.indexOf(star);
 
-    let rating = allStars.filter(s => s.classList.contains('selected')).length;
+    let rating = allStars.filter((s) =>
+      s.classList.contains("selected")
+    ).length;
 
     star.onmouseover = function () {
       allStars.forEach((s, i) => {
-        if (i <= idx) s.classList.add('selected');
-        else s.classList.remove('selected');
+        if (i <= idx) s.classList.add("selected");
+        else s.classList.remove("selected");
       });
       // Đừng gọi showRatingLabel nếu không có label ngoài danh sách!
       // Nếu muốn label ở từng card, bạn phải render label riêng cho từng câu trả lời.
     };
     star.onmouseout = function () {
       allStars.forEach((s, i) => {
-        if (i < rating) s.classList.add('selected');
-        else s.classList.remove('selected');
+        if (i < rating) s.classList.add("selected");
+        else s.classList.remove("selected");
       });
       // Không gọi hideRatingLabel ở ngoài danh sách
     };
   });
 }
 
-
-
 // Hàm hiển thị các sao đã chọn
 function renderStars(rating = 0) {
-  const stars = document.querySelectorAll('#answerModal #likeCount .star');
+  const stars = document.querySelectorAll("#answerModal #likeCount .star");
   stars.forEach((star, index) => {
     if (index < rating) {
-      star.classList.add('selected');
+      star.classList.add("selected");
     } else {
-      star.classList.remove('selected');
+      star.classList.remove("selected");
     }
     star.onmouseover = function () {
       stars.forEach((s, i) => {
-        if (i <= index) s.classList.add('selected');
-        else s.classList.remove('selected');
+        if (i <= index) s.classList.add("selected");
+        else s.classList.remove("selected");
       });
       showRatingLabel(index + 1, null);
     };
     star.onmouseout = function () {
       stars.forEach((s, i) => {
-        if (i < rating) s.classList.add('selected');
-        else s.classList.remove('selected');
+        if (i < rating) s.classList.add("selected");
+        else s.classList.remove("selected");
       });
       hideRatingLabel(null);
     };
@@ -212,20 +222,23 @@ function openAnswerDetail(index) {
   document.getElementById("answerModal").classList.remove("hidden");
 
   // Cập nhật thông tin câu trả lời
-  document.getElementById("answerAvatar").src = ans.picture || "https://via.placeholder.com/40";
-  document.getElementById("answerAuthor").innerText = ans.created_by || "Lỗi hiển thị";
+  document.getElementById("answerAvatar").src =
+    ans.picture || "https://via.placeholder.com/40";
+  document.getElementById("answerAuthor").innerText =
+    ans.created_by || "Lỗi hiển thị";
   document.getElementById("answerText").innerText = ans.content;
 
   // Hiển thị đánh giá sao
   renderStars(ans.rating || 0); // Gọi hàm renderStars để hiển thị sao đã chọn
 
   // Cập nhật thông tin số lượng câu trả lời
-  document.getElementById("replyCount").innerText = `${ans.replies?.length || 0} replies`;
+  document.getElementById("replyCount").innerText = `${
+    ans.replies?.length || 0
+  } replies`;
 
   // Hiển thị các phản hồi
   renderReplies();
 }
-
 
 // đóng chi tiết câu trả lời
 function closeAnswerDetail() {
@@ -301,7 +314,12 @@ function sendAnswer() {
 
   // Nếu độ tương đồng lớn hơn 80%, cảnh báo và không gửi
   if (sim > 0.5) {
-    showToast("⚠️ Câu trả lời của bạn quá giống gợi ý AI (" + Math.round(sim * 100) + "%)! Hãy tự diễn đạt lại.", 4000);
+    showToast(
+      "⚠️ Câu trả lời của bạn quá giống gợi ý AI (" +
+        Math.round(sim * 100) +
+        "%)! Hãy tự diễn đạt lại.",
+      4000
+    );
     return; // Chặn không cho gửi
   }
 
@@ -326,7 +344,6 @@ function sendAnswer() {
   ta.style.height = "auto";
   renderAnswers();
 }
-
 
 // Tự động giãn textarea trả lời
 const answerContent = document.getElementById("answerContent");
@@ -430,83 +447,99 @@ textarea.addEventListener("blur", () => {
 });
 
 // Lắng nghe sự kiện khi người dùng nhấn nút "Xóa lịch sử chat"
-document.getElementById("clearChatHistory").addEventListener("click", function () {
-  // Xóa lịch sử chat khỏi localStorage
-  localStorage.removeItem('conversationHistory');
+document
+  .getElementById("clearChatHistory")
+  .addEventListener("click", function () {
+    // Xóa lịch sử chat khỏi localStorage
+    localStorage.removeItem("conversationHistory");
 
-  // Thông báo cho người dùng rằng lịch sử đã được xóa
-  alert("Lịch sử chat đã được xóa.");
-});
+    // Thông báo cho người dùng rằng lịch sử đã được xóa
+    alert("Lịch sử chat đã được xóa.");
+  });
 
 // ======= Ngăn copy/paste toàn trang, chỉ cho dán từ AI =======
-document.addEventListener('paste', e => {
-  if (!e.target.closest('#chatPopup') && e.target.id !== "answerContent") {
+document.addEventListener("paste", (e) => {
+  if (!e.target.closest("#chatPopup") && e.target.id !== "answerContent") {
     e.preventDefault();
   }
 });
 // Đánh dấu copy từ AI bằng custom MIME
-document.getElementById("messages").addEventListener('copy', function (e) {
+document.getElementById("messages").addEventListener("copy", function (e) {
   let selection = window.getSelection();
   let text = selection ? selection.toString() : "";
   if (text) {
     e.preventDefault();
-    e.clipboardData.setData('text/plain', text);
-    e.clipboardData.setData('text/x-criticore-ai', 'yes');
+    e.clipboardData.setData("text/plain", text);
+    e.clipboardData.setData("text/x-criticore-ai", "yes");
   }
 });
 
 // Hàm kiểm tra khi người dùng dán nội dung vào
-document.getElementById("answerContent").addEventListener('paste', function (e) {
-  let clipboard = e.clipboardData || window.clipboardData;
-  if (!clipboard) return;
-  let pasted = clipboard.getData('text/plain');
-  let isAI = clipboard.getData('text/x-criticore-ai') === 'yes';
+document
+  .getElementById("answerContent")
+  .addEventListener("paste", function (e) {
+    let clipboard = e.clipboardData || window.clipboardData;
+    if (!clipboard) return;
+    let pasted = clipboard.getData("text/plain");
+    let isAI = clipboard.getData("text/x-criticore-ai") === "yes";
 
-  // Nếu không phải là nội dung từ AI
-  if (!isAI) {
-    e.preventDefault();
-    showToast("Chỉ được dán nội dung đã copy từ AI chatbot!", 3000); // Thông báo lỗi
-    return;
-  }
+    // Nếu không phải là nội dung từ AI
+    if (!isAI) {
+      e.preventDefault();
+      showToast("Chỉ được dán nội dung đã copy từ AI chatbot!", 3000); // Thông báo lỗi
+      return;
+    }
 
-  // Nếu là nội dung từ AI, kiểm tra độ tương đồng
-  let pastedNorm = normalizeText(pasted);  // Chuẩn hóa văn bản dán
-  let aiNorm = normalizeText(lastAIReply);  // Chuẩn hóa văn bản AI
-  let sim = diceCoefficient(pastedNorm, aiNorm);  // Tính độ tương đồng
+    // Nếu là nội dung từ AI, kiểm tra độ tương đồng
+    let pastedNorm = normalizeText(pasted); // Chuẩn hóa văn bản dán
+    let aiNorm = normalizeText(lastAIReply); // Chuẩn hóa văn bản AI
+    let sim = diceCoefficient(pastedNorm, aiNorm); // Tính độ tương đồng
 
-  // Nếu độ tương đồng lớn hơn 50%, cảnh báo
-  if (sim > 0.5) {
-    setTimeout(() => {
-      showToast("⚠️ Câu trả lời của bạn quá giống gợi ý AI (" + Math.round(sim * 100) + "%)! Hãy tự diễn đạt lại.", 4000);
-      document.getElementById("submitAnswer").disabled = true;
-    }, 100);
-  }
-});
+    // Nếu độ tương đồng lớn hơn 50%, cảnh báo
+    if (sim > 0.5) {
+      setTimeout(() => {
+        showToast(
+          "⚠️ Câu trả lời của bạn quá giống gợi ý AI (" +
+            Math.round(sim * 100) +
+            "%)! Hãy tự diễn đạt lại.",
+          4000
+        );
+        document.getElementById("submitAnswer").disabled = true;
+      }, 100);
+    }
+  });
 
 // Khi người dùng sửa nội dung trong textarea, kiểm tra giống AI
-document.getElementById("answerContent").addEventListener('input', function (e) {
-  let inputContent = e.target.value.trim();
+document
+  .getElementById("answerContent")
+  .addEventListener("input", function (e) {
+    let inputContent = e.target.value.trim();
 
-  // Kiểm tra nếu nội dung giống gợi ý AI
-  let normalizedInput = normalizeText(inputContent); // Chuẩn hóa nội dung
-  let normalizedAI = normalizeText(lastAIReply); // Chuẩn hóa nội dung AI
-  let sim = diceCoefficient(normalizedInput, normalizedAI); // Tính độ tương đồng
+    // Kiểm tra nếu nội dung giống gợi ý AI
+    let normalizedInput = normalizeText(inputContent); // Chuẩn hóa nội dung
+    let normalizedAI = normalizeText(lastAIReply); // Chuẩn hóa nội dung AI
+    let sim = diceCoefficient(normalizedInput, normalizedAI); // Tính độ tương đồng
 
-  // Nếu độ tương đồng lớn hơn 80%, cảnh báo và không cho gửi
-  if (sim > 0.5) {
-    showToast("⚠️ Câu trả lời của bạn quá giống gợi ý AI (" + Math.round(sim * 100) + "%)! Hãy tự diễn đạt lại.", 4000);
-    document.getElementById("submitAnswer").disabled = true; // Không cho gửi câu trả lời
-  } else {
-    document.getElementById("submitAnswer").disabled = false; // Cho phép gửi câu trả lời nếu độ tương đồng nhỏ hơn 80%
-  }
-});
+    // Nếu độ tương đồng lớn hơn 80%, cảnh báo và không cho gửi
+    if (sim > 0.5) {
+      showToast(
+        "⚠️ Câu trả lời của bạn quá giống gợi ý AI (" +
+          Math.round(sim * 100) +
+          "%)! Hãy tự diễn đạt lại.",
+        4000
+      );
+      document.getElementById("submitAnswer").disabled = true; // Không cho gửi câu trả lời
+    } else {
+      document.getElementById("submitAnswer").disabled = false; // Cho phép gửi câu trả lời nếu độ tương đồng nhỏ hơn 80%
+    }
+  });
 
 // Hàm chuẩn hóa văn bản (xóa dấu câu, khoảng trắng thừa, chuyển về chữ thường)
 function normalizeText(str) {
   return str
     .toLowerCase()
-    .replace(/[\.\,\!\?\:\;\-\_\"\“\”\'\(\)\[\]\{\}]/g, '') // Loại bỏ dấu câu
-    .replace(/\s+/g, ' ') // Thu gọn khoảng trắng
+    .replace(/[\.\,\!\?\:\;\-\_\"\“\”\'\(\)\[\]\{\}]/g, "") // Loại bỏ dấu câu
+    .replace(/\s+/g, " ") // Thu gọn khoảng trắng
     .trim();
 }
 
@@ -514,14 +547,15 @@ function normalizeText(str) {
 function diceCoefficient(a, b) {
   // Tách thành các bigrams (cặp ký tự liên tiếp)
   function bigrams(str) {
-    let s = ' ' + str + ' ';
+    let s = " " + str + " ";
     let arr = [];
     for (let i = 0; i < s.length - 1; i++) {
       arr.push(s.slice(i, i + 2));
     }
     return arr;
   }
-  let bgA = bigrams(a), bgB = bigrams(b);
+  let bgA = bigrams(a),
+    bgB = bigrams(b);
   let matches = 0;
   let bgs = bgB.slice();
   for (let i = 0; i < bgA.length; i++) {
@@ -557,10 +591,22 @@ function showToast(message, time = 3500, type = "warning") {
   }, time);
 }
 
-document.getElementById("discussionLink").href =
-  `topic-detail.html?class_id=${encodeURIComponent(classId)}&topic_id=${encodeURIComponent(topicId)}`;
-document.getElementById("thisHomeworkLink").href =
-  `homework-list.html?class_id=${encodeURIComponent(classId)}&topic_id=${encodeURIComponent(topicId)}`;
-document.getElementById("infoStudents").innerText = (cls.memberList || []).length;
-document.getElementById("infoAssignments").innerText = (topic.homeworks || []).length;
-document.getElementById("infoDiscussions").innerText = (cls.topics || []).length;
+document.getElementById(
+  "discussionLink"
+).href = `topic-detail.html?class_id=${encodeURIComponent(
+  classId
+)}&topic_id=${encodeURIComponent(topicId)}`;
+document.getElementById(
+  "thisHomeworkLink"
+).href = `homework-list.html?class_id=${encodeURIComponent(
+  classId
+)}&topic_id=${encodeURIComponent(topicId)}`;
+document.getElementById("infoStudents").innerText = (
+  cls.memberList || []
+).length;
+document.getElementById("infoAssignments").innerText = (
+  topic.homeworks || []
+).length;
+document.getElementById("infoDiscussions").innerText = (
+  cls.topics || []
+).length;
